@@ -1,0 +1,50 @@
+//currently building an internal management software for a kinesitherapy center, the requirements needed are to keep track of appointments, patients, also services they needed on each session, keeping track of payments, also keeping track of expenses and revenue on each week. also providing some monthly reports etc...
+//i'using react, nextjs,prisma,postgresql, first let's talk about non technical requirements. the problem and the flow needed if you need any information feel free to ask
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// this model is for management personnels and therapists
+model User {
+    id          String   @id @default(cuid())
+    name        String
+    email       String   @unique
+    image       String   @db.Text
+    password    String
+    phoneNumber String   @unique @map("phone_number")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    @@map("utilisateurs")
+}
+
+// this model is for patients
+model Patient {
+    id          String   @id @default(cuid())
+    firstName   String   @map("first_name")
+    lastName    String   @map("last_name")
+    email       String?  @unique
+    image       String   @db.Text
+    phoneNumber String   @unique @map("phone_number")
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @updatedAt @map("updated_at")
+
+    @@map("patients")
+}
+
+model Prestation {
+    id        String   @id @default(cuid())
+    name      String
+    price     Float
+    duration  Int
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("prestations")
+}
