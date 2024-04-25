@@ -1,8 +1,8 @@
 import React from "react";
 import Wrapper from "../_components/wrapper";
 import Settings from "./_components/settings";
-type Props = {};
 
+type Props = {};
 const SettingsPage = (props: Props) => {
   return (
     <Wrapper>

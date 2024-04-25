@@ -3,6 +3,7 @@ import React from "react";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import GeneralInformationForm from "./general-info-form";
+import PasswordForm from "./password-form";
 
 type Props = {};
 
@@ -25,12 +26,17 @@ const Settings = (props: Props) => {
         </Card>
       </Tab>
       <Tab key="password" title="Password">
-        <Card>
-          <CardBody>
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-            nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur.
+        <Card shadow="sm" className="w-full max-w-2xl">
+          <CardHeader className="flex flex-col items-start space-y-1 p-5 pb-2">
+            <h3 className="text-large font-semibold leading-none tracking-tight">
+              Password
+            </h3>
+            <p className="text-small text-default-500">
+              Update your account password.
+            </p>
+          </CardHeader>
+          <CardBody className="px-6 py-5">
+            <PasswordForm />
           </CardBody>
         </Card>
       </Tab>
