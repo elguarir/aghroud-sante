@@ -17,7 +17,7 @@ model User {
     email       String   @unique
     image       String   @db.Text
     password    String
-    phoneNumber String   @unique @map("phone_number")
+    phoneNumber String?   @unique @map("phone_number")
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -31,20 +31,20 @@ model Patient {
     lastName    String   @map("last_name")
     email       String?  @unique
     image       String   @db.Text
-    phoneNumber String   @unique @map("phone_number")
+    phoneNumber String   @map("phone_number")
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
 
     @@map("patients")
 }
 
-model Prestation {
-    id        String   @id @default(cuid())
-    name      String
-    price     Float
-    duration  Int
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
+// model Prestation {
+//     id        String   @id @default(cuid())
+//     name      String
+//     price     Float
+//     duration  Int
+//     createdAt DateTime @default(now()) @map("created_at")
+//     updatedAt DateTime @updatedAt @map("updated_at")
 
-    @@map("prestations")
-}
+//     @@map("prestations")
+// }
