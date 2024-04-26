@@ -6,6 +6,7 @@ import { GeistMono } from "geist/font/mono";
 import clsx from "clsx";
 import { TRPCReactProvider } from "@/trpc/react";
 import { NextUIThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: {
@@ -41,6 +42,7 @@ export default function RootLayout({
           <TRPCReactProvider>
             <main className="relative flex min-h-screen flex-col">
               {children}
+              <Toaster />
             </main>
           </TRPCReactProvider>
         </NextUIThemeProvider>

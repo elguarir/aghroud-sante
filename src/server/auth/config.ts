@@ -1,6 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
+  trustHost: true,
   pages: {
     signIn: "/",
   },
@@ -15,6 +16,12 @@ export const authConfig = {
         return Response.redirect(new URL("/dashboard", nextUrl));
       }
       return true;
+    },
+    session: async ({ session, user, token }) => {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      return session;
     },
   },
   session: {

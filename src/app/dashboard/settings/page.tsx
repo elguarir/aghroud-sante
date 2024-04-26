@@ -3,7 +3,8 @@ import Wrapper from "../_components/wrapper";
 import Settings from "./_components/settings";
 
 type Props = {};
-const SettingsPage = (props: Props) => {
+const SettingsPage = async (props: Props) => {
+  
   return (
     <Wrapper>
       <div className="flex h-full flex-col gap-4">

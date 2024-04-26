@@ -14,6 +14,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.3.4",
     "@nextui-org/accordion": "^2.0.31",
     "@nextui-org/autocomplete": "^2.0.15",
     "@nextui-org/avatar": "^2.0.27",
@@ -84,7 +85,9 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
+    "react-hook-form": "^7.51.3",
     "server-only": "^0.0.1",
+    "sonner": "^1.4.41",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.3.0",
     "tailwind-variants": "^0.2.1",

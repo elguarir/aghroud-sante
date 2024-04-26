@@ -20,6 +20,7 @@ import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { User } from "@nextui-org/user";
 import type { User as TUser } from "next-auth";
 import { logout } from "@/server/auth/actions";
+import LogoutButton from "./logout-button";
 
 type Props = {
   type: "normal" | "sheet";
@@ -116,14 +117,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
                   </CardHeader>
                   <CardBody className="p-4 pb-0 pt-1">
                     <form action={logout}>
-                      <Button
-                        type="submit"
-                        variant="flat"
-                        fullWidth
-                        className="mb-4"
-                      >
-                        Logout
-                      </Button>
+                      <LogoutButton />
                     </form>
                   </CardBody>
                 </Card>
@@ -164,9 +158,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
             </CardHeader>
             <CardBody className="p-4 pb-0 pt-1">
               <form action={logout}>
-                <Button type="submit" variant="flat" fullWidth className="mb-4">
-                  Logout
-                </Button>
+                <LogoutButton />
               </form>
             </CardBody>
           </Card>

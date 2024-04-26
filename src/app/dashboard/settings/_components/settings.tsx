@@ -1,5 +1,4 @@
-"use client";
-import React from "react";
+'use client'
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import GeneralInformationForm from "./general-info-form";

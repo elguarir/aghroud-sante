@@ -37,7 +37,8 @@ export const LoginForm = () => {
             id="email"
             isRequired
             classNames={{
-              inputWrapper: "group-data-[focus=true]:border-primary !transition-all !duration-200"
+              inputWrapper:
+                "group-data-[focus=true]:border-primary !transition-all !duration-200",
             }}
             autoComplete="off"
             validate={(value) => {
@@ -58,7 +59,8 @@ export const LoginForm = () => {
             id="password"
             isRequired
             classNames={{
-              inputWrapper: "group-data-[focus=true]:border-primary !transition-all !duration-200"
+              inputWrapper:
+                "group-data-[focus=true]:border-primary !transition-all !duration-200",
             }}
             autoComplete="off"
             placeholder="Enter your password"
