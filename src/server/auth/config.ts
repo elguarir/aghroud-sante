@@ -1,4 +1,4 @@
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthConfig, User } from "next-auth";
 
 export const authConfig = {
   trustHost: true,
@@ -20,8 +20,35 @@ export const authConfig = {
     session: async ({ session, user, token }) => {
       if (token.sub && session.user) {
         session.user.id = token.sub;
+        session.user.email = token.email!;
+        session.user.image = token.picture;
+        session.user.name = token.name;
       }
+
       return session;
+    },
+    jwt: async ({ token, user, trigger, session }) => {
+     
+      if (trigger === "update" && session?.user) {
+        return {
+          picture: session.user.image,
+          name: session.user.name,
+          email: token.email,
+          exp: token.exp,
+          iat: token.iat,
+          sub: token.sub,
+          jti: token.jti,
+        };
+      }
+
+      if (user) {
+        return {
+          ...token,
+          ...user,
+        };
+      }
+
+      return token;
     },
   },
   session: {

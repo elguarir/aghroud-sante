@@ -10,7 +10,7 @@ export default async function Dashboard({ children }: PropsWithChildren) {
     return redirect("/");
   }
   return (
-    <div className="fixed grid h-screen w-full md:grid-cols-[250px_1fr] lg:grid-cols-[280px_1fr]">
+    <div className="fixed grid h-screen dark:bg-secondary-400 w-full md:grid-cols-[250px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r border-secondary-400/20 bg-secondary-100/10 dark:border-secondary-700/20 dark:bg-secondary-foreground md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex min-h-[60px] items-center px-4 dark:border-secondary-700/20 md:px-6">

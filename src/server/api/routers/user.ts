@@ -42,7 +42,6 @@ export const userRouter = createTRPCRouter({
       const user = await ctx.db.user.findUnique({
         where: { id: ctx.session.user.id },
       });
-
       if (!user) {
         throw new TRPCError({
           code: "NOT_FOUND",

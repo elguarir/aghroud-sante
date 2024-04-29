@@ -15,7 +15,7 @@ import { api, vanilla } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@nextui-org/spinner";
 import { toast } from "sonner";
-
+import { updateSession } from "@/server/auth/actions";
 type Props = {};
 type FormValues = z.infer<typeof generalInfoSchema>;
 
@@ -45,9 +45,19 @@ const GeneralInformationForm = (props: Props) => {
   const updateProfile = api.user.update.useMutation();
   const avatarUrl = watch("avatarUrl");
 
-  const onSubmit = (values: FormValues) => {
-    updateProfile.mutate(values, {
-      onSuccess: () => {
+  const onSubmit = async (values: FormValues) => {
+    await updateProfile.mutateAsync(values, {
+      onSuccess: async () => {
+        try {
+          await updateSession({
+            user: {
+              name: values.name,
+              image: values.avatarUrl,
+            },
+          });
+        } catch (error) {
+          console.error("Failed to update profile", error);
+        }
         toast.success("Profile updated successfully");
         router.refresh();
       },
