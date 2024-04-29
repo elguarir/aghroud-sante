@@ -30,7 +30,6 @@ model Patient {
     firstName         String    @map("first_name")
     lastName          String    @map("last_name")
     email             String?
-    image             String?   @db.Text
     dateOfBirth       DateTime? @map("date_of_birth")
     phoneNumber       String?   @map("phone_number")
     address           String?   @db.Text

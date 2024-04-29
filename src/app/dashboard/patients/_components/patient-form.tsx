@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { Spinner } from "@nextui-org/spinner";
 type Props = {
   mode?: "create" | "edit";
-  patientId?: string;
+  patientId?: number;
   onSuccess?: () => void;
 };
 
@@ -82,7 +82,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
   console.log("errors", errors);
   if (isLoading) {
     return (
-      <div className="h-52 flex w-full flex-col items-center justify-center pb-3 pt-8">
+      <div className="flex h-52 w-full flex-col items-center justify-center pb-3 pt-8">
         <Spinner size="md" color="current" />
       </div>
     );
@@ -189,6 +189,20 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
 
       <Fieldset type="accordion" legend="Informations supplémentaires">
         <div className="grid gap-y-6">
+          <div className="w-full">
+            <Input
+              isDisabled={registerPatient.isPending || isLoading}
+              classNames={{
+                inputWrapper:
+                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
+              }}
+              variant="bordered"
+              labelPlacement="outside"
+              label={"Email"}
+              {...register("email")}
+              placeholder=" "
+            />
+          </div>
           <div className="w-full">
             <Input
               isDisabled={registerPatient.isPending || isLoading}

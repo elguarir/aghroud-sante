@@ -33,14 +33,14 @@ export const patientRouter = createTRPCRouter({
     }),
 
   get: protectedProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.patient.findUnique({
         where: { id: input.id },
       });
     }),
   update: protectedProcedure
-    .input(z.object({ id: z.string().optional(), data: PatientSchema }))
+    .input(z.object({ id: z.number().optional(), data: PatientSchema }))
     .mutation(async ({ ctx, input }) => {
       let patient = await ctx.db.patient.update({
         where: { id: input.id },

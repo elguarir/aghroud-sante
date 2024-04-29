@@ -117,7 +117,20 @@ export default function App() {
         case "patient":
           return (
             <User
-              avatarProps={{ radius: "lg", src: patient.image ?? undefined }}
+              classNames={{
+                base: "space-x-2",
+              }}
+              avatarProps={{
+                radius: "lg",
+                isBordered: true,
+                src: `https://api.dicebear.com/8.x/initials/svg?fontSize=40&seed=${encodeURIComponent(patient.firstName + " " + patient.lastName)}`,
+                getInitials(name) {
+                  return name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("");
+                },
+              }}
               description={patient?.email}
               name={patient.firstName + " " + patient.lastName}
             >
@@ -128,7 +141,9 @@ export default function App() {
           return (
             <div className="flex w-fit flex-col">
               <p className="text-bold text-nowrap text-small capitalize">
-                {patient?.dateOfBirth ? patient.dateOfBirth.toLocaleDateString() : "Non défini"}
+                {patient?.dateOfBirth
+                  ? patient.dateOfBirth.toLocaleDateString()
+                  : "Non défini"}
               </p>
             </div>
           );
