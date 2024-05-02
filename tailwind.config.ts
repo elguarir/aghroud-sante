@@ -13,6 +13,7 @@ module.exports = {
         mono: ["var(--font-geist-mono)"],
       },
     },
+    
   },
   darkMode: "class",
   plugins: [

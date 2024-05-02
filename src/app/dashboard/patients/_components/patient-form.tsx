@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { api, vanilla } from "@/trpc/react";
 import { toast } from "sonner";
 import { Spinner } from "@nextui-org/spinner";
+import { useRouter } from "next/navigation";
 type Props = {
   mode?: "create" | "edit";
   patientId?: number;
@@ -41,7 +42,8 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         phoneNumber: patient?.phoneNumber ?? undefined,
         email: patient?.email ?? undefined,
         address: patient?.address ?? undefined,
-        dateOfBirth: patient?.dateOfBirth?.toLocaleString() ?? undefined,
+        dateOfBirth:
+          patient?.dateOfBirth?.toISOString().split("T")[0] ?? undefined,
         insuranceProvider: patient?.insuranceProvider ?? undefined,
         notes: patient?.notes ?? undefined,
       };
@@ -79,7 +81,6 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
     }
   }
   const dateOfBirth = watch("dateOfBirth");
-  console.log("errors", errors);
   if (isLoading) {
     return (
       <div className="flex h-52 w-full flex-col items-center justify-center pb-3 pt-8">
@@ -87,6 +88,12 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
       </div>
     );
   }
+
+  const router = useRouter();
+
+  const isDisabled =
+    registerPatient.isPending || isLoading || updatePatient.isPending;
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -97,7 +104,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
           <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-2">
             <div className="w-full">
               <Input
-                isDisabled={registerPatient.isPending || isLoading}
+                isDisabled={isDisabled}
                 classNames={{
                   inputWrapper:
                     "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -119,7 +126,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
             </div>
             <div className="w-full">
               <Input
-                isDisabled={registerPatient.isPending || isLoading}
+                isDisabled={isDisabled}
                 classNames={{
                   inputWrapper:
                     "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -147,7 +154,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
               }}
               label="La date de naissance"
               variant="bordered"
-              isDisabled={registerPatient.isPending || isLoading}
+              isDisabled={isDisabled}
               value={dateOfBirth ? parseDate(dateOfBirth) : null}
               onChange={(date) => {
                 setValue("dateOfBirth", date?.toLocaleString());
@@ -172,7 +179,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
           </div>
           <div className="w-full">
             <Input
-              isDisabled={registerPatient.isPending || isLoading}
+              isDisabled={isDisabled}
               classNames={{
                 inputWrapper:
                   "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -182,6 +189,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
               label={"Téléphone"}
               placeholder="+212  -- -- -- --"
               startContent={<PhoneIcon className="h-4 w-4 text-default-500" />}
+              {...register("phoneNumber")}
             />
           </div>
         </div>
@@ -191,7 +199,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         <div className="grid gap-y-6">
           <div className="w-full">
             <Input
-              isDisabled={registerPatient.isPending || isLoading}
+              isDisabled={isDisabled}
               classNames={{
                 inputWrapper:
                   "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -199,20 +207,19 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
               variant="bordered"
               labelPlacement="outside"
               label={"Email"}
-              {...register("email")}
               placeholder=" "
+              {...register("email")}
             />
           </div>
           <div className="w-full">
             <Input
-              isDisabled={registerPatient.isPending || isLoading}
+              isDisabled={isDisabled}
               classNames={{
                 inputWrapper:
                   "group-data-[focus=true]:border-primary !transition-all !duration-200",
               }}
               variant="bordered"
               labelPlacement="outside"
-              // insurence provider
               label={"Assurance"}
               {...register("insuranceProvider")}
               placeholder=" "
@@ -220,7 +227,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
           </div>
           <div className="w-full">
             <Input
-              isDisabled={registerPatient.isPending || isLoading}
+              isDisabled={isDisabled}
               classNames={{
                 inputWrapper:
                   "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -241,22 +248,27 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
               }}
               variant="bordered"
               labelPlacement="outside"
-              {...register("notes")}
               label={"Notes"}
               placeholder=" "
               description="Ajoutez des notes supplémentaires sur le patient, par exemple des informations médicales ou des préférences spécifiques."
+              {...register("notes")}
             />
           </div>
         </div>
       </Fieldset>
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
+        {mode === "edit" && (
+          <Button variant="light" onClick={() => router.back()}>
+            Annuler
+          </Button>
+        )}
         <Button
           endContent={<SaveIcon className="h-5 w-5" />}
           color="primary"
           type="submit"
-          isLoading={registerPatient.isPending}
+          isLoading={isDisabled}
         >
-          {registerPatient.isPending
+          {isDisabled
             ? mode === "create"
               ? "Ajout en cours..."
               : "Enregistrement des modifications..."

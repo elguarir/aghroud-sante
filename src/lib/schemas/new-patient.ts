@@ -9,7 +9,7 @@ export const PatientSchema = z.object({
     .min(2, "Le nom doit contenir au moins 2 caractères."),
   dateOfBirth: z.string().optional(),
   phoneNumber: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   address: z.string().optional(),
   insuranceProvider: z.string().optional(),
   notes: z.string().optional(),

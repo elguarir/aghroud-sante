@@ -7,11 +7,15 @@ const Wrapper = ({ className, children, ...rest }: ScrollAreaProps) => {
     <ScrollArea
       className={cn(
         "flex h-[calc(100dvh-56px)] w-full flex-col overflow-y-auto ",
-        className,
       )}
       {...rest}
     >
-      <div className="mx-auto w-full px-4 py-6 md:container md:px-12 md:py-8">
+      <div
+        className={cn(
+          "mx-auto min-h-[calc(100dvh-56px)] h-full w-full px-4 py-6 md:px-12 md:py-8",
+          className,
+        )}
+      >
         {children}
       </div>
     </ScrollArea>

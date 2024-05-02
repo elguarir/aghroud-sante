@@ -31,7 +31,45 @@ export const patientRouter = createTRPCRouter({
 
       return patient;
     }),
+  getAll: protectedProcedure.query(async ({ ctx }) => {
+    let patients = await ctx.db.patient.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        dateOfBirth: true,
+        email: true,
+        address: true,
+        insuranceProvider: true,
+        notes: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            appointments: true,
+          },
+        },
+      },
+    });
 
+    return patients.map((patient) => {
+      return {
+        id: patient.id,
+        firstName: patient.firstName,
+        lastName: patient.lastName,
+        phoneNumber: patient.phoneNumber,
+        dateOfBirth: patient.dateOfBirth,
+        email: patient.email,
+        address: patient.address,
+        insuranceProvider: patient.insuranceProvider,
+        notes: patient.notes,
+        createdAt: patient.createdAt,
+        updatedAt: patient.updatedAt,
+        appointmentsCount: patient._count.appointments,
+      };
+    });
+  }),
   get: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -62,6 +100,23 @@ export const patientRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Échec de la mise à jour du patient",
+        });
+      }
+
+      return patient;
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      let patient = await ctx.db.patient.delete({
+        where: { id: input.id },
+      });
+
+      if (!patient) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Échec de la suppression du patient",
         });
       }
 

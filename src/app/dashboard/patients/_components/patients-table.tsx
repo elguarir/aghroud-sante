@@ -15,14 +15,11 @@ import { PlusIcon } from "lucide-react";
 import { MoreVertical } from "lucide-react";
 import { ChevronDownIcon } from "lucide-react";
 import { SearchIcon } from "lucide-react";
-import { PatientData, columns, patients } from "./patient-data";
-import { ScrollArea, ScrollBar } from "@/components/ui/scrollarea";
+import { PatientData, columns } from "./patient-data";
 import { User } from "@nextui-org/user";
-import { Chip, ChipProps } from "@nextui-org/chip";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Pagination } from "@nextui-org/pagination";
-import { Tooltip } from "@nextui-org/tooltip";
 
 import {
   Dropdown,
@@ -31,20 +28,29 @@ import {
   DropdownItem,
 } from "@nextui-org/dropdown";
 import Link from "next/link";
-import { EyeFilledIcon } from "@/components/icons";
+import {
+  CalendarPlusIcon,
+  EditIcon,
+  EyeFilledIcon,
+  TrashIcon,
+} from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
+import { RegisterPatientModal } from "./register-new-patient";
+
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
   "dateOfBirth",
   "phoneNumber",
-  "address",
-  "insuranceProvider",
   "notes",
+  "appointmentsCount",
   "createdAt",
   "actions",
 ];
 
-export default function App() {
+interface PatientTableProps {
+  patients: PatientData[];
+}
+export default function PatientTable({ patients }: PatientTableProps) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([]),
@@ -58,11 +64,8 @@ export default function App() {
     column: "createdAt",
     direction: "descending",
   });
-
   const [page, setPage] = React.useState(1);
-
   const hasSearchFilter = Boolean(filterValue);
-
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
@@ -70,15 +73,26 @@ export default function App() {
       Array.from(visibleColumns).includes(column.uid),
     );
   }, [visibleColumns]);
-
   const filteredItems = React.useMemo(() => {
     let filteredPatients = [...patients];
 
     if (hasSearchFilter) {
-      filteredPatients = filteredPatients.filter((patient) =>
-        patient.firstName.toLowerCase().includes(filterValue.toLowerCase()),
+      filteredPatients = filteredPatients.filter(
+        (patient) =>
+          patient.firstName.toLowerCase().includes(filterValue.toLowerCase()) ||
+          patient.lastName.toLowerCase().includes(filterValue.toLowerCase()) ||
+          patient?.email?.toLowerCase().includes(filterValue.toLowerCase()) ||
+          patient?.phoneNumber
+            ?.toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          patient?.address?.toLowerCase().includes(filterValue.toLowerCase()) ||
+          patient?.insuranceProvider
+            ?.toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          patient?.notes?.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
+
     // if (
     //   statusFilter !== "all" &&
     //   Array.from(statusFilter).length !== statusOptions.length
@@ -99,7 +113,6 @@ export default function App() {
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
-
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a: PatientData, b: PatientData) => {
       const first = a[sortDescriptor.column as keyof PatientData] as number;
@@ -132,7 +145,11 @@ export default function App() {
                 },
               }}
               description={patient?.email}
-              name={patient.firstName + " " + patient.lastName}
+              name={
+                <p className="text-nowrap">
+                  {patient.firstName + " " + patient.lastName}
+                </p>
+              }
             >
               {patient.email}
             </User>
@@ -150,19 +167,27 @@ export default function App() {
         case "phoneNumber":
           return (
             <div className="flex flex-col">
-              <Link
-                href={`tel:${patient.phoneNumber}`}
-                className="text-bold text-small capitalize"
-              >
-                {patient.phoneNumber}
-              </Link>
+              {patient.phoneNumber ? (
+                <>
+                  <Link
+                    href={`tel:${patient.phoneNumber}`}
+                    className="text-bold text-small capitalize"
+                  >
+                    {patient.phoneNumber}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-bold text-small capitalize">Non défini</p>
+                </>
+              )}
             </div>
           );
         case "address":
           return (
             <div className="flex flex-col whitespace-nowrap max-sm:min-w-40">
               <p className="text-bold truncate text-small capitalize">
-                {patient.address}
+                {patient.address || "Non défini"}
               </p>
             </div>
           );
@@ -170,7 +195,7 @@ export default function App() {
           return (
             <div className="flex w-fit flex-col">
               <p className="text-bold text-small capitalize">
-                {patient.insuranceProvider}
+                {patient.insuranceProvider || "Non défini"}
               </p>
             </div>
           );
@@ -207,35 +232,36 @@ export default function App() {
               </p>
             </div>
           );
-        // case "status":
-        //   return (
-        //     <Chip
-        //       className="capitalize"
-        //       color={statusColorMap[user.status]}
-        //       size="sm"
-        //       radius="sm"
-        //       variant="flat"
-        //     >
-        //       {cellValue}
-        //     </Chip>
-        //   );
         case "actions":
           return (
             <div className="relative flex items-center justify-end gap-2">
-              <Tooltip content="Actions">
-                <Dropdown>
-                  <DropdownTrigger>
-                    <Button isIconOnly size="sm" variant="light">
-                      <MoreVertical className="text-default-300" />
-                    </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu>
-                    <DropdownItem>View</DropdownItem>
-                    <DropdownItem>Edit</DropdownItem>
-                    <DropdownItem>Delete</DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
-              </Tooltip>
+              <Dropdown>
+                <DropdownTrigger>
+                  <Button isIconOnly size="sm" variant="light">
+                    <MoreVertical className="text-default-300" />
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu>
+                  <DropdownItem
+                    startContent={<CalendarPlusIcon className="h-4 w-4" />}
+                  >
+                    Create Appointment
+                  </DropdownItem>
+                  <DropdownItem
+                    startContent={<EditIcon className="h-4 w-4" />}
+                    href={`/dashboard/patients/${patient.id}`}
+                  >
+                    Edit
+                  </DropdownItem>
+                  <DropdownItem
+                    href={`/dashboard/patients/${patient.id}?action=delete`}
+                    color="danger"
+                    startContent={<TrashIcon className="h-4 w-4" />}
+                  >
+                    Delete
+                  </DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
           );
         default:
@@ -264,7 +290,6 @@ export default function App() {
     },
     [],
   );
-
   const onSearchChange = React.useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
@@ -273,7 +298,6 @@ export default function App() {
       setFilterValue("");
     }
   }, []);
-
   const onClear = React.useCallback(() => {
     setFilterValue("");
     setPage(1);
@@ -416,8 +440,104 @@ export default function App() {
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+  const topContent = React.useMemo(() => {
+    return (
+      <>
+        <div className="flex w-full flex-col gap-4">
+          <div className="flex items-end justify-between gap-3">
+            <Input
+              isClearable
+              variant="bordered"
+              className="w-full sm:max-w-[44%] lg:max-w-[25%]"
+              placeholder="Search by name..."
+              startContent={<SearchIcon />}
+              value={filterValue}
+              onClear={() => onClear()}
+              onValueChange={onSearchChange}
+            />
+            <div className="flex gap-3">
+              {/* <Dropdown>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button
+                    endContent={<ChevronDownIcon className="text-small" />}
+                    variant="flat"
+                  >
+                    Status
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Table Columns"
+                  closeOnSelect={false}
+                  selectedKeys={statusFilter}
+                  selectionMode="multiple"
+                  onSelectionChange={setStatusFilter}
+                >
+                  {statusOptions.map((status) => (
+                    <DropdownItem key={status.uid} className="capitalize">
+                      {capitalize(status.name)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown> */}
+              <Dropdown>
+                <DropdownTrigger className="hidden sm:flex">
+                  <Button
+                    endContent={<ChevronDownIcon className="text-small" />}
+                    variant="flat"
+                  >
+                    Colonnes
+                  </Button>
+                </DropdownTrigger>
+                <DropdownMenu
+                  disallowEmptySelection
+                  aria-label="Table Columns"
+                  closeOnSelect={false}
+                  selectedKeys={visibleColumns}
+                  selectionMode="multiple"
+                  onSelectionChange={setVisibleColumns}
+                >
+                  {columns.map((column) => (
+                    <DropdownItem key={column.uid} className="capitalize">
+                      {capitalize(column.name)}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+              <RegisterPatientModal />
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-small text-default-400">
+              Total: {patients.length} patients
+            </span>
+            <label className="flex items-center text-small text-default-400">
+              Lignes par page :
+              <select
+                className="bg-transparent text-small text-default-400 outline-none"
+                onChange={onRowsPerPageChange}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </>
+    );
+  }, [
+    filterValue,
+    statusFilter,
+    visibleColumns,
+    onSearchChange,
+    onRowsPerPageChange,
+    patients.length,
+    hasSearchFilter,
+  ]);
+
   return (
-    <div className="w-full max-2xl:w-[calc(100dvw-500px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)]">
+    <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
       <Table
         aria-label="Patients Table"
         isHeaderSticky
@@ -430,7 +550,7 @@ export default function App() {
         selectedKeys={selectedKeys}
         selectionMode="multiple"
         sortDescriptor={sortDescriptor}
-        // topContent={topContent}
+        topContent={topContent}
         topContentPlacement="outside"
         onSelectionChange={setSelectedKeys}
         onSortChange={setSortDescriptor}

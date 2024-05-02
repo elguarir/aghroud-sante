@@ -12,7 +12,7 @@ const columns = [
   { name: "Assurance", uid: "insuranceProvider" },
   { name: "Notes", uid: "notes" },
   { name: "Inscrit le", uid: "createdAt", sortable: true },
-  { name: "Nombre d'appointements", uid: "appointmentsCount" },
+  { name: "Nombre d'appointements", uid: "appointmentsCount", sortable: true },
   { name: "Actions", uid: "actions" },
 ];
 
