@@ -28,6 +28,8 @@ const DeletePatientAction = (props: Props) => {
                 toast.success("Patient deleted successfully", {
                   duration: 1500,
                 });
+                router.back();
+
               },
               onError: (error) => {
                 toast.error(error.message, {

@@ -105,7 +105,6 @@ export const patientRouter = createTRPCRouter({
 
       return patient;
     }),
-
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {

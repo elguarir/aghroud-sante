@@ -10,11 +10,11 @@ import {
 import { useState } from "react";
 
 import { Button } from "@nextui-org/button";
-import PatientForm from "./patient-form";
+import ServiceForm from "./service-form";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export function RegisterPatientModal() {
+export function CreateServiceModal() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   return (
@@ -25,18 +25,18 @@ export function RegisterPatientModal() {
           endContent={<PlusIcon className="h-5 w-5" />}
           color="primary"
         >
-          Patient
+          Ajouter une Service
         </Button>
       </DialogTrigger>
       <DialogContent className="pb-0 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Enregistrer un patient</DialogTitle>
+          <DialogTitle>Enregistrer un Service</DialogTitle>
           <DialogDescription>
-            Ajouter un nouveau patient au système en remplissant le formulaire
+            Ajouter un nouveau service au système en remplissant le formulaire
             ci-dessous.
           </DialogDescription>
         </DialogHeader>
-        <PatientForm
+        <ServiceForm
           mode="create"
           onSuccess={() => {
             setOpen(false);

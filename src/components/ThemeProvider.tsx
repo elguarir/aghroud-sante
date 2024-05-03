@@ -14,7 +14,7 @@ export function NextUIThemeProvider({ children, themeProps }: NextUIThemeProvide
   const router = useRouter();
 
   return (
-    <NextUIProvider navigate={router.push}>
+    <NextUIProvider locale="fr-FR" navigate={router.push}>
       <NextThemesProvider {...themeProps}>{children}</NextThemesProvider>
     </NextUIProvider>
   );

@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { redirect } from "next/navigation";
 import PatientForm from "../_components/patient-form";
-import { getPatientById } from "@/server/api/routers/patient.helpers";
+import { getPatientById } from "@/server/api/routers/helpers/patient";
 import Wrapper from "../../_components/wrapper";
 import DeletePatientAction from "../_components/delete-patient-action";
 

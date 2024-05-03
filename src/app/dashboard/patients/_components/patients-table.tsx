@@ -11,7 +11,6 @@ import {
   SortDescriptor,
   Selection,
 } from "@nextui-org/table";
-import { PlusIcon } from "lucide-react";
 import { MoreVertical } from "lucide-react";
 import { ChevronDownIcon } from "lucide-react";
 import { SearchIcon } from "lucide-react";
@@ -20,7 +19,6 @@ import { User } from "@nextui-org/user";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Pagination } from "@nextui-org/pagination";
-
 import {
   Dropdown,
   DropdownTrigger,
@@ -159,7 +157,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             <div className="flex w-fit flex-col">
               <p className="text-bold text-nowrap text-small capitalize">
                 {patient?.dateOfBirth
-                  ? patient.dateOfBirth.toLocaleDateString()
+                  ? patient.dateOfBirth.toLocaleDateString("fr-FR")
                   : "Non défini"}
               </p>
             </div>
@@ -228,7 +226,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
           return (
             <div className="flex flex-col">
               <p className="text-bold text-small capitalize">
-                {patient.createdAt?.toLocaleDateString()}
+                {patient.createdAt.toLocaleDateString("fr-FR")}
               </p>
             </div>
           );
@@ -245,20 +243,20 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   <DropdownItem
                     startContent={<CalendarPlusIcon className="h-4 w-4" />}
                   >
-                    Create Appointment
+                    Créer un rendez-vous
                   </DropdownItem>
                   <DropdownItem
                     startContent={<EditIcon className="h-4 w-4" />}
                     href={`/dashboard/patients/${patient.id}`}
                   >
-                    Edit
+                    Modifier
                   </DropdownItem>
                   <DropdownItem
                     href={`/dashboard/patients/${patient.id}?action=delete`}
                     color="danger"
                     startContent={<TrashIcon className="h-4 w-4" />}
                   >
-                    Delete
+                    Supprimer
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>

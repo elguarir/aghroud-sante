@@ -9,39 +9,35 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 
-import { Button } from "@nextui-org/button";
-import PatientForm from "./patient-form";
-import { PlusIcon } from "lucide-react";
+import ServiceForm from "./service-form";
 import { useRouter } from "next/navigation";
 
-export function RegisterPatientModal() {
+interface EditServiceModalProps {
+  serviceId: string;
+  children: React.ReactNode;
+}
+export function EditServiceModal(props: EditServiceModalProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          className="font-medium"
-          endContent={<PlusIcon className="h-5 w-5" />}
-          color="primary"
-        >
-          Patient
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{props.children}</DialogTrigger>
       <DialogContent className="pb-0 sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Enregistrer un patient</DialogTitle>
+          <DialogTitle>Modifier le service</DialogTitle>
           <DialogDescription>
-            Ajouter un nouveau patient au système en remplissant le formulaire
+            Modifier les informations du service en remplissant le formulaire
             ci-dessous.
           </DialogDescription>
         </DialogHeader>
-        <PatientForm
-          mode="create"
+        <ServiceForm
+          mode="edit"
+          serviceId={props.serviceId}
           onSuccess={() => {
             setOpen(false);
             router.refresh();
           }}
+          onCancel={() => setOpen(false)}
         />
       </DialogContent>
     </Dialog>

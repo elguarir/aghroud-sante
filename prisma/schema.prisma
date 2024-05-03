@@ -72,13 +72,13 @@ model Appointment {
 }
 
 model Service {
-    id        String   @id @default(cuid())
-    name      String
-    price     Float
-    duration  Int
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-
+    id           String        @id @default(cuid())
+    name         String
+    description  String?
+    price        Float?
+    duration     Int? // in minutes
+    createdAt    DateTime      @default(now()) @map("created_at")
+    updatedAt    DateTime      @updatedAt @map("updated_at")
     appointments Appointment[]
 
     @@map("services")

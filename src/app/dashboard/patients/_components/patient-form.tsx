@@ -25,7 +25,6 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
     handleSubmit,
     setValue,
     watch,
-    getValues,
     formState: { errors, isLoading },
   } = useForm<Patient>({
     resolver: zodResolver(PatientSchema),
@@ -72,6 +71,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
           onSuccess: () => {
             if (onSuccess) onSuccess();
             toast.success("Modifications enregistrées avec succès");
+            router.back();
           },
           onError: (error) => {
             toast.error(error.message);
