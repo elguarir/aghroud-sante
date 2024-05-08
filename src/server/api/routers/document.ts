@@ -5,9 +5,9 @@ import { env } from "@/env";
 import { randomUUID } from "crypto";
 
 const s3 = new S3({
-  accessKeyId: env.AWS_ACCESS_KEY,
-  secretAccessKey: env.AWS_SECRET_KEY,
-  endpoint: env.AWS_ENDPOINT,
+  accessKeyId: env.R2_ACCESS_KEY,
+  secretAccessKey: env.R2_SECRET_KEY,
+  endpoint: env.R2_ENDPOINT,
   signatureVersion: "v4",
 });
 
@@ -20,7 +20,7 @@ export const documentRouter = createTRPCRouter({
       const key = `${fileId}/${filename}`;
 
       const params = {
-        Bucket: env.AWS_BUCKET_NAME,
+        Bucket: env.R2_BUCKET_NAME,
         Key: key,
         Expires: 120,
         ContentType: filetype,
@@ -34,7 +34,7 @@ export const documentRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { key } = input;
       const params = {
-        Bucket: env.AWS_BUCKET_NAME,
+        Bucket: env.R2_BUCKET_NAME,
         Key: key,
         Expires: 3600,
       };
@@ -46,7 +46,7 @@ export const documentRouter = createTRPCRouter({
 export async function getObjects() {
   const data = await s3
     .listObjectsV2({
-      Bucket: env.AWS_BUCKET_NAME,
+      Bucket: env.R2_BUCKET_NAME,
     })
     .promise();
 
