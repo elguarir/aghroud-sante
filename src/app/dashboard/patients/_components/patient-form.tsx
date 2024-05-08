@@ -1,18 +1,28 @@
 "use client";
-import { CalendarIcon, PhoneIcon, SaveIcon } from "@/components/icons";
+import {
+  CalendarIcon,
+  CloudUpload,
+  FileUploadIcon,
+  PhoneIcon,
+  SaveIcon,
+} from "@/components/icons";
 import { Fieldset } from "@/components/ui/fieldset";
 import { Patient, PatientSchema } from "@/lib/schemas/new-patient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { parseDate } from "@internationalized/date";
 import { Button } from "@nextui-org/button";
 import { DateInput } from "@nextui-org/date-input";
-import { Input, Textarea } from "@nextui-org/input";
+import { Input, Textarea, useInput } from "@nextui-org/input";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import { api, vanilla } from "@/trpc/react";
 import { toast } from "sonner";
 import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
+import { FileCardPreview } from "./file-card";
+import { DocumentsUpload } from "./documents-upload";
+import { Divider } from "@nextui-org/divider";
+
 type Props = {
   mode?: "create" | "edit";
   patientId?: number;
@@ -33,6 +43,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         return {
           firstName: "",
           lastName: "",
+          documents: [],
         };
       let patient = await vanilla.patient.get.query({ id: patientId });
       return {
@@ -45,9 +56,11 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
           patient?.dateOfBirth?.toISOString().split("T")[0] ?? undefined,
         insuranceProvider: patient?.insuranceProvider ?? undefined,
         notes: patient?.notes ?? undefined,
+        documents: patient?.documents ?? [],
       };
     },
   });
+  const doucments = watch("documents");
 
   const registerPatient = api.patient.register.useMutation();
   const updatePatient = api.patient.update.useMutation();
@@ -69,9 +82,8 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         { id: patientId, data: values },
         {
           onSuccess: () => {
-            if (onSuccess) onSuccess();
             toast.success("Modifications enregistrées avec succès");
-            router.back();
+            router.push(`/dashboard/patients/`);
           },
           onError: (error) => {
             toast.error(error.message);
@@ -80,6 +92,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
       );
     }
   }
+
   const dateOfBirth = watch("dateOfBirth");
   if (isLoading) {
     return (
@@ -88,12 +101,10 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
       </div>
     );
   }
-
   const router = useRouter();
-
   const isDisabled =
     registerPatient.isPending || isLoading || updatePatient.isPending;
-
+  
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -195,67 +206,117 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         </div>
       </Fieldset>
 
-      <Fieldset type="accordion" legend="Informations supplémentaires">
-        <div className="grid gap-y-6">
-          <div className="w-full">
-            <Input
-              isDisabled={isDisabled}
-              classNames={{
-                inputWrapper:
-                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
-              }}
-              variant="bordered"
-              labelPlacement="outside"
-              label={"Email"}
-              placeholder=" "
-              {...register("email")}
-            />
+      <div className="grid w-full">
+        <Fieldset type="accordion" legend="Informations supplémentaires">
+          <div className="grid gap-y-6">
+            {/* Email */}
+            <div className="w-full">
+              <Input
+                isDisabled={isDisabled}
+                classNames={{
+                  inputWrapper:
+                    "group-data-[focus=true]:border-primary !transition-all !duration-200",
+                }}
+                variant="bordered"
+                labelPlacement="outside"
+                label={"Email"}
+                placeholder=" "
+                {...register("email")}
+              />
+            </div>
+            {/*  Assurance */}
+            <div className="w-full">
+              <Input
+                isDisabled={isDisabled}
+                classNames={{
+                  inputWrapper:
+                    "group-data-[focus=true]:border-primary !transition-all !duration-200",
+                }}
+                variant="bordered"
+                labelPlacement="outside"
+                label={"Assurance"}
+                {...register("insuranceProvider")}
+                placeholder=" "
+              />
+            </div>
+            {/* Adresse */}
+            <div className="w-full">
+              <Input
+                isDisabled={isDisabled}
+                classNames={{
+                  inputWrapper:
+                    "group-data-[focus=true]:border-primary !transition-all !duration-200",
+                }}
+                variant="bordered"
+                labelPlacement="outside"
+                label={"Adresse"}
+                {...register("address")}
+                placeholder=" "
+              />
+            </div>
+            {/* Notes*/}
+            <div className="w-full">
+              <Textarea
+                classNames={{
+                  inputWrapper:
+                    "group-data-[focus=true]:border-primary !transition-all !duration-200",
+                  description: "text-default-500",
+                }}
+                variant="bordered"
+                labelPlacement="outside"
+                label={"Notes"}
+                placeholder=" "
+                description="Ajoutez des notes supplémentaires sur le patient, par exemple des informations médicales ou des préférences spécifiques."
+                {...register("notes")}
+              />
+            </div>
+            {/* <div className="w-full">
+            <DocumentsUpload patientId={patientId} />
+          </div> */}
           </div>
-          <div className="w-full">
-            <Input
-              isDisabled={isDisabled}
-              classNames={{
-                inputWrapper:
-                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
-              }}
-              variant="bordered"
-              labelPlacement="outside"
-              label={"Assurance"}
-              {...register("insuranceProvider")}
-              placeholder=" "
-            />
+        </Fieldset>
+
+        <Fieldset type="accordion" legend="Documents Medical">
+          <DocumentsUpload
+            onChange={(newDocuments) => {
+              // add new documents to the existing ones
+              // but only if they are not already in the list
+              setValue(
+                "documents",
+                doucments.concat(
+                  newDocuments.filter(
+                    (newDoc) =>
+                      !doucments.some((doc) => doc.key === newDoc.key),
+                  ),
+                ),
+              );
+            }}
+          />
+          <div className="w-full space-y-4">
+            <p className="text-small font-medium text-default-500">
+              - Documents ajoutés
+            </p>
+            <div className="grid gap-2">
+              {doucments?.map((document) => (
+                <FileCardPreview
+                  key={document.key}
+                  fileKey={document.key}
+                  filename={document.name}
+                  contentType={document.contentType}
+                  fileSize={document.fileSize}
+                  onDelete={() => {
+                    setValue(
+                      "documents",
+                      doucments.filter((doc) => doc.key !== document.key),
+                    );
+                  }}
+                />
+              ))}
+            </div>
           </div>
-          <div className="w-full">
-            <Input
-              isDisabled={isDisabled}
-              classNames={{
-                inputWrapper:
-                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
-              }}
-              variant="bordered"
-              labelPlacement="outside"
-              label={"Adresse"}
-              {...register("address")}
-              placeholder=" "
-            />
-          </div>
-          <div className="w-full">
-            <Textarea
-              classNames={{
-                inputWrapper:
-                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
-                description: "text-default-500",
-              }}
-              variant="bordered"
-              labelPlacement="outside"
-              label={"Notes"}
-              placeholder=" "
-              description="Ajoutez des notes supplémentaires sur le patient, par exemple des informations médicales ou des préférences spécifiques."
-              {...register("notes")}
-            />
-          </div>
-        </div>
-      </Fieldset>
+        </Fieldset>
+        <Divider className="mt-6" />
+      </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
         {mode === "edit" && (
           <Button variant="light" onClick={() => router.back()}>
@@ -280,5 +341,4 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
     </form>
   );
 };
-
 export default PatientForm;

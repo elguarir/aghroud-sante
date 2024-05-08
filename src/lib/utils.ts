@@ -1,8 +1,11 @@
 import type { ClassValue } from "clsx";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
-import axios, { CancelToken } from "axios";
+import axios from "axios";
+import { vanilla } from "@/trpc/react";
+import { extentions } from "./extentions";
 import { env } from "@/env";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -26,17 +29,15 @@ export function formatBytes(
 }
 
 export function uuidv4() {
-  // Public Domain/MIT
-  var d = new Date().getTime(); //Timestamp
+  var d = new Date().getTime();
   var d2 =
     (typeof performance !== "undefined" &&
       performance.now &&
       performance.now() * 1000) ||
-    0; //Time in microseconds since page-load or 0 if unsupported
+    0;
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16; //random number between 0 and 16
+    var r = Math.random() * 16;
     if (d > 0) {
-      //Use timestamp until depleted
       r = (d + r) % 16 | 0;
       d = Math.floor(d / 16);
     } else {
@@ -50,15 +51,75 @@ export function uuidv4() {
 export type UploadProps = {
   file: File;
   onUploadProgress?: (progress: number) => void;
+  onUploadComplete?: (key: string) => void;
+  onUploadError?: (error: string) => void;
+};
+/**
+ * Uploads a file to a specified URL.
+ * @param file - The file to be uploaded.
+ * @param onUploadProgress - Optional callback function to track the upload progress.
+ * @param onUploadError - Optional callback function to handle upload errors.
+ * @param onUploadComplete - Optional callback function to handle upload completion.
+ * @returns The key of the uploaded file, or null if an error occurred.
+ */
+
+export const upload = async (props: UploadProps) => {
+  const { file, onUploadProgress, onUploadError, onUploadComplete } = props;
+
+  try {
+    const { key, url } = await vanilla.document.generateUrl.mutate({
+      filename: file.name,
+      filetype: file.type,
+    });
+    await axios.put(url, file, {
+      headers: {
+        "Content-Type": file.type,
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total !== undefined) {
+          const progress = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          if (onUploadProgress) onUploadProgress(progress);
+        }
+      },
+    });
+    if (onUploadComplete) onUploadComplete(key);
+
+    return key;
+  } catch (error) {
+    if (error instanceof Error) {
+      if (onUploadError) onUploadError(error.message);
+    } else {
+      if (onUploadError)
+        onUploadError(
+          "Une erreur s'est produite lors du téléchargement du fichier, veuillez réessayer",
+        );
+    }
+    return null;
+  }
+};
+
+export const getExtension = (contenType: string) => {
+  // key = extention, value = content type
+  const ext = Object.keys(extentions).find(
+    (key) => extentions[key] === contenType,
+  );
+  return ext;
+};
+
+export type CloudUploadProps = {
+  file: File;
+  onUploadProgress?: (progress: number) => void;
   onUploadComplete?: (url: string) => void;
   onUploadError?: (error: string) => void;
 };
-export const upload = async ({
+export const cloudUpload = async ({
   file,
   onUploadProgress,
   onUploadComplete,
   onUploadError,
-}: UploadProps) => {
+}: CloudUploadProps) => {
   let baseUrl = `https://api.cloudinary.com/v1_1/${env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`;
 
   const formData = new FormData();

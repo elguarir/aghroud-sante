@@ -13,6 +13,14 @@ export const PatientSchema = z.object({
   address: z.string().optional(),
   insuranceProvider: z.string().optional(),
   notes: z.string().optional(),
+  documents: z.array(
+    z.object({
+      name: z.string(),
+      key: z.string(),
+      contentType: z.string(),
+      fileSize: z.number(),
+    }),
+  ),
 });
 
 export type Patient = z.infer<typeof PatientSchema>;

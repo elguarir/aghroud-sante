@@ -14,7 +14,7 @@ const PatientsPage = async (props: Props) => {
         <div className="flex w-full items-center justify-between gap-2">
           <h1 className="text-xl font-semibold md:text-2xl">Patients</h1>
         </div>
-        <div className="mt-6 flex h-full min-h-[75dvh] flex-1 flex-col items-center rounded-lg border-[1.5px] border-dashed border-content3 p-5 shadow-sm">
+        <div className="my-8 p-0 w-full flex h-full min-h-[75dvh] flex-1 flex-col items-center md:p-5 shadow-sm">
           <PatientsTable patients={patients} />
         </div>
       </div>

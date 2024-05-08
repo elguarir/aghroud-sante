@@ -58,6 +58,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
   );
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "createdAt",
     direction: "descending",
@@ -111,6 +112,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
+
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a: PatientData, b: PatientData) => {
       const first = a[sortDescriptor.column as keyof PatientData] as number;
@@ -288,6 +290,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
     },
     [],
   );
+
   const onSearchChange = React.useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
@@ -296,108 +299,11 @@ export default function PatientTable({ patients }: PatientTableProps) {
       setFilterValue("");
     }
   }, []);
+
   const onClear = React.useCallback(() => {
     setFilterValue("");
     setPage(1);
   }, []);
-
-  //   const topContent = React.useMemo(() => {
-  //     return (
-  //       <>
-  //         <div className="flex flex-col gap-4">
-  //           <div className="flex items-end justify-between gap-3">
-  //             <Input
-  //               isClearable
-  //               variant="bordered"
-  //               className="w-full sm:max-w-[44%] lg:max-w-[25%]"
-  //               placeholder="Search by name..."
-  //               startContent={<SearchIcon />}
-  //               value={filterValue}
-  //               onClear={() => onClear()}
-  //               onValueChange={onSearchChange}
-  //             />
-  //             <div className="flex gap-3">
-  //               <Dropdown>
-  //                 <DropdownTrigger className="hidden sm:flex">
-  //                   <Button
-  //                     endContent={<ChevronDownIcon className="text-small" />}
-  //                     variant="flat"
-  //                   >
-  //                     Status
-  //                   </Button>
-  //                 </DropdownTrigger>
-  //                 <DropdownMenu
-  //                   disallowEmptySelection
-  //                   aria-label="Table Columns"
-  //                   closeOnSelect={false}
-  //                   selectedKeys={statusFilter}
-  //                   selectionMode="multiple"
-  //                   onSelectionChange={setStatusFilter}
-  //                 >
-  //                   {statusOptions.map((status) => (
-  //                     <DropdownItem key={status.uid} className="capitalize">
-  //                       {capitalize(status.name)}
-  //                     </DropdownItem>
-  //                   ))}
-  //                 </DropdownMenu>
-  //               </Dropdown>
-  //               <Dropdown>
-  //                 <DropdownTrigger className="hidden sm:flex">
-  //                   <Button
-  //                     endContent={<ChevronDownIcon className="text-small" />}
-  //                     variant="flat"
-  //                   >
-  //                     Columns
-  //                   </Button>
-  //                 </DropdownTrigger>
-  //                 <DropdownMenu
-  //                   disallowEmptySelection
-  //                   aria-label="Table Columns"
-  //                   closeOnSelect={false}
-  //                   selectedKeys={visibleColumns}
-  //                   selectionMode="multiple"
-  //                   onSelectionChange={setVisibleColumns}
-  //                 >
-  //                   {columns.map((column) => (
-  //                     <DropdownItem key={column.uid} className="capitalize">
-  //                       {capitalize(column.name)}
-  //                     </DropdownItem>
-  //                   ))}
-  //                 </DropdownMenu>
-  //               </Dropdown>
-  //               <Button color="primary" endContent={<PlusIcon />}>
-  //                 Add New
-  //               </Button>
-  //             </div>
-  //           </div>
-  //           <div className="flex items-center justify-between">
-  //             <span className="text-small text-default-400">
-  //               Total: {users.length} patients
-  //             </span>
-  //             <label className="flex items-center text-small text-default-400">
-  //               Lignes par page :
-  //               <select
-  //                 className="bg-transparent text-small text-default-400 outline-none"
-  //                 onChange={onRowsPerPageChange}
-  //               >
-  //                 <option value="5">5</option>
-  //                 <option value="10">10</option>
-  //                 <option value="15">15</option>
-  //               </select>
-  //             </label>
-  //           </div>
-  //         </div>
-  //       </>
-  //     );
-  //   }, [
-  //     filterValue,
-  //     statusFilter,
-  //     visibleColumns,
-  //     onSearchChange,
-  //     onRowsPerPageChange,
-  //     users.length,
-  //     hasSearchFilter,
-  //   ]);
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -416,24 +322,6 @@ export default function PatientTable({ patients }: PatientTableProps) {
           total={pages}
           onChange={setPage}
         />
-        {/* <div className="hidden w-[30%] justify-end gap-2 md:flex">
-          <Button
-            isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
-            onPress={onPreviousPage}
-          >
-            Previous
-          </Button>
-          <Button
-            isDisabled={pages === 1}
-            size="sm"
-            variant="flat"
-            onPress={onNextPage}
-          >
-            Next
-          </Button>
-        </div> */}
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
@@ -447,8 +335,14 @@ export default function PatientTable({ patients }: PatientTableProps) {
               isClearable
               variant="bordered"
               className="w-full sm:max-w-[44%] lg:max-w-[25%]"
-              placeholder="Search by name..."
-              startContent={<SearchIcon />}
+              classNames={{
+                inputWrapper:
+                  "group-data-[focus=true]:border-primary !transition-all !duration-200",
+              }}
+              placeholder="Rechercher un patient"
+              startContent={
+                <SearchIcon className="text-default-500  w-5 h-5" />
+              }
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}

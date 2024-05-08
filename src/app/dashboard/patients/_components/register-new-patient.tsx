@@ -28,7 +28,7 @@ export function RegisterPatientModal() {
           Patient
         </Button>
       </DialogTrigger>
-      <DialogContent className="pb-0 sm:max-w-[425px]">
+      <DialogContent className="pb-0 sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle>Enregistrer un patient</DialogTitle>
           <DialogDescription>

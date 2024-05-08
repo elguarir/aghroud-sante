@@ -13,8 +13,7 @@ const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
   ({ className, children, type = "accordion", legend, ...props }, ref) => {
     if (type === "accordion") {
       return (
-        <Accordion
-        >
+        <Accordion>
           <AccordionItem
             title={
               <>
@@ -27,11 +26,12 @@ const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
             }
             classNames={{
               title: "text-sm font-[550] text-secondary",
-              trigger: "rounded-lg data-[focus=true]:outline-none data-[focus-visible=true]:outline-transparent",
+              trigger:
+                "rounded-lg data-[focus=true]:outline-none data-[focus-visible=true]:outline-transparent",
             }}
             indicator={({ isOpen }) => (
               <ChevronDown
-                className={`h-4 w-4 ${isOpen ? "-rotate-90" : ""}`}
+                className={`h-4 w-4 transition-transform duration-300 ${isOpen ? "-rotate-90" : ""}`}
               />
             )}
           >

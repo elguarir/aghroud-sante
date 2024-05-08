@@ -39,6 +39,7 @@ model Patient {
     createdAt         DateTime      @default(now()) @map("created_at")
     updatedAt         DateTime      @updatedAt @map("updated_at")
     appointments      Appointment[]
+    documents         Document[]
 
     @@map("patients")
 }
@@ -82,4 +83,19 @@ model Service {
     appointments Appointment[]
 
     @@map("services")
+}
+
+model Document {
+    id          String @id @default(cuid())
+    patientId   Int    @map("patient_id")
+    name        String
+    contentType String @map("content_type")
+    fileSize    Int    @map("file_size")
+    key         String
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+    @@map("documents")
 }

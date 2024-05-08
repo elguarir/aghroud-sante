@@ -3,10 +3,17 @@
 @tailwind utilities;
 
 
+:root {
+    --file-icon-color: #cccccc;
+    --file-icon-color-secondary: #797676b7;
+    --file-icon-color-label: #5B5B5B;
+}
+
+
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active{
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
     -webkit-background-clip: text;
     -webkit-text-fill-color: currentColor;
     transition: background-color 5000s ease-in-out 0s;

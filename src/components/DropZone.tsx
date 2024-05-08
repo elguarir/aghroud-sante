@@ -1,5 +1,5 @@
 "use client";
-import { uuidv4 } from "@/lib/utils";
+import { cloudUpload, uuidv4 } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 import { DropzoneOptions, DropzoneState, useDropzone } from "react-dropzone";
 import { upload } from "@/lib/utils";
@@ -100,7 +100,7 @@ const DropZone = ({
     });
 
     try {
-      const url = await upload({
+      const url = await cloudUpload({
         file: file.file,
         onUploadProgress: (progress) => {
           setFile({

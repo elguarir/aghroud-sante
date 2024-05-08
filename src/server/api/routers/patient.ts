@@ -19,6 +19,11 @@ export const patientRouter = createTRPCRouter({
           address: input.address,
           insuranceProvider: input.insuranceProvider,
           notes: input.notes,
+          documents: {
+            createMany: {
+              data: input.documents ?? [],
+            },
+          },
         },
       });
 
@@ -75,10 +80,20 @@ export const patientRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return await ctx.db.patient.findUnique({
         where: { id: input.id },
+        include: {
+          documents: {
+            select: {
+              name: true,
+              key: true,
+              contentType: true,
+              fileSize: true,
+            },
+          },
+        },
       });
     }),
   update: protectedProcedure
-    .input(z.object({ id: z.number().optional(), data: PatientSchema }))
+    .input(z.object({ id: z.number(), data: PatientSchema }))
     .mutation(async ({ ctx, input }) => {
       let patient = await ctx.db.patient.update({
         where: { id: input.id },
@@ -95,6 +110,25 @@ export const patientRouter = createTRPCRouter({
           notes: input.data.notes,
         },
       });
+
+      // Update documents
+      if (input.data.documents) {
+        await ctx.db.document.deleteMany({
+          where: { patientId: input.id },
+        });
+
+        await ctx.db.document.createMany({
+          data: input.data.documents.map((doc) => {
+            return {
+              name: doc.name,
+              key: doc.key,
+              contentType: doc.contentType,
+              fileSize: doc.fileSize,
+              patientId: input.id,
+            };
+          }),
+        });
+      }
 
       if (!patient) {
         throw new TRPCError({
