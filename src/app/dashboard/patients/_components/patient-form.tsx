@@ -104,7 +104,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
   const router = useRouter();
   const isDisabled =
     registerPatient.isPending || isLoading || updatePatient.isPending;
-  
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -279,8 +279,6 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         <Fieldset type="accordion" legend="Documents Medical">
           <DocumentsUpload
             onChange={(newDocuments) => {
-              // add new documents to the existing ones
-              // but only if they are not already in the list
               setValue(
                 "documents",
                 doucments.concat(
@@ -290,6 +288,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
                   ),
                 ),
               );
+              console.log("newDocuments", newDocuments);
             }}
           />
           <div className="w-full space-y-4">
@@ -297,7 +296,14 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
               - Documents ajoutés
             </p>
             <div className="grid gap-2">
-              {doucments?.map((document) => (
+              {doucments.length === 0 && (
+                <div className="flex items-center">
+                  <span className="text-small italic text-default-500">
+                    Aucun document ajouté...
+                  </span>
+                </div>
+              )}
+              {doucments.map((document) => (
                 <FileCardPreview
                   key={document.key}
                   fileKey={document.key}
@@ -319,7 +325,10 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
       </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
         {mode === "edit" && (
-          <Button variant="light" onClick={() => router.back()}>
+          <Button
+            variant="light"
+            onClick={() => router.replace("/dashboard/patients")}
+          >
             Annuler
           </Button>
         )}

@@ -4,11 +4,18 @@ import { parseAsString } from "nuqs/server";
 import { getAllServices } from "@/server/api/routers/helpers/service";
 import { ServiceCard } from "./_components/service-card";
 import SearchBar from "./_components/search-bar";
+import { Metadata } from "next";
 
 type Props = {
   searchParams: {
     search: string;
   };
+};
+
+export const metadata: Metadata = {
+  title: "Services",
+  description: "Liste de tous les services",
+  keywords: "services, liste, service",
 };
 
 const ServicesPage = async (props: Props) => {

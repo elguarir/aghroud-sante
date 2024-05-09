@@ -34,6 +34,7 @@ const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
                 className={`h-4 w-4 transition-transform duration-300 ${isOpen ? "-rotate-90" : ""}`}
               />
             )}
+            key={"content"}
           >
             <div className={cn("grid gap-y-6", className)}>{children}</div>
           </AccordionItem>

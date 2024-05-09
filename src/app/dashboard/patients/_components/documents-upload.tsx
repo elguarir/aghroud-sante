@@ -34,6 +34,7 @@ export const DocumentsUpload = ({ onChange }: DocumentsUploadProps) => {
     let uploadedFiles = files.filter(
       (file) => file.state.status === "uploaded",
     );
+
     if (uploadedFiles.length > 0) {
       onChange &&
         onChange(
@@ -45,7 +46,7 @@ export const DocumentsUpload = ({ onChange }: DocumentsUploadProps) => {
           })),
         );
     }
-  }, [files, onChange]);
+  }, [files]);
 
   return (
     <div className="grid w-full gap-y-4">
@@ -64,7 +65,6 @@ export const DocumentsUpload = ({ onChange }: DocumentsUploadProps) => {
             Glissez et déposez les documents ici ou <br />
             <button
               type="button"
-              onClick={open}
               className="hover:text-primary hover:underline focus-visible:outline-none focus-visible:outline-primary"
             >
               choisir des fichiers

@@ -28,6 +28,9 @@ export const DeleteServiceButton = ({
   return (
     <Popover
       isOpen={open}
+      showArrow
+      shouldBlockScroll
+      shouldCloseOnBlur
       onOpenChange={setOpen}
       placement={popoverPlacement}
       classNames={popoverClassnames}

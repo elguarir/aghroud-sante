@@ -6,7 +6,8 @@ export const authConfig = {
     signIn: "/",
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request: { nextUrl, url } }) {
+      // const callbackUrl = nextUrl.searchParams.get("callbackUrl");
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       if (isOnDashboard) {
@@ -17,7 +18,7 @@ export const authConfig = {
       }
       return true;
     },
-    session: async ({ session, user, token }) => {
+    session: async ({ session, token }) => {
       if (token.sub && session.user) {
         session.user.id = token.sub;
         session.user.email = token.email!;
@@ -28,7 +29,6 @@ export const authConfig = {
       return session;
     },
     jwt: async ({ token, user, trigger, session }) => {
-     
       if (trigger === "update" && session?.user) {
         return {
           picture: session.user.image,

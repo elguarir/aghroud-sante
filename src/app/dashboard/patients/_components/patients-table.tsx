@@ -28,6 +28,7 @@ import {
 import Link from "next/link";
 import {
   CalendarPlusIcon,
+  DocumentIcon,
   EditIcon,
   EyeFilledIcon,
   TrashIcon,
@@ -254,6 +255,12 @@ export default function PatientTable({ patients }: PatientTableProps) {
                     Modifier
                   </DropdownItem>
                   <DropdownItem
+                    startContent={<DocumentIcon className="h-4 w-4" />}
+                    href={`/dashboard/patients/${patient.id}/documents`}
+                  >
+                    Les documents
+                  </DropdownItem>
+                  <DropdownItem
                     href={`/dashboard/patients/${patient.id}?action=delete`}
                     color="danger"
                     startContent={<TrashIcon className="h-4 w-4" />}
@@ -341,7 +348,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
               }}
               placeholder="Rechercher un patient"
               startContent={
-                <SearchIcon className="text-default-500  w-5 h-5" />
+                <SearchIcon className="h-5  w-5 text-default-500" />
               }
               value={filterValue}
               onClear={() => onClear()}
