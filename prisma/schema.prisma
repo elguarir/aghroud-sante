@@ -40,6 +40,7 @@ model Patient {
     updatedAt         DateTime      @updatedAt @map("updated_at")
     appointments      Appointment[]
     documents         Document[]
+    payments          Payment[]
 
     @@map("patients")
 }
@@ -98,4 +99,53 @@ model Document {
     patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
     @@map("documents")
+}
+
+// Payments model: for this model, we need to keep track of the payments made by the patients, the payments made might not exactly be related to an appointment, it could be for a service or a product, or multiple sessions or paid in advance.
+// we also need an enum for the payment label which could be "appointment", "service", "product", "advance", etc...
+
+model Payment {
+    id               String   @id @default(cuid())
+    patientId        Int      @map("patient_id")
+    amount           Float
+    description      String?
+    label            String
+    numberOfSessions Int?     @default(1) @map("number_of_sessions") // if the payment is for multiple sessions
+    // the date when the payment was made
+    paymentDate      DateTime @map("payment_date")
+    // the method used for the payment (e.g., cash, credit card, bank transfer)
+    paymentMethod    String?  @map("payment_method")
+
+    isPaid Boolean @default(false) @map("is_paid") // indicates if the payment has been fully paid
+    // add any other fields that are relevant to your payment system
+    notes  String? @db.Text // additional notes for the payment  (e.g., reason for the payment, special instructions, etc...)
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+    @@map("payments")
+}
+
+enum ExpenseType {
+    OPERATIONAL
+    SALARY
+    RENT
+    UTILITIES
+    EQUIPMENT
+    OTHER
+}
+
+model Expense {
+    id     String      @id @default(cuid())
+    label  String?
+    amount Float
+    date   DateTime
+    type   ExpenseType
+    notes  String? // Additional notes or comments about the expense
+
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+
+    @@map("expenses")
 }

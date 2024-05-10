@@ -1,11 +1,13 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { SidebarMenu } from "./sidebar-menu";
-import { SideBarItem } from "./sidebar-item";
+import { SideBarItem, SideBarItemProps } from "./sidebar-item";
 import {
   CalendarIcon,
   DashboardIcon,
   InvoicesIcon,
+  MoneyInIcon,
+  MoneyOutIcon,
   PatientsIcon,
   ReportsIcon,
   ServicesIcon,
@@ -34,39 +36,59 @@ const SideBar = ({ type = "normal", user }: Props) => {
     {
       title: "Dashboard",
       href: "/dashboard",
+      type: "normal",
       icon: <DashboardIcon className="h-5 w-5" />,
     },
     {
       title: "Appointments",
       href: "/dashboard/appointments",
+      type: "normal",
       icon: <CalendarIcon className="h-5 w-5" />,
     },
     {
       title: "Patients",
       href: "/dashboard/patients",
+      type: "normal",
       icon: <PatientsIcon className="h-5 w-5" />,
     },
     {
       title: "Services",
       href: "/dashboard/services",
+      type: "normal",
       icon: <ServicesIcon className="h-5 w-5" />,
     },
     {
-      title: "Payments",
-      href: "/dashboard/payments",
+      title: "Finance",
+      type: "accordion",
       icon: <InvoicesIcon className="h-5 w-5" />,
+      items: [
+        {
+          title: "Revenue",
+          href: "/dashboard/revenue",
+          type: "normal",
+          icon: <MoneyInIcon className="h-5 w-5" />,
+        },
+        {
+          title: "Dépenses",
+          href: "/dashboard/depenses",
+          type: "normal",
+          icon: <MoneyOutIcon className="h-5 w-5" />,
+        }
+      ],
     },
     {
       title: "Reports",
       href: "/dashboard/reports",
+      type: "normal",
       icon: <ReportsIcon className="h-5 w-5" />,
     },
     {
-      title: "Settings",
+      title: "Paramètres",
       href: "/dashboard/settings",
+      type: "normal",
       icon: <SettingsIcon className="h-5 w-5" />,
     },
-  ];
+  ] as SideBarItemProps[];
   if (type === "sheet") {
     return (
       <>
