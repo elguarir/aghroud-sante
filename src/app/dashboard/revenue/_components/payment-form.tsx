@@ -78,7 +78,6 @@ const PaymentForm = ({
   const numberOfSessions = watch("numberOfSessions");
   const isPaid = watch("isPaid");
   const patientId = watch("patientId");
-  console.log("paymendMethod", paymendMethod);
   const createPayment = api.payment.create.useMutation();
   const updatePayment = api.payment.update.useMutation();
   const { data: patients, isLoading: isLoadingPatients } =
@@ -102,8 +101,8 @@ const PaymentForm = ({
         { id: paymentId, data: values },
         {
           onSuccess: () => {
+            if (onSuccess) onSuccess();
             toast.success("Modifications enregistrées avec succès");
-            router.push(`/dashboard/revenue/`);
           },
           onError: (error) => {
             toast.error(error.message);
@@ -340,7 +339,9 @@ const PaymentForm = ({
               placeholder="Sélectionnez une option"
               value={paymendMethod}
               isDisabled={isDisabled}
-              defaultSelectedKeys={["cash"]}
+              defaultSelectedKeys={
+                paymendMethod ? new Set([paymendMethod]) : ["cash"]
+              }
               selectionMode="single"
               onChange={(e) =>
                 setValue(
@@ -359,7 +360,7 @@ const PaymentForm = ({
               <SelectItem key="transfer" value="transfer">
                 Virement
               </SelectItem>
-              <SelectItem key="cheque" value="cheque">
+              <SelectItem key="check" value="check">
                 Chèque
               </SelectItem>
               <SelectItem key="other" value="other">

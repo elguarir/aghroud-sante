@@ -89,8 +89,56 @@ export const paymentRouter = createTRPCRouter({
     }),
   update: protectedProcedure
     .input(z.object({ id: z.string(), data: PaymentSchema }))
-    .mutation(async ({ ctx, input }) => {}),
+    .mutation(async ({ ctx, input }) => {
+      let payment = await ctx.db.payment.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          label: input.data.label,
+          notes: input.data.notes,
+          isPaid: input.data.isPaid,
+          numberOfSessions: input.data.numberOfSessions,
+          paymentMethod: input.data.paymentMethod,
+          amount: input.data.amount,
+          paymentDate: input.data.paymentDate,
+          patientId: input.data.patientId,
+        },
+        include: {
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phoneNumber: true,
+            },
+          },
+        },
+      });
+
+      return payment;
+    }),
   delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ ctx, input }) => {}),
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      let payment = await ctx.db.payment.delete({
+        where: {
+          id: input.id,
+        },
+        include: {
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phoneNumber: true,
+            },
+          },
+        },
+      });
+
+      return payment;
+    }),
 });

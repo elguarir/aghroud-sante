@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@nextui-org/button";
 import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -14,7 +13,6 @@ import {
 } from "@nextui-org/modal";
 export function AddNewPaymentModal() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [open, setOpen] = useState(false);
   const router = useRouter();
 
   return (
@@ -33,8 +31,8 @@ export function AddNewPaymentModal() {
         onOpenChange={onOpenChange}
         placement="top-center"
         classNames={{
-          base: "this-is-base my-auto md:max-h-[85dvh]",
-          wrapper: "this-is-wrapper overflow-hidden",
+          base: "my-auto md:max-h-[85dvh]",
+          wrapper: "overflow-hidden",
         }}
       >
         <ModalContent>

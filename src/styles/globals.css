@@ -30,7 +30,7 @@ input:-webkit-autofill:active {
     height: 7px;
     background-color: theme("colors.foreground-100");
     border-radius: 15px; */
-    @apply bg-foreground-100 rounded-lg w-[6px] h-[4px] sm:h-[7px];
+    @apply bg-foreground-100 rounded-lg w-[6px] h-[4px] sm:h-[5.5px];
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
