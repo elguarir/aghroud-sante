@@ -443,7 +443,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-[50vh]",
+          wrapper: "max-h-[50vh] custom-scrollbar",
           tr: "rounded-small",
         }}
         selectedKeys={selectedKeys}

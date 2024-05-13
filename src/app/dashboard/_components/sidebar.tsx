@@ -1,5 +1,4 @@
 "use client";
-import { usePathname } from "next/navigation";
 import { SidebarMenu } from "./sidebar-menu";
 import { SideBarItem, SideBarItemProps } from "./sidebar-item";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/components/icons";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@nextui-org/button";
-import { Menu, Package2 } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useSheet } from "@/hooks/use-collapsed-store";
 import Link from "next/link";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
@@ -73,7 +72,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
           href: "/dashboard/depenses",
           type: "normal",
           icon: <MoneyOutIcon className="h-5 w-5" />,
-        }
+        },
       ],
     },
     {

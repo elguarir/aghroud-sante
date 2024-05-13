@@ -7,6 +7,7 @@ import clsx from "clsx";
 import { TRPCReactProvider } from "@/trpc/react";
 import { NextUIThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
+import { ViewTransitions } from "next-view-transitions";
 
 export const metadata: Metadata = {
   title: {
@@ -28,26 +29,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
-      <body
-        className={clsx(
-          "min-h-dvh bg-background text-foreground antialiased",
-          GeistSans.className,
-          GeistMono.variable,
-        )}
-      >
-        <NextUIThemeProvider
-          themeProps={{ attribute: "class", defaultTheme: "light" }}
+    <ViewTransitions>
+      <html lang="en" suppressHydrationWarning>
+        <head />
+        <body
+          className={clsx(
+            "min-h-dvh bg-background text-foreground antialiased",
+            GeistSans.className,
+            GeistMono.variable,
+          )}
         >
-          <TRPCReactProvider>
-            <main className="relative flex min-h-screen flex-col">
-              {children}
-              <Toaster />
-            </main>
-          </TRPCReactProvider>
-        </NextUIThemeProvider>
-      </body>
-    </html>
+          <NextUIThemeProvider
+            themeProps={{ attribute: "class", defaultTheme: "light" }}
+          >
+            <TRPCReactProvider>
+              <main className="relative flex min-h-screen flex-col">
+                {children}
+                <Toaster />
+              </main>
+            </TRPCReactProvider>
+          </NextUIThemeProvider>
+        </body>
+      </html>
+    </ViewTransitions>
   );
 }

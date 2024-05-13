@@ -106,10 +106,9 @@ model Document {
 
 model Payment {
     id               String   @id @default(cuid())
-    patientId        Int      @map("patient_id")
+    patientId        Int?     @map("patient_id")
+    label            String?
     amount           Float
-    description      String?
-    label            String
     numberOfSessions Int?     @default(1) @map("number_of_sessions") // if the payment is for multiple sessions
     // the date when the payment was made
     paymentDate      DateTime @map("payment_date")
@@ -120,9 +119,10 @@ model Payment {
     // add any other fields that are relevant to your payment system
     notes  String? @db.Text // additional notes for the payment  (e.g., reason for the payment, special instructions, etc...)
 
+    patient Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
-    patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
     @@map("payments")
 }
@@ -130,9 +130,9 @@ model Payment {
 enum ExpenseType {
     OPERATIONAL
     SALARY
-    RENT
-    UTILITIES
     EQUIPMENT
+    UTILITIES
+    RENT
     OTHER
 }
 

@@ -40,6 +40,7 @@ export const SideBarItem = (item: SideBarItemProps) => {
   if (item.type === "normal") {
     return (
       <Link
+        prefetch
         key={item.href}
         href={item.href}
         className={cn(
@@ -73,12 +74,16 @@ export const SideBarItem = (item: SideBarItemProps) => {
             key={"content"}
             title={item.title}
             indicator={<ChevronDownIcon className="h-4 w-4" />}
+            classNames={{
+              startContent: "text-default-500",
+            }}
           >
             <div className="ml-auto flex w-[98%] flex-col gap-2 border-l border-default-200 pl-1.5">
               {item.items.map((i) => {
                 const isActive = pathname === i.href;
                 return (
                   <Link
+                    prefetch
                     key={i.href}
                     href={i.href}
                     className={cn(

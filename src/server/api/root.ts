@@ -4,11 +4,13 @@ import { userRouter } from "./routers/user";
 import { patientRouter } from "./routers/patient";
 import { serviceRouter } from "./routers/service";
 import { documentRouter } from "./routers/document";
+import { paymentRouter } from "./routers/payment";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
   appointment: appointmentRouter,
   patient: patientRouter,
+  payment: paymentRouter,
   service: serviceRouter,
   document: documentRouter,
 });
