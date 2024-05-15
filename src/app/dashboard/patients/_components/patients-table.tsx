@@ -35,6 +35,17 @@ import {
 } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { RegisterPatientModal } from "./register-new-patient";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/modal";
+import PatientForm from "./patient-form";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { api } from "@/trpc/react";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
@@ -59,6 +70,27 @@ export default function PatientTable({ patients }: PatientTableProps) {
   );
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  // actions related:
+  const deletePatient = api.patient.delete.useMutation();
+
+  const [patientToModify, setPatientToModify] = React.useState<number | null>(
+    null,
+  );
+  const [patientToDelete, setPatientToDelete] = React.useState<number | null>(
+    null,
+  );
+  const {
+    isOpen: isModifyModalOpen,
+    onOpen: onModifyOpen,
+    onOpenChange: onModifyOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isDeleteModalOpen,
+    onOpen: onDeleteOpen,
+    onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
+
+  const router = useRouter();
 
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "createdAt",
@@ -92,16 +124,6 @@ export default function PatientTable({ patients }: PatientTableProps) {
           patient?.notes?.toLowerCase().includes(filterValue.toLowerCase()),
       );
     }
-
-    // if (
-    //   statusFilter !== "all" &&
-    //   Array.from(statusFilter).length !== statusOptions.length
-    // ) {
-    //   filteredPatients = filteredPatients.filter((patient) =>
-    //     Array.from(statusFilter).includes(patient.status),
-    //   );
-    // }
-
     return filteredPatients;
   }, [patients, filterValue, statusFilter]);
 
@@ -250,20 +272,25 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   </DropdownItem>
                   <DropdownItem
                     startContent={<EditIcon className="h-4 w-4" />}
-                    href={`/dashboard/patients/${patient.id}`}
+                    onPress={() => {
+                      setPatientToModify(patient.id);
+                      onModifyOpenChange();
+                    }}
                   >
                     Modifier
                   </DropdownItem>
                   <DropdownItem
                     startContent={<DocumentIcon className="h-4 w-4" />}
-                    href={`/dashboard/patients/${patient.id}/documents`}
                   >
                     Les documents
                   </DropdownItem>
                   <DropdownItem
-                    href={`/dashboard/patients/${patient.id}?action=delete`}
                     color="danger"
                     startContent={<TrashIcon className="h-4 w-4" />}
+                    onPress={() => {
+                      setPatientToDelete(patient.id);
+                      onDeleteOpenChange();
+                    }}
                   >
                     Supprimer
                   </DropdownItem>
@@ -355,30 +382,6 @@ export default function PatientTable({ patients }: PatientTableProps) {
               onValueChange={onSearchChange}
             />
             <div className="flex gap-3">
-              {/* <Dropdown>
-                <DropdownTrigger className="hidden sm:flex">
-                  <Button
-                    endContent={<ChevronDownIcon className="text-small" />}
-                    variant="flat"
-                  >
-                    Status
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Table Columns"
-                  closeOnSelect={false}
-                  selectedKeys={statusFilter}
-                  selectionMode="multiple"
-                  onSelectionChange={setStatusFilter}
-                >
-                  {statusOptions.map((status) => (
-                    <DropdownItem key={status.uid} className="capitalize">
-                      {capitalize(status.name)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown> */}
               <Dropdown>
                 <DropdownTrigger className="hidden sm:flex">
                   <Button
@@ -391,6 +394,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
                 <DropdownMenu
                   disallowEmptySelection
                   aria-label="Table Columns"
+                  color="primary"
                   closeOnSelect={false}
                   selectedKeys={visibleColumns}
                   selectionMode="multiple"
@@ -436,53 +440,182 @@ export default function PatientTable({ patients }: PatientTableProps) {
   ]);
 
   return (
-    <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
-      <Table
-        aria-label="Patients Table"
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "max-h-[50vh] custom-scrollbar",
-          tr: "rounded-small",
-        }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={
-            <>
-              <p className="text-lg font-medium">Aucun patient trouvé</p>
-            </>
-          }
-          items={sortedItems}
+    <>
+      <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
+        <Table
+          aria-label="Patients Table"
+          isHeaderSticky
+          bottomContent={bottomContent}
+          bottomContentPlacement="outside"
+          classNames={{
+            wrapper: "max-h-[50vh] custom-scrollbar",
+            tr: "rounded-small",
+          }}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement="outside"
+          onSelectionChange={setSelectedKeys}
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "actions" ? "center" : "start"}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={
+              <>
+                <p className="text-lg font-medium">Aucun patient trouvé</p>
+              </>
+            }
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {patientToModify && (
+        <>
+          <Modal
+            shouldBlockScroll
+            isOpen={isModifyModalOpen}
+            onOpenChange={onModifyOpen}
+            placement="top-center"
+            classNames={{
+              base: "my-auto md:max-h-[85dvh]",
+              wrapper: "overflow-hidden",
+            }}
+            onClose={() => {
+              setPatientToModify(null);
+            }}
+          >
+            <ModalContent>
+              {(onClose) => (
+                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                  <div className="rounded-md">
+                    <ModalHeader className="flex flex-col gap-1">
+                      Modifier le patient
+                      <p className="text-sm font-[450] text-default-500">
+                        Modifier les informations du patient en remplissant le
+                        formulaire ci-dessous.
+                      </p>
+                    </ModalHeader>
+                    <ModalBody>
+                      <PatientForm
+                        mode="edit"
+                        patientId={patientToModify}
+                        onSuccess={() => {
+                          onClose();
+                          setPatientToModify(null);
+                          router.refresh();
+                        }}
+                        onCancel={() => {
+                          setPatientToModify(null);
+                          onClose();
+                        }}
+                      />
+                    </ModalBody>
+                  </div>
+                </div>
               )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+            </ModalContent>
+          </Modal>
+        </>
+      )}
+
+      {patientToDelete && (
+        <>
+          <Modal
+            shouldBlockScroll
+            isOpen={isDeleteModalOpen}
+            onOpenChange={onDeleteOpenChange}
+            placement="top-center"
+            classNames={{
+              base: "my-auto md:max-h-[85dvh]",
+              wrapper: "overflow-hidden",
+            }}
+            onClose={() => {
+              setPatientToDelete(null);
+            }}
+          >
+            <ModalContent>
+              {(onClose) => (
+                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                  <div className="rounded-md">
+                    <ModalHeader className="flex flex-col">
+                      Supprimer le patient
+                      <p className="text-sm font-[450] text-default-500">
+                        Êtes-vous sûr de vouloir supprimer ce patient ?
+                      </p>
+                    </ModalHeader>
+                    <ModalBody className="px-4">
+                      <div className="flex w-full items-center justify-end gap-2 pt-3">
+                        <Button
+                          color="default"
+                          variant="light"
+                          onClick={() => {
+                            setPatientToDelete(null);
+                            onClose();
+                          }}
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          color="secondary"
+                          onClick={async () => {
+                            await deletePatient.mutateAsync(
+                              { id: patientToDelete },
+                              {
+                                onSuccess: () => {
+                                  onClose();
+                                  setPatientToDelete(null);
+                                  toast.success(
+                                    "Patient supprimé avec succès",
+                                    {
+                                      duration: 1500,
+                                    },
+                                  );
+                                  router.refresh();
+                                },
+                                onError: (error) => {
+                                  toast.error(error.message, {
+                                    duration: 1500,
+                                  });
+                                },
+                              },
+                            );
+                          }}
+                          isLoading={deletePatient.isPending}
+                        >
+                          {deletePatient.isPending
+                            ? "Suppression..."
+                            : "Supprimer"}
+                        </Button>
+                      </div>
+                    </ModalBody>
+                  </div>
+                </div>
+              )}
+            </ModalContent>
+          </Modal>
+        </>
+      )}
+    </>
   );
 }
 

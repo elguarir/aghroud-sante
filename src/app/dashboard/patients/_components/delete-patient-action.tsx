@@ -25,7 +25,7 @@ const DeletePatientAction = (props: Props) => {
             { id: props.id },
             {
               onSuccess: () => {
-                toast.success("Patient deleted successfully", {
+                toast.success("Patient supprimé avec succès", {
                   duration: 1500,
                 });
                 router.back();

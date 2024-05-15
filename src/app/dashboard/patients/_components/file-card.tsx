@@ -24,6 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
 
 interface FileCardProps extends FileDropItem {
   remove: () => void;
@@ -190,29 +191,45 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
   const isImage = props.contentType.includes("image");
   return (
     <div className="flex w-full flex-col rounded-medium border border-content3 px-3 py-2">
-      <Dialog open={preview} onOpenChange={setPreview}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{props.filename}</DialogTitle>
-            <DialogDescription></DialogDescription>
-          </DialogHeader>
-          <div className="flex items-center justify-center pb-4 pt-8">
-            <div className="flex h-full min-h-64 w-full items-center">
-              {previewUrl ? (
-                <img
-                  className="max-w-full object-fill"
-                  src={previewUrl}
-                  alt={props.filename}
-                />
-              ) : (
-                <p className="text-sm  text-default-500">
-                  Aucun aperçu disponible pour ce fichier
-                </p>
-              )}
+      <Modal
+        shouldBlockScroll
+        isOpen={preview}
+        onOpenChange={setPreview}
+        placement="top-center"
+        classNames={{
+          base: "my-auto md:max-h-[85dvh]",
+          wrapper: "overflow-hidden",
+        }}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <div className="custom-scrollbar max-h-[90dvh] max-w-[95%] overflow-y-auto p-1">
+              <div className="rounded-md">
+                <ModalHeader className="flex flex-col gap-1">
+                  <p className="leading-tight">{props.filename}</p>
+                </ModalHeader>
+                <ModalBody>
+                  <div className="flex items-center justify-center pb-4">
+                    <div className="flex h-full min-h-64 w-full items-center">
+                      {previewUrl ? (
+                        <img
+                          className="max-w-full rounded object-fill"
+                          src={previewUrl}
+                          alt={props.filename}
+                        />
+                      ) : (
+                        <p className="text-sm  text-default-500">
+                          Aucun aperçu disponible pour ce fichier
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </ModalBody>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          )}
+        </ModalContent>
+      </Modal>
       <div className="flex h-full w-full flex-1 items-center">
         {/* file info */}
         <div className="flex w-full items-center space-x-2">

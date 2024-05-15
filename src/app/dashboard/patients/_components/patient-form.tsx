@@ -27,9 +27,15 @@ type Props = {
   mode?: "create" | "edit";
   patientId?: number;
   onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
-const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
+const PatientForm = ({
+  mode = "create",
+  patientId,
+  onSuccess,
+  onCancel,
+}: Props) => {
   const {
     register,
     handleSubmit,
@@ -83,7 +89,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
         {
           onSuccess: () => {
             toast.success("Modifications enregistrées avec succès");
-            router.push(`/dashboard/patients/`);
+            if (onSuccess) onSuccess();
           },
           onError: (error) => {
             toast.error(error.message);
@@ -108,7 +114,7 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid w-full gap-y-6 pb-3 pt-8"
+      className="grid w-full gap-y-6 pb-3"
     >
       <Fieldset type="fieldset" legend="Informations personnelles">
         <div className="grid w-full gap-y-6">
@@ -321,13 +327,15 @@ const PatientForm = ({ mode = "create", patientId, onSuccess }: Props) => {
             </div>
           </div>
         </Fieldset>
-        <Divider className="mt-6" />
+        <Divider className="mt-4" />
       </div>
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-between">
         {mode === "edit" && (
           <Button
             variant="light"
-            onClick={() => router.replace("/dashboard/patients")}
+            onClick={() => {
+              if (onCancel) onCancel();
+            }}
           >
             Annuler
           </Button>

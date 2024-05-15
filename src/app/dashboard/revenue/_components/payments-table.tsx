@@ -14,9 +14,9 @@ import {
 import { CircleFadingPlus, MoreVertical } from "lucide-react";
 import { ChevronDownIcon } from "lucide-react";
 import { SearchIcon } from "lucide-react";
-import { columns, PaymentData, paymentMethods } from "./patient-data";
+import { columns, PaymentData, paymentMethods } from "./payment-data";
 import { User } from "@nextui-org/user";
-import { Button } from "@nextui-org/button";
+import { Button, ButtonGroup } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Pagination } from "@nextui-org/pagination";
 import {
@@ -25,17 +25,16 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "@nextui-org/dropdown";
-import {
-  EditIcon,
-  EyeFilledIcon,
-  FilterIcon,
-  TrashIcon,
-} from "@/components/icons";
+import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { AddNewPaymentModal } from "./add-new-payment";
 import { Chip } from "@nextui-org/chip";
-import { CheckIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import { format, set } from "date-fns";
+import {
+  ArrowRightIcon,
+  CheckIcon,
+  CrossCircledIcon,
+} from "@radix-ui/react-icons";
+import { format, isEqual, isSameDay } from "date-fns";
 import {
   Modal,
   ModalBody,
@@ -49,6 +48,14 @@ import { toast } from "sonner";
 import { api } from "@/trpc/react";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { Divider } from "@nextui-org/divider";
+import { DateValue, RangeCalendar, RangeValue } from "@nextui-org/calendar";
+import {
+  getLocalTimeZone,
+  today,
+  startOfMonth,
+  endOfMonth,
+} from "@internationalized/date";
+
 const INITIAL_VISIBLE_COLUMNS = [
   "label",
   "patient",
@@ -69,7 +76,8 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([]),
   );
-  // actions related
+
+  // Handling modals
   const {
     isOpen: isModifyModalOpen,
     onOpen: onModifyOpen,
@@ -87,25 +95,29 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     null,
   );
   const deletePayment = api.payment.delete.useMutation();
+
+  // Filters
   const [paymentFilters, setPaymentFilters] = React.useState<Selection>(
     new Set([]),
   );
+  let [dateFilter, setDateFilter] = React.useState<RangeValue<DateValue>>({
+    start: startOfMonth(today(getLocalTimeZone())),
+    end: endOfMonth(today(getLocalTimeZone())),
+  });
+  const hasSearchFilter = Boolean(filterValue);
+  const hasDateFilter = dateFilter.start && dateFilter.end;
+  const hasPaymentFilter = Boolean(Array.from(paymentFilters).length > 0);
 
-  console.log("payments", paymentFilters);
-
+  // Columns, Rows per page, Sort
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
   );
-
-  const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "paymentDate",
     direction: "descending",
   });
   const [page, setPage] = React.useState(1);
-  const hasSearchFilter = Boolean(filterValue);
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
 
@@ -142,16 +154,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       });
     }
 
-    // if (Array.from(paymentFilters).length !== paymentMethods.length) {
-    //   filteredPayments = filteredPayments.filter((payment) => {
-    //     if (payment.paymentMethod) {
-    //       return Array.from(paymentFilters).includes(payment.paymentMethod);
-    //     }
-    //     return true;
-    //   });
-    // }
-
-    if(Array.from(paymentFilters).length > 0) {
+    if (hasPaymentFilter) {
       filteredPayments = filteredPayments.filter((payment) => {
         if (payment.paymentMethod) {
           return Array.from(paymentFilters).includes(payment.paymentMethod);
@@ -160,17 +163,38 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       });
     }
 
-    return filteredPayments;
-  }, [payments, filterValue, paymentFilters]);
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+    if (hasDateFilter) {
+      let isSameDayFilter = isSameDay(
+        dateFilter.start.toDate(getLocalTimeZone()),
+        dateFilter.end.toDate(getLocalTimeZone()),
+      );
+      if (isSameDayFilter) {
+        filteredPayments = filteredPayments.filter((payment) => {
+          return isSameDay(
+            payment.paymentDate,
+            dateFilter.start.toDate(getLocalTimeZone()),
+          );
+        });
+      } else {
+        filteredPayments = filteredPayments.filter((payment) => {
+          return (
+            payment.paymentDate >=
+              dateFilter.start.toDate(getLocalTimeZone()) &&
+            payment.paymentDate <= dateFilter.end.toDate(getLocalTimeZone())
+          );
+        });
+      }
+    }
 
+    return filteredPayments;
+  }, [payments, filterValue, paymentFilters, dateFilter]);
+  const pages = Math.ceil(filteredItems.length / rowsPerPage);
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
-
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a: PaymentData, b: PaymentData) => {
       const first = a[sortDescriptor.column as keyof PaymentData] as number;
@@ -180,7 +204,27 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
+  const onRowsPerPageChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setRowsPerPage(Number(e.target.value));
+      setPage(1);
+    },
+    [],
+  );
+  const onSearchChange = React.useCallback((value?: string) => {
+    if (value) {
+      setFilterValue(value);
+      setPage(1);
+    } else {
+      setFilterValue("");
+    }
+  }, []);
+  const onClear = React.useCallback(() => {
+    setFilterValue("");
+    setPage(1);
+  }, []);
 
+  // Renderers
   const renderCell = React.useCallback(
     (payment: PaymentData, columnKey: React.Key) => {
       const cellValue = payment[columnKey as keyof PaymentData];
@@ -367,41 +411,78 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     },
     [],
   );
-
-  const onNextPage = React.useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1);
-    }
-  }, [page, pages]);
-
-  const onPreviousPage = React.useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  }, [page]);
-
-  const onRowsPerPageChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setRowsPerPage(Number(e.target.value));
-      setPage(1);
+  const RenderFilters = React.useCallback(
+    ({ filter }: { filter: string }) => {
+      switch (filter) {
+        case "paymentMethod": {
+          const paymentFiltersArray = Array.from(paymentFilters);
+          if (paymentFiltersArray.length > 0) {
+            return (
+              <>
+                <Divider orientation="vertical" className="h-[60%] w-[0.9px]" />
+                <div className="flex items-center gap-1">
+                  {paymentFiltersArray.length <= 2 ? (
+                    <>
+                      {paymentFiltersArray.map((method) => (
+                        <Chip
+                          key={method}
+                          variant="faded"
+                          radius="sm"
+                          color="secondary"
+                        >
+                          {
+                            paymentMethods.find((m) => m.value === method)
+                              ?.label
+                          }
+                        </Chip>
+                      ))}
+                    </>
+                  ) : (
+                    <div>
+                      <Chip variant="faded" radius="sm" color="secondary">
+                        {paymentFiltersArray.length} Séléctionnés
+                      </Chip>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          } else {
+            return undefined;
+          }
+        }
+        case "paymentDate": {
+          if (hasDateFilter) {
+            return (
+              <>
+                <Divider orientation="vertical" className="h-[60%] w-[0.9px]" />
+                <div className="flex items-center gap-1">
+                  {dateFilter.start.toString() === dateFilter.end.toString() ? (
+                    <Chip variant="faded" radius="sm" color="secondary">
+                      {format(dateFilter.start.toString(), "dd/MM/yyyy")}
+                    </Chip>
+                  ) : (
+                    <Chip variant="faded" radius="sm" color="secondary">
+                      <div className="flex w-fit flex-row items-center gap-1.5">
+                        {format(dateFilter.start.toString(), "dd/MM/yyyy")}
+                        <ArrowRightIcon className="h-4 w-4" />
+                        {format(dateFilter.end.toString(), "dd/MM/yyyy")}
+                      </div>
+                    </Chip>
+                  )}
+                </div>
+              </>
+            );
+          } else {
+            return undefined;
+          }
+        }
+        default:
+          return <></>;
+      }
     },
-    [],
+    [paymentFilters, dateFilter],
   );
-
-  const onSearchChange = React.useCallback((value?: string) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue("");
-    }
-  }, []);
-
-  const onClear = React.useCallback(() => {
-    setFilterValue("");
-    setPage(1);
-  }, []);
-
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
@@ -422,17 +503,16 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-
   const topContent = React.useMemo(() => {
     return (
       <>
         <div className="flex w-full flex-col gap-4">
-          <div className="flex items-end justify-between gap-6 ">
-            <div className="flex w-full items-center gap-2 @container">
+          <div className="custom-scrollbar flex w-full items-end justify-between gap-6 overflow-x-auto py-2">
+            <div className="flex w-full min-w-fit items-center gap-2">
               <Input
                 isClearable
                 variant="bordered"
-                className="w-full max-w-[300px]"
+                className="w-full min-w-[300px] max-w-[350px]"
                 classNames={{
                   inputWrapper:
                     "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -445,11 +525,10 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                 onClear={() => onClear()}
                 onValueChange={onSearchChange}
               />
-              <div className="hidden min-w-fit @lg:block">
+              <div className="flex min-w-fit items-center gap-2">
                 <Popover
                   triggerScaleOnOpen={false}
                   placement="bottom-start"
-                  // showArrow
                   offset={10}
                 >
                   <PopoverTrigger>
@@ -458,47 +537,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                       startContent={
                         <CircleFadingPlus className="h-4 w-4 text-default-500" />
                       }
-                      endContent={
-                        Array.from(paymentFilters).length > 0 ? (
-                          <>
-                            <Divider
-                              orientation="vertical"
-                              className="h-[60%] w-[0.9px]"
-                            />
-                            <div className="flex items-center gap-1">
-                              {Array.from(paymentFilters).length <= 2 ? (
-                                <>
-                                  {Array.from(paymentFilters).map((method) => (
-                                    <Chip
-                                      key={method}
-                                      variant="faded"
-                                      radius="sm"
-                                      color="secondary"
-                                    >
-                                      {
-                                        paymentMethods.find(
-                                          (m) => m.value === method,
-                                        )?.label
-                                      }
-                                    </Chip>
-                                  ))}
-                                </>
-                              ) : (
-                                <div>
-                                  <Chip
-                                    variant="faded"
-                                    radius="sm"
-                                    color="secondary"
-                                  >
-                                    {Array.from(paymentFilters).length}{" "}
-                                    Séléctionnés
-                                  </Chip>
-                                </div>
-                              )}
-                            </div>
-                          </>
-                        ) : undefined
-                      }
+                      endContent={<RenderFilters filter="paymentMethod" />}
                       color="default"
                       variant="bordered"
                     >
@@ -519,7 +558,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                           </ListboxItem>
                         ))}
                       </Listbox>
-                      {Array.from(paymentFilters).length > 0 && (
+                      {hasPaymentFilter && (
                         <>
                           <Divider className="mx-auto w-[90%]" />
                           <div className="flex w-full justify-end gap-2">
@@ -541,69 +580,104 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                     </div>
                   </PopoverContent>
                 </Popover>
-              </div>
-              <div className="block min-w-fit @lg:hidden">
-                <Popover placement="bottom" showArrow offset={10}>
+                <Popover
+                  triggerScaleOnOpen={false}
+                  placement="bottom"
+                  offset={10}
+                >
                   <PopoverTrigger>
-                    <Button color="default" variant="bordered" isIconOnly>
-                      <FilterIcon className="h-5 w-5 text-default-500" />
+                    <Button
+                      disableAnimation
+                      startContent={
+                        <CircleFadingPlus className="h-4 w-4 text-default-500" />
+                      }
+                      endContent={<RenderFilters filter="paymentDate" />}
+                      color="default"
+                      variant="bordered"
+                    >
+                      Date
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[260px]">
-                    <div className="w-full px-1 py-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-base font-semibold text-foreground">
-                          Filtres
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Button
+                  <PopoverContent className="w-full min-w-[200px] rounded-small border-none p-0 shadow-none">
+                    <div className="flex flex-col gap-2">
+                      <RangeCalendar
+                        aria-label="Paiment Date Range"
+                        value={dateFilter}
+                        classNames={{
+                          title: "capitalize",
+                        }}
+                        onChange={setDateFilter}
+                        topContent={
+                          <ButtonGroup
+                            fullWidth
+                            className="max-w-full bg-content1 px-3 pb-2 pt-3 [&>button]:border-default-200/60 [&>button]:text-default-500"
+                            radius="full"
                             size="sm"
-                            variant="light"
-                            color="default"
-                            onPress={() => {
-                              // TODO: reset filters
-                            }}
+                            variant="bordered"
                           >
-                            Réinitialiser
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="mt-2 flex w-full flex-col gap-2"></div>
+                            <Button
+                              onPress={() => {
+                                setDateFilter({
+                                  start: startOfMonth(
+                                    today(getLocalTimeZone()),
+                                  ),
+                                  end: endOfMonth(today(getLocalTimeZone())),
+                                });
+                              }}
+                            >
+                              Mois en cours
+                            </Button>
+                            <Button
+                              onPress={() => {
+                                setDateFilter({
+                                  start: startOfMonth(
+                                    today(getLocalTimeZone()),
+                                  ).subtract({ months: 1 }),
+                                  end: endOfMonth(
+                                    today(getLocalTimeZone()),
+                                  ).subtract({ months: 1 }),
+                                });
+                              }}
+                            >
+                              Mois précédent
+                            </Button>
+                          </ButtonGroup>
+                        }
+                        bottomContent={
+                          <>
+                            <div>
+                              <Button
+                                size="sm"
+                                variant="light"
+                                color="default"
+                                radius="none"
+                                fullWidth
+                                onPress={() => {
+                                  setDateFilter({
+                                    start: startOfMonth(
+                                      today(getLocalTimeZone()),
+                                    ),
+                                    end: endOfMonth(today(getLocalTimeZone())),
+                                  });
+                                }}
+                              >
+                                Réinitialiser
+                              </Button>
+                            </div>
+                          </>
+                        }
+                      />
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
+            {/* columns */}
             <div className="flex gap-3">
-              {/* <Dropdown>
-                <DropdownTrigger className="hidden sm:flex">
-                  <Button
-                    endContent={<ChevronDownIcon className="text-small" />}
-                    variant="flat"
-                  >
-                    Status
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  disallowEmptySelection
-                  aria-label="Table Columns"
-                  closeOnSelect={false}
-                  selectedKeys={statusFilter}
-                  selectionMode="multiple"
-                  onSelectionChange={setStatusFilter}
-                >
-                  {statusOptions.map((status) => (
-                    <DropdownItem key={status.uid} className="capitalize">
-                      {capitalize(status.name)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown> */}
-
               <Dropdown>
                 <DropdownTrigger className="hidden sm:flex">
                   <Button
-                    endContent={<ChevronDownIcon className="text-small" />}
+                    endContent={<ChevronDownIcon className="h-4 w-4" />}
                     variant="flat"
                   >
                     Colonnes
@@ -625,7 +699,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                   ))}
                 </DropdownMenu>
               </Dropdown>
-              <AddNewPaymentModal />
+              {/* <AddNewPaymentModal /> */}
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -649,14 +723,145 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     );
   }, [
     filterValue,
-    statusFilter,
     paymentFilters,
     visibleColumns,
+    dateFilter,
     onSearchChange,
     onRowsPerPageChange,
     payments.length,
     hasSearchFilter,
   ]);
+
+  let RenderModals = () => {
+    return (
+      <>
+        {PaymentToModify && (
+          <>
+            <Modal
+              shouldBlockScroll
+              isOpen={isModifyModalOpen}
+              onOpenChange={onModifyOpen}
+              placement="top-center"
+              classNames={{
+                base: "my-auto md:max-h-[85dvh]",
+                wrapper: "overflow-hidden",
+              }}
+              onClose={() => {
+                setPaymentToModify(null);
+              }}
+            >
+              <ModalContent>
+                {(onClose) => (
+                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                    <div className="rounded-md">
+                      <ModalHeader className="flex flex-col gap-1">
+                        Modifier le paiement
+                        <p className="text-sm font-[450] text-default-500">
+                          Modifiez les informations du paiement.
+                        </p>
+                      </ModalHeader>
+                      <ModalBody>
+                        <PaymentForm
+                          mode="edit"
+                          paymentId={PaymentToModify}
+                          onSuccess={() => {
+                            onClose();
+                            setPaymentToModify(null);
+                            router.refresh();
+                          }}
+                          onCancel={() => {
+                            setPaymentToModify(null);
+                            onClose();
+                          }}
+                        />
+                      </ModalBody>
+                    </div>
+                  </div>
+                )}
+              </ModalContent>
+            </Modal>
+          </>
+        )}
+        {PaymentToDelete && (
+          <>
+            <Modal
+              shouldBlockScroll
+              isOpen={isDeleteModalOpen}
+              onOpenChange={onDeleteOpenChange}
+              placement="top-center"
+              classNames={{
+                base: "my-auto md:max-h-[85dvh]",
+                wrapper: "overflow-hidden",
+              }}
+              onClose={() => {
+                setPaymentToDelete(null);
+              }}
+            >
+              <ModalContent>
+                {(onClose) => (
+                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                    <div className="rounded-md">
+                      <ModalHeader className="flex flex-col">
+                        Supprimer le paiement
+                        <p className="text-sm font-[450] text-default-500">
+                          Êtes-vous sûr de vouloir supprimer ce paiement ?
+                        </p>
+                      </ModalHeader>
+                      <ModalBody className="px-4">
+                        <div className="flex w-full items-center justify-end gap-2 pt-3">
+                          <Button
+                            color="default"
+                            variant="light"
+                            onClick={() => {
+                              setPaymentToDelete(null);
+                              onClose();
+                            }}
+                          >
+                            Annuler
+                          </Button>
+                          <Button
+                            color="secondary"
+                            onClick={async () => {
+                              await deletePayment.mutateAsync(
+                                { id: PaymentToDelete },
+                                {
+                                  onSuccess: () => {
+                                    onClose();
+                                    setPaymentToDelete(null);
+                                    toast.success(
+                                      "Paiement supprimé avec succès",
+                                      {
+                                        duration: 1500,
+                                      },
+                                    );
+                                    router.refresh();
+                                  },
+                                  onError: (error) => {
+                                    toast.error(error.message, {
+                                      duration: 1500,
+                                    });
+                                  },
+                                },
+                              );
+                            }}
+                            isLoading={deletePayment.isPending}
+                          >
+                            {deletePayment.isPending
+                              ? "Suppression..."
+                              : "Supprimer"}
+                          </Button>
+                        </div>
+                      </ModalBody>
+                    </div>
+                  </div>
+                )}
+              </ModalContent>
+            </Modal>
+          </>
+        )}
+      </>
+    );
+  };
 
   return (
     <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
@@ -705,131 +910,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
           )}
         </TableBody>
       </Table>
-
-      {PaymentToModify && (
-        <>
-          <Modal
-            shouldBlockScroll
-            isOpen={isModifyModalOpen}
-            onOpenChange={onModifyOpen}
-            placement="top-center"
-            classNames={{
-              base: "my-auto md:max-h-[85dvh]",
-              wrapper: "overflow-hidden",
-            }}
-            onClose={() => {
-              setPaymentToModify(null);
-            }}
-          >
-            <ModalContent>
-              {(onClose) => (
-                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                  <div className="rounded-md">
-                    <ModalHeader className="flex flex-col gap-1">
-                      Modifier le paiement
-                      <p className="text-sm font-[450] text-default-500">
-                        Modifiez les informations du paiement.
-                      </p>
-                    </ModalHeader>
-                    <ModalBody>
-                      <PaymentForm
-                        mode="edit"
-                        paymentId={PaymentToModify}
-                        onSuccess={() => {
-                          onClose();
-                          setPaymentToModify(null);
-                          router.refresh();
-                        }}
-                        onCancel={() => {
-                          setPaymentToModify(null);
-                          onClose();
-                        }}
-                      />
-                    </ModalBody>
-                  </div>
-                </div>
-              )}
-            </ModalContent>
-          </Modal>
-        </>
-      )}
-      {PaymentToDelete && (
-        <>
-          <Modal
-            shouldBlockScroll
-            isOpen={isDeleteModalOpen}
-            onOpenChange={onDeleteOpenChange}
-            placement="top-center"
-            classNames={{
-              base: "my-auto md:max-h-[85dvh]",
-              wrapper: "overflow-hidden",
-            }}
-            onClose={() => {
-              setPaymentToModify(null);
-            }}
-          >
-            <ModalContent>
-              {(onClose) => (
-                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                  <div className="rounded-md">
-                    <ModalHeader className="flex flex-col">
-                      Supprimer le paiement
-                      <p className="text-sm font-[450] text-default-500">
-                        Êtes-vous sûr de vouloir supprimer ce paiement ?
-                      </p>
-                    </ModalHeader>
-                    <ModalBody className="px-4">
-                      <div className="flex w-full items-center justify-end gap-2 pt-3">
-                        <Button
-                          color="default"
-                          variant="light"
-                          onClick={() => {
-                            setPaymentToDelete(null);
-                            onClose();
-                          }}
-                        >
-                          Annuler
-                        </Button>
-                        <Button
-                          color="secondary"
-                          onClick={async () => {
-                            await deletePayment.mutateAsync(
-                              { id: PaymentToDelete },
-                              {
-                                onSuccess: () => {
-                                  onClose();
-                                  setPaymentToDelete(null);
-                                  toast.success(
-                                    "Paiement deleted successfully",
-                                    {
-                                      duration: 1500,
-                                    },
-                                  );
-                                  router.refresh();
-                                },
-                                onError: (error) => {
-                                  toast.error(error.message, {
-                                    duration: 1500,
-                                  });
-                                },
-                              },
-                            );
-                          }}
-                          isLoading={deletePayment.isPending}
-                        >
-                          {deletePayment.isPending
-                            ? "Suppression..."
-                            : "Supprimer"}
-                        </Button>
-                      </div>
-                    </ModalBody>
-                  </div>
-                </div>
-              )}
-            </ModalContent>
-          </Modal>
-        </>
-      )}
+      <RenderModals />
     </div>
   );
 }

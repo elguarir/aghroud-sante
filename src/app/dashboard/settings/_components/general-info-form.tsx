@@ -58,7 +58,7 @@ const GeneralInformationForm = (props: Props) => {
         } catch (error) {
           console.error("Failed to update profile", error);
         }
-        toast.success("Profile updated successfully");
+        toast.success("Profile à jour avec succès");
         router.refresh();
       },
     });

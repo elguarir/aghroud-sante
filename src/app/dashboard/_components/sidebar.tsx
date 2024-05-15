@@ -39,8 +39,8 @@ const SideBar = ({ type = "normal", user }: Props) => {
       icon: <DashboardIcon className="h-5 w-5" />,
     },
     {
-      title: "Appointments",
-      href: "/dashboard/appointments",
+      title: "Rendez-vous",
+      href: "/dashboard/rendez-vous",
       type: "normal",
       icon: <CalendarIcon className="h-5 w-5" />,
     },
@@ -76,8 +76,8 @@ const SideBar = ({ type = "normal", user }: Props) => {
       ],
     },
     {
-      title: "Reports",
-      href: "/dashboard/reports",
+      title: "Rapports",
+      href: "/dashboard/rapports",
       type: "normal",
       icon: <ReportsIcon className="h-5 w-5" />,
     },
