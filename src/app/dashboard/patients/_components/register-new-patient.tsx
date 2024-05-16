@@ -31,9 +31,9 @@ export function RegisterPatientModal() {
         shouldBlockScroll
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        placement="top-center"
+        placement="center"
         classNames={{
-          base: "my-auto md:max-h-[85dvh]",
+          base: "md:max-h-[85dvh]",
           wrapper: "overflow-hidden",
         }}
       >

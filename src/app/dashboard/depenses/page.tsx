@@ -1,6 +1,7 @@
 import Wrapper from "../_components/wrapper";
 import { AddNewExpenseModal } from "./_components/add-new-expense";
 import { getExpenses } from "@/server/api/routers/helpers/expenses";
+import ExpenseTable from "./_components/expenses-table";
 
 type Props = {};
 
@@ -14,7 +15,7 @@ const DepensePage = async (props: Props) => {
           <AddNewExpenseModal />
         </div>
         <div className="flex h-full min-h-[78dvh] flex-1 flex-col pb-5 pt-7 shadow-sm">
-          {/* <PaymentTable payments={payments} /> */}
+          <ExpenseTable expenses={expenses} />
         </div>
       </div>
     </Wrapper>

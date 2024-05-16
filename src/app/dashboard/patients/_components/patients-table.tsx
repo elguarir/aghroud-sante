@@ -487,16 +487,15 @@ export default function PatientTable({ patients }: PatientTableProps) {
           </TableBody>
         </Table>
       </div>
-
       {patientToModify && (
         <>
           <Modal
             shouldBlockScroll
             isOpen={isModifyModalOpen}
             onOpenChange={onModifyOpen}
-            placement="top-center"
+            placement="center"
             classNames={{
-              base: "my-auto md:max-h-[85dvh]",
+              base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",
             }}
             onClose={() => {
@@ -536,16 +535,15 @@ export default function PatientTable({ patients }: PatientTableProps) {
           </Modal>
         </>
       )}
-
       {patientToDelete && (
         <>
           <Modal
             shouldBlockScroll
             isOpen={isDeleteModalOpen}
             onOpenChange={onDeleteOpenChange}
-            placement="top-center"
+            placement="center"
             classNames={{
-              base: "my-auto md:max-h-[85dvh]",
+              base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",
             }}
             onClose={() => {

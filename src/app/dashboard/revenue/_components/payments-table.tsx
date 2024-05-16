@@ -268,7 +268,11 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                   {payment.patient?.email}
                 </User>
               ) : (
-                <p className="text-bold text-small capitalize">Non défini</p>
+                <div className="py-2">
+                  <p className="text-bold text-center text-small capitalize">
+                    Non défini
+                  </p>
+                </div>
               )}
             </>
           );
@@ -488,7 +492,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
         <span className="w-[30%] text-small text-default-400">
           {selectedKeys === "all"
-            ? "Tous les patients sélectionnés"
+            ? "Tous les paiments sélectionnés"
             : `${selectedKeys.size} sur ${filteredItems.length} sélectionnés`}
         </span>
         <Pagination
@@ -741,9 +745,9 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               shouldBlockScroll
               isOpen={isModifyModalOpen}
               onOpenChange={onModifyOpen}
-              placement="top-center"
+              placement="center"
               classNames={{
-                base: "my-auto md:max-h-[85dvh]",
+                base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
               }}
               onClose={() => {
@@ -788,9 +792,9 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               shouldBlockScroll
               isOpen={isDeleteModalOpen}
               onOpenChange={onDeleteOpenChange}
-              placement="top-center"
+              placement="center"
               classNames={{
-                base: "my-auto md:max-h-[85dvh]",
+                base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
               }}
               onClose={() => {
@@ -864,9 +868,9 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
   };
 
   return (
-    <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
+    <div className="w-full max-2xl:w-[calc(100dvw-385px)] max-xl:w-[calc(100dvw-380px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-50px)] max-sm:w-[calc(100dvw-40px)] [@media(min-width:1536px)]:w-[calc(100dvw-380px)]">
       <Table
-        aria-label="Patients Table"
+        aria-label="Paiments Table"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
