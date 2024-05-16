@@ -127,6 +127,8 @@ model Payment {
     @@map("payments")
 }
 
+// Expenses model: for this model, we need to keep track of the expenses incurred by the center. The expenses could be related to operational costs, salaries, equipment, utilities, rent, or other expenses.
+
 enum ExpenseType {
     OPERATIONAL
     SALARY
@@ -137,12 +139,12 @@ enum ExpenseType {
 }
 
 model Expense {
-    id     String      @id @default(cuid())
-    label  String?
-    amount Float
-    date   DateTime
-    type   ExpenseType
-    notes  String? // Additional notes or comments about the expense
+    id          String      @id @default(cuid())
+    label       String?
+    amount      Float
+    expenseDate DateTime
+    type        ExpenseType
+    notes       String? // Additional notes or comments about the expense
 
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")

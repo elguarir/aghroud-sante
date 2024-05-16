@@ -4,7 +4,7 @@ import PaymentTable from "./_components/payments-table";
 
 type Props = {};
 
-const DepensePage = async (props: Props) => {
+const RevenuePage = async (props: Props) => {
   const payments = await getPayments();
   return (
     <Wrapper>
@@ -22,4 +22,4 @@ const DepensePage = async (props: Props) => {
   );
 };
 
-export default DepensePage;
+export default RevenuePage;

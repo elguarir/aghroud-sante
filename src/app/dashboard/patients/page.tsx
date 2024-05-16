@@ -3,6 +3,7 @@ import Wrapper from "../_components/wrapper";
 import PatientsTable from "./_components/patients-table";
 import { getAllPatients } from "@/server/api/routers/helpers/patient";
 import { Metadata } from "next";
+import { RegisterPatientModal } from "./_components/register-new-patient";
 
 type Props = {};
 
@@ -20,8 +21,10 @@ const PatientsPage = async (props: Props) => {
       <div className="flex h-full flex-col gap-4">
         <div className="flex w-full items-center justify-between gap-2">
           <h1 className="text-xl font-semibold md:text-2xl">Patients</h1>
+          <RegisterPatientModal />
+
         </div>
-        <div className="my-8 flex h-full min-h-[75dvh] w-full flex-1 flex-col items-center p-0 md:p-5">
+        <div className="my-8 flex h-full min-h-[75dvh] w-full flex-1 flex-col items-center p-0">
           <PatientsTable patients={patients} />
         </div>
       </div>

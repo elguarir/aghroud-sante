@@ -12,7 +12,7 @@ const columns = [
   { name: "Payé", uid: "isPaid" },
   { name: "Notes", uid: "notes" },
   { name: "Date de paiement", uid: "paymentDate", sortable: true },
-  { name: "Nombre de seances", uid: "numberOfSessions", sortable: true },
+  { name: "Nombre des séances", uid: "numberOfSessions", sortable: true },
   { name: "Actions", uid: "actions" },
 ];
 

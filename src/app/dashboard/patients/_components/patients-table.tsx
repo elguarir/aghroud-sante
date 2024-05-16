@@ -407,7 +407,6 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   ))}
                 </DropdownMenu>
               </Dropdown>
-              <RegisterPatientModal />
             </div>
           </div>
           <div className="flex items-center justify-between">
@@ -441,7 +440,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
 
   return (
     <>
-      <div className="w-full max-2xl:w-[calc(100dvw-400px)] max-xl:w-[calc(100dvw-440px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-90px)] max-sm:w-[calc(100dvw-60px)] [@media(min-width:1536px)]:w-[calc(100dvw-400px)]">
+      <div className="w-full max-2xl:w-[calc(100dvw-385px)] max-xl:w-[calc(100dvw-380px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-50px)] max-sm:w-[calc(100dvw-40px)] [@media(min-width:1536px)]:w-[calc(100dvw-380px)]">
         <Table
           aria-label="Patients Table"
           isHeaderSticky
