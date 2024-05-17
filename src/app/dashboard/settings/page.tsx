@@ -9,7 +9,7 @@ const SettingsPage = async (props: Props) => {
     <Wrapper>
       <div className="flex h-full flex-col gap-4">
         <div className="flex flex-col">
-          <h1 className="text-xl font-semibold md:text-2xl">Settings</h1>
+          <h1 className="text-xl font-semibold md:text-2xl">Paramètres</h1>
         </div>
         <div className="flex h-full min-h-[78dvh] flex-1 flex-col">
          <Settings />

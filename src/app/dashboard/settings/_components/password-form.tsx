@@ -21,19 +21,21 @@ const PasswordForm = (props: Props) => {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(passwordChangeSchema),
   });
   const changePassword = api.user.changePassword.useMutation();
 
-  console.log("errors", errors);
   const onSubmit = (values: FormValues) => {
     changePassword.mutate(values, {
       onSuccess: () => {
         toast.success("Password updated successfully");
-        setValue("oldPassword", "");
-        setValue("newPassword", "");
+        reset({
+          oldPassword: "",
+          newPassword: "",
+        });
       },
       onError: (error) => {
         toast.error(error.message);
@@ -44,13 +46,13 @@ const PasswordForm = (props: Props) => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <fieldset disabled={changePassword.isPending} className="grid gap-y-6">
         <Input
-          label="Current Password"
-          placeholder="Enter your current password"
+          label="Mot de passe actuel"
+          placeholder="Entrer votre mot de passe actuel"
           type={isVisible ? "text" : "password"}
           variant="bordered"
           labelPlacement="outside"
           isRequired
-          description="Confirming your current password is required to update your password."
+          description="La confirmation de votre mot de passe actuel est requise pour mettre à jour votre mot de passe."
           classNames={{
             inputWrapper:
               "group-data-[focus=true]:border-primary !transition-all !duration-200",
@@ -72,8 +74,8 @@ const PasswordForm = (props: Props) => {
           {...register("oldPassword")}
         />
         <Input
-          label="New Password"
-          placeholder="Enter your new password"
+          label="Nouveau mot de passe"
+          placeholder="Entrez votre nouveau mot de passe"
           type={isVisible ? "text" : "password"}
           variant="bordered"
           labelPlacement="outside"
@@ -104,7 +106,9 @@ const PasswordForm = (props: Props) => {
             type="submit"
             color="primary"
           >
-            {changePassword.isPending ? "Saving..." : "Save"}
+            {changePassword.isPending
+              ? "Enregistrement en cours..."
+              : "Enregistrer"}
           </Button>
         </div>
       </fieldset>

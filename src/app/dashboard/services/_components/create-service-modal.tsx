@@ -25,7 +25,7 @@ export function CreateServiceModal() {
           endContent={<PlusIcon className="h-5 w-5" />}
           color="primary"
         >
-          Ajouter une Service
+          Service
         </Button>
       </DialogTrigger>
       <DialogContent className="pb-0 sm:max-w-[425px]">

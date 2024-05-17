@@ -217,7 +217,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
         case "insuranceProvider":
           return (
             <div className="flex w-fit flex-col">
-              <p className="text-bold text-small capitalize">
+              <p className="text-bold text-nowrap text-small capitalize">
                 {patient.insuranceProvider || "Non défini"}
               </p>
             </div>
@@ -494,6 +494,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             isOpen={isModifyModalOpen}
             onOpenChange={onModifyOpen}
             placement="center"
+        backdrop="blur"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",
@@ -542,6 +543,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             isOpen={isDeleteModalOpen}
             onOpenChange={onDeleteOpenChange}
             placement="center"
+        backdrop="blur"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",

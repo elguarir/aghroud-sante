@@ -30,6 +30,7 @@ export function AddNewPaymentModal() {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         placement="center"
+        backdrop="blur"
         classNames={{
           base: "md:max-h-[85dvh]",
           wrapper: "overflow-hidden",

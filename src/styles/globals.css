@@ -26,13 +26,10 @@ input:-webkit-autofill:active {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-    /* width: 6px;
-    height: 7px;
-    background-color: theme("colors.foreground-100");
-    border-radius: 15px; */
-    @apply bg-foreground-100 rounded-lg w-[6px] h-[4px] sm:h-[5.5px];
+    @apply bg-foreground-100 rounded-lg w-[4px] h-[4px] sm:h-[5.5px];
 }
 
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-foreground-300 rounded-lg;
+    @apply bg-foreground-200 rounded-lg;
 }

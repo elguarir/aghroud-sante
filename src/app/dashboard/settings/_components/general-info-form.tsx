@@ -56,7 +56,7 @@ const GeneralInformationForm = (props: Props) => {
             },
           });
         } catch (error) {
-          console.error("Failed to update profile", error);
+          console.error("Échec de la mise à jour du profil", error);
         }
         toast.success("Profile à jour avec succès");
         router.refresh();
@@ -76,7 +76,7 @@ const GeneralInformationForm = (props: Props) => {
         <div className="flex items-center gap-4">
           <div className="space-y-[10px]">
             <label htmlFor="profile-pic-input" className="text-small">
-              Profile Picture
+              Photo de profil
             </label>
             <div>
               <DropZone
@@ -93,11 +93,8 @@ const GeneralInformationForm = (props: Props) => {
                   isDragReject,
                   file,
                   isUploading,
-                  open,
-                  clear,
                   getRootProps,
                   getInputProps,
-                  inputRef,
                 }) => {
                   return avatarUrl ? (
                     <div className="flex items-center gap-6">
@@ -116,7 +113,7 @@ const GeneralInformationForm = (props: Props) => {
                           setValue("avatarUrl", "");
                         }}
                       >
-                        Remove
+                        Supprimer
                       </Button>
                     </div>
                   ) : (
@@ -155,7 +152,7 @@ const GeneralInformationForm = (props: Props) => {
             </div>
             <div className="relative !mt-0 flex flex-col p-1">
               <div className="text-tiny text-foreground-400">
-                <span>Accepted formats: </span>
+                <span>Formats acceptés :</span>
                 <span className="font-medium text-foreground-500">
                   .jpeg, .png
                 </span>
@@ -165,8 +162,8 @@ const GeneralInformationForm = (props: Props) => {
         </div>
         <div className="grid gap-x-4 gap-y-6 lg:grid-cols-2">
           <Input
-            label="Full name"
-            placeholder="Your name"
+            label="Nom et prénom"
+            placeholder="Votre nom et prénom"
             labelPlacement="outside"
             variant="bordered"
             classNames={{
@@ -177,9 +174,9 @@ const GeneralInformationForm = (props: Props) => {
           />
           <Input
             label="Email"
-            placeholder="Your email"
+            placeholder="Votre email"
             labelPlacement="outside"
-            description="Your email will can't be changed"
+            description="Votre email ne pourra pas être modifié"
             readOnly
             variant="bordered"
             classNames={{
@@ -192,8 +189,8 @@ const GeneralInformationForm = (props: Props) => {
 
         <div className="grid gap-x-4 gap-y-6">
           <Input
-            label="Phone number"
-            placeholder="Your phone number"
+            label="Numéro de téléphone"
+            placeholder="Votre numéro de téléphone"
             startContent={<PhoneIcon className="h-4 w-4 text-foreground-500" />}
             labelPlacement="outside"
             variant="bordered"
@@ -211,7 +208,9 @@ const GeneralInformationForm = (props: Props) => {
             type="submit"
             color="primary"
           >
-            {updateProfile.isPending ? "Saving..." : "Save"}
+            {updateProfile.isPending
+              ? "Enregistrement en cours..."
+              : "Enregistrer"}
           </Button>
         </div>
       </fieldset>

@@ -746,6 +746,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               isOpen={isModifyModalOpen}
               onOpenChange={onModifyOpen}
               placement="center"
+        backdrop="blur"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -793,6 +794,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               isOpen={isDeleteModalOpen}
               onOpenChange={onDeleteOpenChange}
               placement="center"
+        backdrop="blur"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",

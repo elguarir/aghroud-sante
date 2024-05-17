@@ -119,7 +119,7 @@ const ExpenseForm = ({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="grid w-full gap-y-6 pb-3 pt-6"
+      className="grid w-full gap-y-6 pb-3 pt-4"
     >
       <Fieldset type="fieldset" legend="Détails du paiement">
         <div className="grid w-full gap-y-6 pt-3">

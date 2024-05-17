@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import GeneralInformationForm from "./general-info-form";
@@ -13,10 +13,10 @@ const Settings = (props: Props) => {
         <Card shadow="sm" className="w-full max-w-2xl">
           <CardHeader className="flex flex-col items-start space-y-1 p-5 pb-2">
             <h3 className="text-large font-semibold leading-none tracking-tight">
-              General Information
+              Informations générales
             </h3>
             <p className="text-small text-default-500">
-              Update your general account information.
+              Mettez à jour les informations générales de votre compte.
             </p>
           </CardHeader>
           <CardBody className="px-6 py-5">
@@ -28,10 +28,10 @@ const Settings = (props: Props) => {
         <Card shadow="sm" className="w-full max-w-2xl">
           <CardHeader className="flex flex-col items-start space-y-1 p-5 pb-2">
             <h3 className="text-large font-semibold leading-none tracking-tight">
-              Password
+              Mot de passe
             </h3>
             <p className="text-small text-default-500">
-              Update your account password.
+              Mettez à jour le mot de passe de votre compte.
             </p>
           </CardHeader>
           <CardBody className="px-6 py-5">
@@ -39,14 +39,14 @@ const Settings = (props: Props) => {
           </CardBody>
         </Card>
       </Tab>
-      <Tab key="notifications" title="Notifications">
+      {/* <Tab key="notifications" title="Notifications">
         <Card>
           <CardBody>
             Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
             officia deserunt mollit anim id est laborum.
           </CardBody>
         </Card>
-      </Tab>
+      </Tab> */}
     </Tabs>
   );
 };

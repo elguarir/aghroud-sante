@@ -398,6 +398,140 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     },
     [expenseFilters, dateFilter],
   );
+
+  const RenderModals = React.useCallback(() => {
+    return (
+      <>
+        {ExpenseToModify && (
+          <>
+            <Modal
+              shouldBlockScroll
+              isOpen={isModifyModalOpen}
+              onOpenChange={onModifyOpen}
+              placement="center"
+        backdrop="blur"
+              classNames={{
+                base: "md:max-h-[85dvh]",
+                wrapper: "overflow-hidden",
+              }}
+              onClose={() => {
+                setExpenseToModify(null);
+              }}
+            >
+              <ModalContent>
+                {(onClose) => (
+                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                    <div className="rounded-md">
+                      <ModalHeader className="flex flex-col gap-1">
+                        Modifier le dépense
+                        <p className="text-sm font-[450] text-default-500">
+                          Modifiez les informations du dépense.
+                        </p>
+                      </ModalHeader>
+                      <ModalBody>
+                        <ExpenseForm
+                          mode="edit"
+                          expenseId={ExpenseToModify}
+                          onSuccess={() => {
+                            onClose();
+                            setExpenseToModify(null);
+                            router.refresh();
+                          }}
+                          onCancel={() => {
+                            setExpenseToModify(null);
+                            onClose();
+                          }}
+                        />
+                      </ModalBody>
+                    </div>
+                  </div>
+                )}
+              </ModalContent>
+            </Modal>
+          </>
+        )}
+        {ExpenseToDelete && (
+          <>
+            <Modal
+              shouldBlockScroll
+              isOpen={isDeleteModalOpen}
+              onOpenChange={onDeleteOpenChange}
+              placement="center"
+        backdrop="blur"
+              classNames={{
+                base: "md:max-h-[85dvh]",
+                wrapper: "overflow-hidden",
+              }}
+              onClose={() => {
+                setExpenseToDelete(null);
+              }}
+            >
+              <ModalContent>
+                {(onClose) => (
+                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                    <div className="rounded-md">
+                      <ModalHeader className="flex flex-col">
+                        Supprimer le dépense
+                        <p className="text-sm font-[450] text-default-500">
+                          Êtes-vous sûr de vouloir supprimer ce dépense ?
+                        </p>
+                      </ModalHeader>
+                      <ModalBody className="px-4">
+                        <div className="flex w-full items-center justify-end gap-2 pt-3">
+                          <Button
+                            color="default"
+                            variant="light"
+                            onClick={() => {
+                              setExpenseToDelete(null);
+                              onClose();
+                            }}
+                          >
+                            Annuler
+                          </Button>
+                          <Button
+                            color="secondary"
+                            onClick={async () => {
+                              await deleteExpense.mutateAsync(
+                                { id: ExpenseToDelete },
+                                {
+                                  onSuccess: () => {
+                                    onClose();
+                                    setExpenseToDelete(null);
+                                    toast.success(
+                                      "Dépense supprimé avec succès",
+                                      {
+                                        duration: 1500,
+                                      },
+                                    );
+                                    router.refresh();
+                                  },
+                                  onError: (error) => {
+                                    toast.error(error.message, {
+                                      duration: 1500,
+                                    });
+                                  },
+                                },
+                              );
+                            }}
+                            isLoading={deleteExpense.isPending}
+                          >
+                            {deleteExpense.isPending
+                              ? "Suppression..."
+                              : "Supprimer"}
+                          </Button>
+                        </div>
+                      </ModalBody>
+                    </div>
+                  </div>
+                )}
+              </ModalContent>
+            </Modal>
+          </>
+        )}
+      </>
+    );
+  }, [isModifyModalOpen, isDeleteModalOpen, ExpenseToModify, ExpenseToDelete]);
+
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
@@ -441,6 +575,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                 onValueChange={onSearchChange}
               />
               <div className="flex min-w-fit items-center gap-2">
+                {/* Type Filter */}
                 <Popover
                   triggerScaleOnOpen={false}
                   placement="bottom-start"
@@ -495,6 +630,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                     </div>
                   </PopoverContent>
                 </Popover>
+                {/* Date Filter */}
                 <Popover
                   triggerScaleOnOpen={false}
                   placement="bottom"
@@ -645,136 +781,6 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     expenses.length,
     hasSearchFilter,
   ]);
-  const RenderModals = () => {
-    return (
-      <>
-        {ExpenseToModify && (
-          <>
-            <Modal
-              shouldBlockScroll
-              isOpen={isModifyModalOpen}
-              onOpenChange={onModifyOpen}
-              placement="center"
-              classNames={{
-                base: "md:max-h-[85dvh]",
-                wrapper: "overflow-hidden",
-              }}
-              onClose={() => {
-                setExpenseToModify(null);
-              }}
-            >
-              <ModalContent>
-                {(onClose) => (
-                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                    <div className="rounded-md">
-                      <ModalHeader className="flex flex-col gap-1">
-                        Modifier le dépense
-                        <p className="text-sm font-[450] text-default-500">
-                          Modifiez les informations du dépense.
-                        </p>
-                      </ModalHeader>
-                      <ModalBody>
-                        <ExpenseForm
-                          mode="edit"
-                          expenseId={ExpenseToModify}
-                          onSuccess={() => {
-                            onClose();
-                            setExpenseToModify(null);
-                            router.refresh();
-                          }}
-                          onCancel={() => {
-                            setExpenseToModify(null);
-                            onClose();
-                          }}
-                        />
-                      </ModalBody>
-                    </div>
-                  </div>
-                )}
-              </ModalContent>
-            </Modal>
-          </>
-        )}
-        {ExpenseToDelete && (
-          <>
-            <Modal
-              shouldBlockScroll
-              isOpen={isDeleteModalOpen}
-              onOpenChange={onDeleteOpenChange}
-              placement="center"
-              classNames={{
-                base: "md:max-h-[85dvh]",
-                wrapper: "overflow-hidden",
-              }}
-              onClose={() => {
-                setExpenseToDelete(null);
-              }}
-            >
-              <ModalContent>
-                {(onClose) => (
-                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                    <div className="rounded-md">
-                      <ModalHeader className="flex flex-col">
-                        Supprimer le dépense
-                        <p className="text-sm font-[450] text-default-500">
-                          Êtes-vous sûr de vouloir supprimer ce dépense ?
-                        </p>
-                      </ModalHeader>
-                      <ModalBody className="px-4">
-                        <div className="flex w-full items-center justify-end gap-2 pt-3">
-                          <Button
-                            color="default"
-                            variant="light"
-                            onClick={() => {
-                              setExpenseToDelete(null);
-                              onClose();
-                            }}
-                          >
-                            Annuler
-                          </Button>
-                          <Button
-                            color="secondary"
-                            onClick={async () => {
-                              await deleteExpense.mutateAsync(
-                                { id: ExpenseToDelete },
-                                {
-                                  onSuccess: () => {
-                                    onClose();
-                                    setExpenseToDelete(null);
-                                    toast.success(
-                                      "Dépense supprimé avec succès",
-                                      {
-                                        duration: 1500,
-                                      },
-                                    );
-                                    router.refresh();
-                                  },
-                                  onError: (error) => {
-                                    toast.error(error.message, {
-                                      duration: 1500,
-                                    });
-                                  },
-                                },
-                              );
-                            }}
-                            isLoading={deleteExpense.isPending}
-                          >
-                            {deleteExpense.isPending
-                              ? "Suppression..."
-                              : "Supprimer"}
-                          </Button>
-                        </div>
-                      </ModalBody>
-                    </div>
-                  </div>
-                )}
-              </ModalContent>
-            </Modal>
-          </>
-        )}
-      </>
-    );
-  };
 
   return (
     <div className="w-full max-2xl:w-[calc(100dvw-385px)] max-xl:w-[calc(100dvw-380px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-50px)] max-sm:w-[calc(100dvw-40px)] [@media(min-width:1536px)]:w-[calc(100dvw-380px)]">

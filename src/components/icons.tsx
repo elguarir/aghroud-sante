@@ -109,6 +109,7 @@ export const MoonFilledIcon = ({
   </svg>
 );
 
+
 export const SunFilledIcon = ({
   size = 24,
   width,

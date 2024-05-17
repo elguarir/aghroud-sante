@@ -189,6 +189,7 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
   const [preview, setPreview] = useState<boolean>(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const isImage = props.contentType.includes("image");
+  
   return (
     <div className="flex w-full flex-col rounded-medium border border-content3 px-3 py-2">
       <Modal
@@ -196,6 +197,7 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
         isOpen={preview}
         onOpenChange={setPreview}
         placement="center"
+        backdrop="blur"
         classNames={{
           base: "md:max-h-[85dvh]",
           wrapper: "overflow-hidden",
@@ -210,7 +212,7 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
                 </ModalHeader>
                 <ModalBody>
                   <div className="flex items-center justify-center pb-4">
-                    <div className="flex h-full min-h-64 w-full items-center">
+                    <div className="flex justify-center w-full h-full min-h-64 items-center">
                       {previewUrl ? (
                         <img
                           className="max-w-full rounded object-fill"

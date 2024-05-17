@@ -13,7 +13,7 @@ const LogoutButton = () => {
       fullWidth
       className="mb-4"
     >
-      {pending ? "Logging out..." : "Logout"}
+      {pending ? "Déconnexion..." : "Se déconnecter"}
     </Button>
   );
 };
