@@ -18,7 +18,6 @@ export const LoginForm = () => {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
-
   return (
     <Card shadow="sm" className="w-full">
       <CardHeader className="flex flex-col items-start space-y-1 p-6">

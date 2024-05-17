@@ -62,7 +62,8 @@ model Appointment {
     therapistId String   @map("therapist_id")
     serviceId   String?  @map("service_id")
     date        DateTime
-    duration    Int // in minutes
+    floor       Int?
+    // etage       Int?
     status      String // pending, confirmed, cancelled: when the patient cancels the appointment or the therapist cancels the appointment or the appointment is cancelled by the management
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")

@@ -1,4 +1,5 @@
 import type { NextAuthConfig, User } from "next-auth";
+import { NextResponse } from "next/server";
 
 export const authConfig = {
   trustHost: true,
@@ -7,14 +8,11 @@ export const authConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl, url } }) {
-      // const callbackUrl = nextUrl.searchParams.get("callbackUrl");
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false;
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL("/dashboard", nextUrl));
       }
       return true;
     },
@@ -25,7 +23,6 @@ export const authConfig = {
         session.user.image = token.picture;
         session.user.name = token.name;
       }
-
       return session;
     },
     jwt: async ({ token, user, trigger, session }) => {
