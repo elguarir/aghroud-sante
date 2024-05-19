@@ -2,7 +2,8 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
   name: "Aghroud Santé",
-  description: "Un Système de Gestion pour le cabinet de kinésithérapie Aghroud Santé.",
+  description:
+    "Un Système de Gestion pour le cabinet de kinésithérapie Aghroud Santé.",
   navItems: [
     {
       label: "Home",

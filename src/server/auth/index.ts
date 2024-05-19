@@ -29,7 +29,7 @@ export const {
   providers: [
     Credentials({
       async authorize(credentials) {
-        console.log("credentials: ", credentials)
+        console.log("credentials: ", credentials);
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials);

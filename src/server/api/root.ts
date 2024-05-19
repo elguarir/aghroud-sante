@@ -6,6 +6,7 @@ import { serviceRouter } from "./routers/service";
 import { documentRouter } from "./routers/document";
 import { paymentRouter } from "./routers/payment";
 import { expenseRouter } from "./routers/expense";
+import { analyticsRouter } from "./routers/analytics";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   payment: paymentRouter,
   expense: expenseRouter,
   service: serviceRouter,
+  reports: analyticsRouter,
   document: documentRouter,
 });
 

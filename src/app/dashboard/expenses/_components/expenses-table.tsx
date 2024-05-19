@@ -27,7 +27,7 @@ import {
 import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Chip } from "@nextui-org/chip";
-import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
 import { format, isSameDay } from "date-fns";
 import {
   Modal,
@@ -48,7 +48,11 @@ import {
   today,
   startOfMonth,
   endOfMonth,
+  startOfYear,
+  endOfYear,
 } from "@internationalized/date";
+import { DateInput } from "@nextui-org/date-input";
+import { Tooltip } from "@nextui-org/tooltip";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "label",
@@ -96,6 +100,8 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     start: startOfMonth(today(getLocalTimeZone())),
     end: endOfMonth(today(getLocalTimeZone())),
   });
+  let [ManualDateFilter, setManualDateFilter] = React.useState(false);
+
   const hasSearchFilter = Boolean(filterValue);
   const hasDateFilter = dateFilter.start && dateFilter.end;
   const hasExpenseFilter = Boolean(Array.from(expenseFilters).length > 0);
@@ -409,7 +415,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
               isOpen={isModifyModalOpen}
               onOpenChange={onModifyOpen}
               placement="center"
-        backdrop="blur"
+              backdrop="blur"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -457,7 +463,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
               isOpen={isDeleteModalOpen}
               onOpenChange={onDeleteOpenChange}
               placement="center"
-        backdrop="blur"
+              backdrop="blur"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -631,7 +637,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                   </PopoverContent>
                 </Popover>
                 {/* Date Filter */}
-                <Popover
+                {/* <Popover
                   triggerScaleOnOpen={false}
                   placement="bottom"
                   offset={10}
@@ -720,6 +726,229 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                       />
                     </div>
                   </PopoverContent>
+                </Popover> */}
+                <Popover
+                  triggerScaleOnOpen={false}
+                  placement="bottom"
+                  offset={10}
+                >
+                  <PopoverTrigger>
+                    <Button
+                      disableAnimation
+                      startContent={
+                        <CircleFadingPlus className="h-4 w-4 text-default-500" />
+                      }
+                      endContent={<RenderFilters filter="expenseDate" />}
+                      color="default"
+                      variant="bordered"
+                    >
+                      Date
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-fit max-w-[255px] rounded-small border-none p-0 shadow-none">
+                    <div className="flex flex-col gap-2">
+                      <RangeCalendar
+                        disableAnimation
+                        aria-label="Depense Date Range"
+                        value={dateFilter}
+                        classNames={{
+                          title: "capitalize",
+                        }}
+                        onChange={setDateFilter}
+                        topContent={
+                          <div className=" grid w-[250px] gap-2 bg-content1 pb-2">
+                            <div className="custom-scrollbar overflow-x-auto pb-1.5">
+                              <ButtonGroup
+                                fullWidth
+                                className="w-fit bg-content1 px-3 pt-3 [&>button]:border-default-200/60 [&>button]:text-default-500"
+                                radius="sm"
+                                size="sm"
+                                variant="bordered"
+                              >
+                                <Tooltip
+                                  content={
+                                    !ManualDateFilter
+                                      ? "Filtrer manuellement"
+                                      : "Terminé"
+                                  }
+                                  size="sm"
+                                  closeDelay={100}
+                                  delay={150}
+                                >
+                                  <Button
+                                    onPress={() => {
+                                      setManualDateFilter(!ManualDateFilter);
+                                    }}
+                                    variant="ghost"
+                                    isIconOnly
+                                  >
+                                    {ManualDateFilter ? (
+                                      <CheckIcon className="h-5 w-5" />
+                                    ) : (
+                                      <EditIcon className="h-4 w-4" />
+                                    )}
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={`${format(
+                                    startOfMonth(
+                                      today(getLocalTimeZone()),
+                                    ).toDate(getLocalTimeZone()),
+                                    "dd/MM/yyyy",
+                                  )} - ${format(
+                                    endOfMonth(
+                                      today(getLocalTimeZone()),
+                                    ).toDate(getLocalTimeZone()),
+                                    "dd/MM/yyyy",
+                                  )}`}
+                                  size="sm"
+                                  closeDelay={100}
+                                  delay={150}
+                                >
+                                  <Button
+                                    onPress={() => {
+                                      setDateFilter({
+                                        start: startOfMonth(
+                                          today(getLocalTimeZone()),
+                                        ),
+                                        end: endOfMonth(
+                                          today(getLocalTimeZone()),
+                                        ),
+                                      });
+                                    }}
+                                  >
+                                    Mois en cours
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={`${format(
+                                    startOfMonth(today(getLocalTimeZone()))
+                                      .subtract({ months: 1 })
+                                      .toDate(getLocalTimeZone()),
+                                    "dd/MM/yyyy",
+                                  )} - ${format(
+                                    endOfMonth(today(getLocalTimeZone()))
+                                      .subtract({ months: 1 })
+                                      .toDate(getLocalTimeZone()),
+                                    "dd/MM/yyyy",
+                                  )}`}
+                                  size="sm"
+                                  closeDelay={100}
+                                  delay={150}
+                                >
+                                  <Button
+                                    onPress={() => {
+                                      setDateFilter({
+                                        start: startOfMonth(
+                                          today(getLocalTimeZone()),
+                                        ).subtract({ months: 1 }),
+                                        end: endOfMonth(
+                                          today(getLocalTimeZone()),
+                                        ).subtract({ months: 1 }),
+                                      });
+                                    }}
+                                  >
+                                    Mois précédent
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip
+                                  content={`${format(
+                                    startOfYear(
+                                      today(getLocalTimeZone()),
+                                    ).toDate(getLocalTimeZone()),
+                                    "dd/MM/yyyy",
+                                  )} - ${format(
+                                    endOfYear(today(getLocalTimeZone())).toDate(
+                                      getLocalTimeZone(),
+                                    ),
+                                    "dd/MM/yyyy",
+                                  )}`}
+                                  size="sm"
+                                  closeDelay={100}
+                                  delay={150}
+                                >
+                                  <Button
+                                    onPress={() => {
+                                      setDateFilter({
+                                        start: startOfYear(
+                                          today(getLocalTimeZone()),
+                                        ),
+                                        end: endOfYear(
+                                          today(getLocalTimeZone()),
+                                        ),
+                                      });
+                                    }}
+                                  >
+                                    Année en cours
+                                  </Button>
+                                </Tooltip>
+                              </ButtonGroup>
+                            </div>
+                            {ManualDateFilter && (
+                              <div className="grid w-[250px] grid-cols-2 gap-2 px-3">
+                                <DateInput
+                                  aria-label="Start Date"
+                                  variant="bordered"
+                                  errorMessage={null}
+                                  classNames={{
+                                    inputWrapper:
+                                      "group-data-[focus=true]:border-primary !transition-all !duration-200",
+                                  }}
+                                  size="sm"
+                                  value={dateFilter.start}
+                                  onChange={(value) => {
+                                    setDateFilter({
+                                      start: value,
+                                      end: dateFilter.end,
+                                    });
+                                  }}
+                                />
+                                {/* <div className="min-w-fit">
+                                  <ArrowRightIcon className="h-4 w-4" />
+                                </div> */}
+                                <DateInput
+                                  aria-label="End Date"
+                                  variant="bordered"
+                                  size="sm"
+                                  value={dateFilter.end}
+                                  onChange={(value) => {
+                                    setDateFilter({
+                                      start: dateFilter.start,
+                                      end: value,
+                                    });
+                                  }}
+                                  errorMessage={null}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        }
+                        bottomContent={
+                          <>
+                            <div>
+                              <Button
+                                size="sm"
+                                variant="light"
+                                color="default"
+                                radius="none"
+                                fullWidth
+                                onPress={() => {
+                                  setDateFilter({
+                                    start: startOfMonth(
+                                      today(getLocalTimeZone()),
+                                    ),
+                                    end: endOfMonth(today(getLocalTimeZone())),
+                                  });
+                                }}
+                              >
+                                Réinitialiser
+                              </Button>
+                            </div>
+                          </>
+                        }
+                      />
+                    </div>
+                  </PopoverContent>
                 </Popover>
               </div>
             </div>
@@ -776,6 +1005,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     expenseFilters,
     visibleColumns,
     dateFilter,
+    ManualDateFilter,
     onSearchChange,
     onRowsPerPageChange,
     expenses.length,

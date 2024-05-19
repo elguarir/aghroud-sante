@@ -47,8 +47,7 @@ const DialogContent = React.forwardRef<
       <ScrollArea className="max-h-[88dvh] md:max-h-[85dvh]">
         <div className="p-4 px-5">{children}</div>
       </ScrollArea>
-      <DialogPrimitive.Close 
-      className="data-[state=open]:bg-accent absolute right-4 top-4 rounded-medium opacity-60 ring-offset-background hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:text-default-500">
+      <DialogPrimitive.Close className="data-[state=open]:bg-accent absolute right-4 top-4 rounded-medium opacity-60 ring-offset-background hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:text-default-500">
         <Cross2Icon className="h-4 w-4" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>

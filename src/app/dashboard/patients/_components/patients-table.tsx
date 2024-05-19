@@ -494,7 +494,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             isOpen={isModifyModalOpen}
             onOpenChange={onModifyOpen}
             placement="center"
-        backdrop="blur"
+            backdrop="blur"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",
@@ -543,7 +543,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             isOpen={isDeleteModalOpen}
             onOpenChange={onDeleteOpenChange}
             placement="center"
-        backdrop="blur"
+            backdrop="blur"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",

@@ -12,7 +12,7 @@ const Wrapper = ({ className, children, ...rest }: ScrollAreaProps) => {
     >
       <div
         className={cn(
-          "mx-auto min-h-[calc(100dvh-56px)] h-full w-full px-4 py-6 md:px-12 md:py-8",
+          "mx-auto h-full min-h-[calc(100dvh-56px)] w-full px-4 py-6 md:px-12 md:py-8",
           className,
         )}
       >

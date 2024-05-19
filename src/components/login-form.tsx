@@ -105,7 +105,6 @@ export const LoginForm = () => {
           </div>
         </form>
       </CardBody>
-      
     </Card>
   );
 };

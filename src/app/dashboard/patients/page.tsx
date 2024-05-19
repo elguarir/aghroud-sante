@@ -22,7 +22,6 @@ const PatientsPage = async (props: Props) => {
         <div className="flex w-full items-center justify-between gap-2">
           <h1 className="text-xl font-semibold md:text-2xl">Patients</h1>
           <RegisterPatientModal />
-
         </div>
         <div className="my-8 flex h-full min-h-[75dvh] w-full flex-1 flex-col items-center p-0">
           <PatientsTable patients={patients} />

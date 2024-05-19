@@ -89,7 +89,7 @@ export const SideBarItem = (item: SideBarItemProps) => {
                     className={cn(
                       "flex h-full w-full items-center gap-2.5 rounded-md px-3.5 py-2 text-medium font-medium text-default-600 transition-colors duration-200 hover:bg-default-200/30 focus-visible:border focus-visible:border-primary focus-visible:outline-offset-0 focus-visible:outline-primary",
                       isActive
-                        ? "bg-primary text-primary-foreground hover:bg-primary-500/90"
+                        ? "bg-default text-default-foreground hover:bg-default/90"
                         : "hover:text-default-900",
                     )}
                     onClick={handleClick}

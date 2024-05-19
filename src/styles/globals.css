@@ -33,3 +33,4 @@ input:-webkit-autofill:active {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-foreground-200 rounded-lg;
 }
+

@@ -4,7 +4,6 @@ import { VariantProps, cva } from "class-variance-authority";
 import React, { useState } from "react";
 import { Button } from "@nextui-org/button";
 
-
 const callOutVariants = cva(
   `flex w-full items-center text-sm font-[450] gap-3 rounded-md px-4 py-3 transition-colors shadow-sm`,
   {

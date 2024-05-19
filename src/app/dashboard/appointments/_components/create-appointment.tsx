@@ -46,10 +46,7 @@ export function CreateAppointmentModal() {
           </div>
         </div>
         <DialogFooter>
-          <Button
-            color="primary"
-            type="submit"
-          >
+          <Button color="primary" type="submit">
             Save changes
           </Button>
         </DialogFooter>

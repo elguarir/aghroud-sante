@@ -1,11 +1,9 @@
-import React from 'react'
+import React from "react";
 
-type Props = {}
+type Props = {};
 
 const SidebarFooter = (props: Props) => {
-  return (
-    <div>SidebarFooter</div>
-  )
-}
+  return <div>SidebarFooter</div>;
+};
 
-export default SidebarFooter
+export default SidebarFooter;
