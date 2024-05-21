@@ -1,3 +1,4 @@
+import 'rsuite/dist/rsuite-no-reset.min.css';
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import { siteConfig } from "@/config/site";

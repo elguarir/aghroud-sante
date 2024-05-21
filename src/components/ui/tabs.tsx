@@ -14,7 +14,6 @@ import {
   TabItemProps,
   TabsProps,
 } from "@nextui-org/tabs";
-import { cn } from "@/lib/utils";
 
 interface TabsContextProps {
   activeTab: string;
@@ -63,16 +62,16 @@ export const TabsProvider: React.FC<TabsProviderProps> = ({
   );
 };
 
-interface TabsRootProps extends TabsProps {
+interface TabsRootProps {
   children: ReactNode;
-  defaultTab: string;
   className?: string;
+  defaultTab: string;
 }
 
-const Root: React.FC<TabsRootProps> = ({ defaultTab, ...rest }) => {
+const Root: React.FC<TabsRootProps> = ({ children, className, defaultTab }) => {
   return (
-    <TabsProvider defaultTab={defaultTab} {...rest}>
-      <div className={rest.className}>{rest.children}</div>
+    <TabsProvider defaultTab={defaultTab}>
+      <div className={className}>{children}</div>
     </TabsProvider>
   );
 };

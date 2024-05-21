@@ -10,6 +10,7 @@ import {
   ServicesIcon,
   SettingsIcon,
 } from "@/components/icons";
+
 export const links = [
   {
     title: "Dashboard",
@@ -67,3 +68,28 @@ export const links = [
     icon: <SettingsIcon className="h-5 w-5" />,
   },
 ] as SideBarItemProps[];
+
+export const colorValues = [
+  // "slate",
+  // "gray",
+  // "zinc",
+  // "neutral",
+  // "stone",
+  "red",
+  "orange",
+  "amber",
+  "yellow",
+  "lime",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "sky",
+  "blue",
+  "indigo",
+  "violet",
+  "purple",
+  "fuchsia",
+  "pink",
+  "rose",
+];

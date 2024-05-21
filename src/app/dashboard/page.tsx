@@ -20,7 +20,7 @@ const DashboardPage = () => {
             This is the dashboard page. You can start building your app from
             here.
           </span>
-          <Button color="secondary">Go to Reports</Button>
+          {/* <Button color="secondary">Go to Reports</Button> */}
         </div>
       </div>
     </Wrapper>

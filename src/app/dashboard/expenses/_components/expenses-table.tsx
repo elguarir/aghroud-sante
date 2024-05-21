@@ -275,7 +275,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="px-1 py-2">
+                  <div className="px-1 py-2 max-w-md">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {expense?.notes || "Aucune notes disponibles"}

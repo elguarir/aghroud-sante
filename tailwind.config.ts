@@ -155,20 +155,6 @@ module.exports = {
               DEFAULT: colors.neutral[200],
               foreground: colors.black,
             },
-            // secondary: {
-            //   50: "#E7E7E9",
-            //   100: "#CDCDD0",
-            //   200: "#9B9BA2",
-            //   300: "#6A6A72",
-            //   400: "#3B3B3F",
-            //   500: "#0D0D0E",
-            //   600: "#0A0A0B",
-            //   700: "#070708",
-            //   800: "#050505",
-            //   900: "#020203",
-            //   DEFAULT: "#CDCDD0",
-            //   foreground: "#050505",
-            // },
             secondary: {
               50: "#E8E8E8",
               100: "#D1D1D1",
@@ -215,6 +201,37 @@ module.exports = {
             //   DEFAULT: "#0D0D0E",
             //   foreground: "#E7E7E9",
             // },
+            // default reversed
+            default: {
+              50: colors.neutral[950],
+              100: colors.neutral[900],
+              200: colors.neutral[800],
+              300: colors.neutral[700],
+              400: colors.neutral[600],
+              500: colors.neutral[500],
+              600: colors.neutral[400],
+              700: colors.neutral[300],
+              800: colors.neutral[200],
+              900: colors.neutral[100],
+              DEFAULT: colors.neutral[800],
+              foreground: colors.neutral[50],
+            },
+            content1: {
+              DEFAULT: "#131313",
+              foreground: colors.neutral[50],
+            },
+            content2: {
+              DEFAULT: "#141414",
+              foreground: colors.neutral[50],
+            },
+            content3: {
+              DEFAULT: "#151515",
+              foreground: colors.neutral[50],
+            },
+            content4: {
+              DEFAULT: "#161616",
+              foreground: colors.neutral[50],
+            },
             secondary: {
               // light secondary reversed
               50: "#020203",

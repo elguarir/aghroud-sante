@@ -360,7 +360,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="px-1 py-2">
+                  <div className="px-1 py-2 max-w-md">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {payment?.notes || "Aucune notes disponibles"}

@@ -18,9 +18,9 @@ const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
             title={
               <>
                 <div className="flex items-center gap-x-2">
-                  <hr className="w-4 border-content4 bg-[0.5px] max-sm:flex-1" />
+                  <hr className="w-4 border-divider bg-[0.5px] max-sm:flex-1" />
                   <span>{legend}</span>
-                  <hr className="flex-1 border-content4 bg-[0.5px]" />
+                  <hr className="flex-1 border-divider bg-[0.5px]" />
                 </div>
               </>
             }
@@ -51,9 +51,9 @@ const Fieldset = React.forwardRef<HTMLFieldSetElement, FieldsetProps>(
           )}
         >
           <div className="flex items-center gap-x-2">
-            <hr className="w-4 border-content4 bg-[0.5px] max-sm:flex-1" />
+            <hr className="w-4 border-divider bg-[0.5px] max-sm:flex-1" />
             {legend}
-            <hr className="flex-1 border-content4 bg-[0.5px]" />
+            <hr className="flex-1 border-divider bg-[0.5px]" />
           </div>
         </legend>
         <div className={cn("grid w-full", className)}>{children}</div>
