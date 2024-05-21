@@ -34,7 +34,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
           variant="faded"
           onClick={() => setOpen(true)}
         >
-          <Menu className="h-4 w-4 text-default-600" />
+          <Menu className="h-4 w-4 text-default-600 md:hidden" />
         </Button>
 
         <Drawer
@@ -52,6 +52,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
                 variant="faded"
                 size="sm"
                 isIconOnly
+                className="text-default-600"
                 onClick={() => setOpen(false)}
               >
                 <Cross1Icon />

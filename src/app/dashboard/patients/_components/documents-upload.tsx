@@ -1,4 +1,4 @@
-import { CloudUpload, FileUploadIcon } from "@/components/icons";
+import { CloudUpload } from "@/components/icons";
 import useFileUpload from "@/hooks/use-file-upload";
 import { cn } from "@/lib/utils";
 import { FileCard } from "./file-card";
@@ -26,7 +26,6 @@ export const DocumentsUpload = ({ onChange }: DocumentsUploadProps) => {
     getInputProps,
     getRootProps,
     isDragActive,
-    open,
     startUpload,
   } = useFileUpload({});
 

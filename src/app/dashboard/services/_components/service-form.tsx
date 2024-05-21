@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import { Spinner } from "@nextui-org/spinner";
 import { useRouter } from "next/navigation";
 import { Service, ServiceSchema } from "@/lib/schemas/new-service";
-import { NumberField } from "@/components/ui/NumberField";
 
 type Props = {
   mode?: "create" | "edit";
