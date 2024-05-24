@@ -7,11 +7,14 @@ import { documentRouter } from "./routers/document";
 import { paymentRouter } from "./routers/payment";
 import { expenseRouter } from "./routers/expense";
 import { analyticsRouter } from "./routers/analytics";
+import { therapistRouter } from "./routers/therapist";
+import { inferRouterOutputs } from "@trpc/server";
 
 export const appRouter = createTRPCRouter({
   user: userRouter,
   appointment: appointmentRouter,
   patient: patientRouter,
+  therapist: therapistRouter,
   payment: paymentRouter,
   expense: expenseRouter,
   service: serviceRouter,
@@ -21,3 +24,4 @@ export const appRouter = createTRPCRouter({
 
 export type AppRouter = typeof appRouter;
 export const createCaller = createCallerFactory(appRouter);
+export type RouterOutput = inferRouterOutputs<typeof appRouter>;

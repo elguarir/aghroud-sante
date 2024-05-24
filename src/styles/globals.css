@@ -30,10 +30,10 @@ input:-webkit-autofill:active {
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-    @apply bg-foreground-100 rounded-lg w-[4px] h-[4px] sm:h-[5.5px];
+    @apply bg-foreground-100 dark:bg-secondary-400/60 rounded-lg w-[4px] h-[4px] sm:h-[5.5px];
 }
 
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-foreground-200 rounded-lg;
+    @apply bg-foreground-200 dark:bg-secondary-500 rounded-lg;
 }

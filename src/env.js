@@ -20,7 +20,7 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_CLOUDINARY_PRESET: process.env.NEXT_PUBLIC_CLOUDINARY_PRESET,
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
-      process.env.NEXT_PUBLIC_CLOUDINARY_PRESET,
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     NODE_ENV: process.env.NODE_ENV,
     R2_ENDPOINT: process.env.R2_ENDPOINT,
     R2_BUCKET_NAME: process.env.R2_BUCKET_NAME,

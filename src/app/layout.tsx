@@ -46,7 +46,7 @@ export default function RootLayout({
             <TRPCReactProvider>
               <main className="relative flex min-h-screen flex-col">
                 {children}
-                <Toaster />
+                <Toaster closeButton />
               </main>
             </TRPCReactProvider>
           </NextUIThemeProvider>

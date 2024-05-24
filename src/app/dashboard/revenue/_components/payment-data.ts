@@ -26,11 +26,11 @@ export type PaymentData = Payment & {
   } | null;
 };
 
-export const paymentMethods = [
+const paymentMethods = [
   { value: "cash", label: "Espèces" },
   { value: "transfer", label: "Virement" },
   { value: "check", label: "Chèque" },
   { value: "other", label: "Other" },
 ];
 
-export { columns };
+export { columns, paymentMethods };

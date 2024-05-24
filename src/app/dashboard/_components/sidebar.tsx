@@ -31,10 +31,11 @@ const SideBar = ({ type = "normal", user }: Props) => {
           radius="sm"
           size="sm"
           disableRipple
+          className="md:hidden"
           variant="faded"
           onClick={() => setOpen(true)}
         >
-          <Menu className="h-4 w-4 text-default-600 md:hidden" />
+          <Menu className="h-4 w-4 text-default-600" />
         </Button>
 
         <Drawer
@@ -46,7 +47,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
           open={open}
           onClose={() => setOpen(false)}
         >
-          <Drawer.Body className="!px-8 !py-0 custom-scrollbar">
+          <Drawer.Body className="custom-scrollbar !px-8 !py-0">
             <div className="absolute right-4 top-4">
               <Button
                 variant="faded"
@@ -59,7 +60,7 @@ const SideBar = ({ type = "normal", user }: Props) => {
               </Button>
             </div>
 
-            <div className="py-6 pb-8 h-full">
+            <div className="h-full py-6 pb-8">
               <div className="flex h-full max-h-screen flex-col gap-4 py-4">
                 <div className="flex flex-col gap-8">
                   <div className="flex min-h-[60px] items-center border-b border-default px-4 md:px-6">

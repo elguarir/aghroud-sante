@@ -46,30 +46,40 @@ model Patient {
 }
 
 model Therapist {
-    id         String   @id @default(cuid())
-    name       String
-    image      String   @db.Text
-    speciality String?
-    createdAt  DateTime @default(now()) @map("created_at")
-    updatedAt  DateTime @updatedAt @map("updated_at")
+    id           String        @id @default(cuid())
+    name         String
+    image        String        @db.Text
+    speciality   String?
+    createdAt    DateTime      @default(now()) @map("created_at")
+    updatedAt    DateTime      @updatedAt @map("updated_at")
+    appointments Appointment[]
 
     @@map("therapists")
 }
 
+enum AppointmentStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+}
+
 model Appointment {
-    id          String   @id @default(cuid())
-    patientId   Int      @map("patient_id")
-    therapistId String   @map("therapist_id")
-    serviceId   String?  @map("service_id")
-    date        DateTime
+    id          String            @id @default(cuid())
+    patientId   Int               @map("patient_id")
+    therapistId String?           @map("therapist_id")
+    serviceId   String?           @map("service_id")
+    startTime   DateTime          @map("start_time") @db.Timestamptz()
+    endTime     DateTime          @map("end_time") @db.Timestamptz()
     floor       Int?
+    notes       String?           @db.Text
     // etage       Int?
-    status      String // pending, confirmed, cancelled: when the patient cancels the appointment or the therapist cancels the appointment or the appointment is cancelled by the management
-    createdAt   DateTime @default(now()) @map("created_at")
-    updatedAt   DateTime @updatedAt @map("updated_at")
+    status      AppointmentStatus // pending, confirmed, cancelled: when the patient cancels the appointment or the therapist cancels the appointment or the appointment is cancelled by the management
+    createdAt   DateTime          @default(now()) @map("created_at")
+    updatedAt   DateTime          @updatedAt @map("updated_at")
     // when the appointment is confirmed, the service is added to the appointment
-    service     Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-    patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+    service     Service?          @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+    patient     Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+    therapist   Therapist?        @relation(fields: [therapistId], references: [id], onDelete: SetNull)
 
     @@map("appointments")
 }

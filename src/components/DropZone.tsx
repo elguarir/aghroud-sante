@@ -131,7 +131,9 @@ const DropZone = ({
     }
   };
 
-  const clear = () => {};
+  const clear = () => {
+    setFile(undefined);
+  };
   const open = () => {
     inputRef.current?.click();
   };
