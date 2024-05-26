@@ -42,8 +42,8 @@ export function AddNewAppointmentModal() {
                 <ModalHeader className="flex flex-col gap-1">
                   Ajouter un rendez-vous
                   <p className="text-sm font-[450] text-default-500">
-                    Ajouter une nouvelle dépense au système en remplissant le
-                    formulaire
+                    Ajouter un nouveau rendez-vous au système en remplissant le
+                    formulaire.
                   </p>
                 </ModalHeader>
                 <ModalBody>

@@ -278,11 +278,15 @@ const PaymentForm = ({
             <DatePicker
               classNames={{
                 calendarContent: "min-w-[256px] overflow-x-hidden",
+                // .focus-within\:border-default-foreground:focus-within 
                 inputWrapper:
-                  "!focus-whitin:border-primary !hover:focus-whitin:border-primary !transition-all !duration-200",
-                input: "bg-red-900",
+                  "!focus-within:border-primary !hover:focus-whitin:border-primary !transition-all !duration-200",
+              }}
+              timeInputProps={{
+                variant: "faded"
               }}
               label="Date de paiement"
+              disableAnimation
               variant="bordered"
               isDisabled={isDisabled}
               labelPlacement="outside"

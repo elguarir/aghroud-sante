@@ -27,7 +27,6 @@ import {
 } from "@nextui-org/dropdown";
 import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
-import { AddNewPaymentModal } from "./add-new-payment";
 import { Chip } from "@nextui-org/chip";
 import {
   ArrowRightIcon,

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { AppointmentSchema } from "@/lib/schemas/new-appointment";
 import { TRPCError } from "@trpc/server";
+import { endOfDay, startOfDay } from "date-fns";
 
 export const appointmentRouter = createTRPCRouter({
   create: publicProcedure
@@ -103,8 +104,60 @@ export const appointmentRouter = createTRPCRouter({
           },
         },
       },
+      orderBy: {
+        startTime: "asc",
+      },
     });
   }),
+  allWithFilter: publicProcedure
+    .input(z.object({ date: z.date() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.appointment.findMany({
+        where: {
+          startTime: {
+            gte: startOfDay(input.date),
+            lt: endOfDay(input.date),
+          },
+        },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+          notes: true,
+          floor: true,
+          createdAt: true,
+          updatedAt: true,
+          patient: {
+            select: {
+              id: true,
+              phoneNumber: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+          therapist: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              speciality: true,
+              createdAt: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              duration: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+    }),
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {

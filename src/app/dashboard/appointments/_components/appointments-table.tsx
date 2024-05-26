@@ -969,7 +969,7 @@ export default function AppointmentsTable({
                       <ModalHeader className="flex flex-col gap-1">
                         Modifier le rendez-vous
                         <p className="text-sm font-[450] text-default-500">
-                          Modifiez les informations du rendez-vous
+                          Modifiez les informations du rendez-vous ci-dessous.
                         </p>
                       </ModalHeader>
                       <ModalBody>
