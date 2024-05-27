@@ -82,13 +82,15 @@ export default function AppointmentsCalendar(props: Props) {
   let [selectedDay, setSelectedDay] = useState(today);
   let [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
   let firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
+
   let days = eachDayOfInterval({
     start: startOfWeek(firstDayCurrentMonth),
     end: endOfWeek(endOfMonth(firstDayCurrentMonth)),
   });
 
   let router = useRouter();
-  let { isOpen, onOpenChange, action, clearAction } = useCalendarStore();
+  let { isOpen, onOpenChange, action, clearAction, setCalendarAction } =
+    useCalendarStore();
 
   function previousMonth() {
     let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 });
@@ -100,9 +102,9 @@ export default function AppointmentsCalendar(props: Props) {
     setCurrentMonth(format(firstDayNextMonth, "MMM-yyyy"));
   }
 
-  let selectedDayMeetings = meetings.filter((meeting) =>
-    isSameDay(parseISO(meeting.startDatetime), selectedDay),
-  );
+  // let selectedDayMeetings = meetings.filter((meeting) =>
+  //   isSameDay(parseISO(meeting.startDatetime), selectedDay),
+  // );
 
   return (
     <>
@@ -135,6 +137,10 @@ export default function AppointmentsCalendar(props: Props) {
             base: "md:max-h-[85dvh]",
             wrapper: "overflow-hidden",
           }}
+          onClose={() => {
+            router.refresh();
+            clearAction();
+          }}
         >
           <ModalContent>
             {() => (
@@ -153,6 +159,24 @@ export default function AppointmentsCalendar(props: Props) {
                         onSuccess={() => {
                           clearAction();
                           router.refresh();
+                        }}
+                      />
+                    )}
+                    {action.action === "update" && (
+                      <AppointmentForm
+                        mode="edit"
+                        appointmentId={action.appointment.id}
+                        onCancel={() =>
+                          setCalendarAction({
+                            action: "view",
+                            date: action.appointment.date,
+                          })
+                        }
+                        onSuccess={() => {
+                          setCalendarAction({
+                            action: "view",
+                            date: action.appointment.date,
+                          });
                         }}
                       />
                     )}

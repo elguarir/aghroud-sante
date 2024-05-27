@@ -2,7 +2,7 @@ import { MoneySendSquareIcon, UserGroupIcon } from "@/components/icons";
 import { Card } from "@tremor/react";
 const TotalExpensesCard = () => {
   return (
-    <Card className="flex py-4 flex-col items-start gap-2 rounded-xl">
+    <Card className="flex flex-col items-start gap-2 rounded-xl py-4">
       <div>
         <MoneySendSquareIcon className="h-8 w-8 text-default-600" />
       </div>

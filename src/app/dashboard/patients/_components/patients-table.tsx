@@ -237,7 +237,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="px-1 py-2  max-w-md">
+                  <div className="max-w-md px-1  py-2">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {patient?.notes || "Aucune notes disponibles"}
@@ -578,7 +578,9 @@ export default function PatientTable({ patients }: PatientTableProps) {
                           color="secondary"
                           onClick={async () => {
                             await deletePatient.mutateAsync(
-                              { id: patientToDelete },
+                              {
+                                id: patientToDelete,
+                              },
                               {
                                 onSuccess: () => {
                                   onClose();

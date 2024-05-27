@@ -4,14 +4,12 @@ import React, {
   useContext,
   useState,
   ReactNode,
-  PropsWithChildren,
   HTMLAttributes,
 } from "react";
 
 import {
   Tabs as NextUITabs,
   Tab as NextUITab,
-  TabItemProps,
   TabsProps,
 } from "@nextui-org/tabs";
 

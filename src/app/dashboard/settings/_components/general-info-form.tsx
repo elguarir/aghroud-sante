@@ -126,7 +126,11 @@ const GeneralInformationForm = (props: Props) => {
                         isUploading && "pointer-events-none",
                       )}
                     >
-                      <input {...getInputProps({ id: "profile-pic-input" })} />
+                      <input
+                        {...getInputProps({
+                          id: "profile-pic-input",
+                        })}
+                      />
                       {!file && !isUploading && !avatarUrl && (
                         <span className="text-content3-foreground">
                           <FileUploadIcon className="h-8 w-8" />

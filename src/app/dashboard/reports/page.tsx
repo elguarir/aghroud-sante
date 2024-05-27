@@ -45,10 +45,7 @@ const ReportsPage = (props: Props) => {
         </div>
         <div className="flex h-full flex-1 flex-col">
           <div className="flex min-h-[78dvh] w-full flex-col space-y-2">
-            <Tab.Root
-              defaultTab="finance"
-              className="grid w-full gap-4"
-            >
+            <Tab.Root defaultTab="finance" className="grid w-full gap-4">
               <div className="flex w-full items-center justify-between gap-4 @container">
                 <Tab.List>
                   {tabs.map((tab) => (

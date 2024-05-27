@@ -33,6 +33,7 @@ import {
 } from "@/components/icons";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { useCalendarStore } from "@/hooks/use-calendar-store";
+import { fr } from "date-fns/locale";
 
 const colStartClasses = [
   "",
@@ -57,34 +58,12 @@ function CalendarHeader({
 }: CalendarHeaderProps) {
   return (
     <div className="flex h-full items-center gap-2">
-      <h2 className="flex-auto font-semibold text-neutral-900 dark:text-neutral-100">
-        {format(parse(currentMonth, "MMM-yyyy", new Date()), "MMMM yyyy")}
+      <h2 className="flex-auto capitalize font-semibold text-neutral-900 dark:text-neutral-100">
+        {format(parse(currentMonth, "MMM-yyyy", new Date()), "MMMM yyyy", {
+          locale: fr,
+        })}
       </h2>
-      <div className="flex items-center gap-2">
-        <Tabs aria-label="Views" variant="bordered" size="sm">
-          <Tab
-            key="month"
-            title={
-              <div className="flex items-center gap-1.5 text-sm">
-                <GridViewIcon className="h-4 w-4" />
-                <span className="hidden opacity-0 transition-opacity duration-200 group-data-[selected=true]:inline-block group-data-[selected=true]:opacity-100">
-                  Vue mensuelle
-                </span>
-              </div>
-            }
-          />
-          <Tab
-            key="week"
-            title={
-              <div className="flex items-center gap-1.5 text-sm">
-                <ListViewIcon className="h-4 w-4" />
-                <span className="hidden opacity-0 transition-opacity duration-200 group-data-[selected=true]:inline-block group-data-[selected=true]:opacity-100">
-                  Vue quotidienne
-                </span>
-              </div>
-            }
-          />
-        </Tabs>
+      <div className="flex items-center">
         <ButtonGroup variant="bordered">
           <Button type="button" onClick={previousMonth} isIconOnly>
             <span className="sr-only">Previous month</span>

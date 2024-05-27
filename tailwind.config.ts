@@ -106,7 +106,10 @@ module.exports = {
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)", opacity: 0.5 },
+          from: {
+            height: "var(--radix-accordion-content-height)",
+            opacity: 0.5,
+          },
           to: { height: "0", opacity: 0 },
         },
       },

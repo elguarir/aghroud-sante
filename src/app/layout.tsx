@@ -1,4 +1,4 @@
-import 'rsuite/dist/rsuite-no-reset.min.css';
+import "rsuite/dist/rsuite-no-reset.min.css";
 import "@/styles/globals.css";
 import { Metadata } from "next";
 import { siteConfig } from "@/config/site";
@@ -41,7 +41,10 @@ export default function RootLayout({
           )}
         >
           <NextUIThemeProvider
-            themeProps={{ attribute: "class", defaultTheme: "light" }}
+            themeProps={{
+              attribute: "class",
+              defaultTheme: "light",
+            }}
           >
             <TRPCReactProvider>
               <main className="relative flex min-h-screen flex-col">

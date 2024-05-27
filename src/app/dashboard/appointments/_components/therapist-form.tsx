@@ -44,7 +44,9 @@ const TherapistForm = ({
           image: "",
           speciality: undefined,
         };
-      let therapist = await vanilla.therapist.get.query({ id: therapistId });
+      let therapist = await vanilla.therapist.get.query({
+        id: therapistId,
+      });
       return {
         name: therapist?.name ?? "",
         speciality: therapist?.speciality ?? undefined,
@@ -156,7 +158,11 @@ const TherapistForm = ({
                       isUploading && "pointer-events-none",
                     )}
                   >
-                    <input {...getInputProps({ id: "profile-pic-input" })} />
+                    <input
+                      {...getInputProps({
+                        id: "profile-pic-input",
+                      })}
+                    />
                     {!file && !isUploading && !image && (
                       <div className="text-content3-foreground">
                         <FileUploadIcon className="h-8 w-8" />

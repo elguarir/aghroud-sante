@@ -8,11 +8,17 @@ interface CalendarActionCreate {
 }
 interface CalendarActionUpdate {
   action: "update";
-  appointmentId: string;
+  appointment: {
+    id: string;
+    date: Date;
+  };
 }
 interface CalendarActionDelete {
   action: "delete";
-  appointmentId: string;
+  appointment: {
+    id: string;
+    date: Date;
+  };
 }
 interface CalendarActionView {
   action: "view";
@@ -70,6 +76,13 @@ export const actionCopy = (action: CalendarAction) => {
             </span>
           </>
         ),
+      };
+
+    case "update":
+      return {
+        label: "Modifier un rendez-vous",
+        description:
+          "Modifier un rendez-vous existant en remplissant le formulaire.",
       };
   }
 };

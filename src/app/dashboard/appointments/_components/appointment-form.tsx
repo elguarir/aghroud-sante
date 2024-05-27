@@ -107,6 +107,7 @@ const AppointmentForm = ({
     serviceId,
     therapistId,
   } = watch();
+
   // trpc mutations / utils
   const createAppointment = api.appointment.create.useMutation();
   const updateAppointment = api.appointment.update.useMutation();
@@ -226,6 +227,7 @@ const AppointmentForm = ({
                   label: "text-foreground",
                 }}
                 color="primary"
+                value={new Time(endTime.getHours(), endTime.getMinutes())}
                 onChange={(v) => {
                   if (!v) return;
                   let updatedEndTime = endTime.setHours(v.hour, v.minute);
@@ -254,7 +256,6 @@ const AppointmentForm = ({
                   ) : undefined
                 }
                 isInvalid={endTime.getTime() <= startTime.getTime()}
-                value={new Time(endTime.getHours(), endTime.getMinutes())}
                 labelPlacement="outside"
                 variant="bordered"
                 hourCycle={24}
@@ -417,6 +418,7 @@ const AppointmentForm = ({
                 labelPlacement="outside"
                 variant="bordered"
                 value={therapistId}
+                defaultSelectedKeys={therapistId ? [therapistId] : []}
                 onChange={(e) => {
                   if (e.target.value === "") {
                     setValue("therapistId", undefined);
@@ -542,9 +544,6 @@ const AppointmentForm = ({
                 <AutocompleteItem
                   variant="faded"
                   key={item.id}
-                  // Service name - Service price
-                  // name - 1,299 MAD
-                  // format using intl
                   textValue={`${item.name} - ${item.price?.toLocaleString()} MAD / ${item.duration} min`}
                 >
                   <div className="flex items-center gap-2">

@@ -30,7 +30,8 @@ const ServicesPage = async (props: Props) => {
           <div className="flex flex-col">
             <h1 className="text-xl font-semibold md:text-2xl">Services</h1>
             <p className="text-sm text-default-500">
-              {services.length} service{services.length > 1 ? "s" : ""}
+              {services.length} service
+              {services.length > 1 ? "s" : ""}
             </p>
           </div>
           <CreateServiceModal />

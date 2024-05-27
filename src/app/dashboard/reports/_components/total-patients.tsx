@@ -4,10 +4,9 @@ import { Tooltip } from "@nextui-org/tooltip";
 import { ArrowUpIcon } from "@radix-ui/react-icons";
 import { Card } from "@tremor/react";
 
-
 const TotalPatientsCard = () => {
   return (
-    <Card className="flex py-4 flex-col items-start gap-2 rounded-xl">
+    <Card className="flex flex-col items-start gap-2 rounded-xl py-4">
       <div>
         <UserGroupIcon className="h-8 w-8 text-default-600" />
       </div>

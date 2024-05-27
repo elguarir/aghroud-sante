@@ -21,7 +21,10 @@ export default function useMediaQuery() {
       } else {
         setDevice("desktop");
       }
-      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     };
 
     // Initial detection

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Table,
@@ -28,12 +28,7 @@ import {
 import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Chip } from "@nextui-org/chip";
-import {
-  ArrowRightIcon,
-  CheckIcon,
-  ClockIcon,
-  CrossCircledIcon,
-} from "@radix-ui/react-icons";
+import { ArrowRightIcon, ClockIcon } from "@radix-ui/react-icons";
 import { format, isEqual, isSameDay, isWithinInterval } from "date-fns";
 import {
   Modal,
@@ -45,8 +40,6 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
-import { Listbox, ListboxItem } from "@nextui-org/listbox";
-import { Divider } from "@nextui-org/divider";
 import { DateValue, RangeCalendar, RangeValue } from "@nextui-org/calendar";
 import {
   getLocalTimeZone,
@@ -83,23 +76,18 @@ export default function AppointmentsTable({
     new Set([]),
   );
 
-  // Handling modals
-  const {
-    isOpen: isModifyModalOpen,
-    onOpen: onModifyOpen,
-    onOpenChange: onModifyOpenChange,
-  } = useDisclosure();
-  const {
-    isOpen: isDeleteModalOpen,
-    onOpen: onDeleteOpen,
-    onOpenChange: onDeleteOpenChange,
-  } = useDisclosure();
-  const [AppointmentToModify, setAppointmentToModify] = React.useState<
-    string | null
-  >(null);
-  const [AppointmentToDelete, setAppointmentToDelete] = React.useState<
-    string | null
-  >(null);
+  // Handling modal actions
+  const [showActionModal, setShowActionModal] = useState(false);
+  const [actionToPerform, setActionToPerform] = useState<{
+    action: "update" | "delete";
+    id: string;
+  } | null>(null);
+
+  const clearAction = () => {
+    setShowActionModal(false);
+    setActionToPerform(null);
+  };
+
   const deleteAppointment = api.appointment.delete.useMutation();
 
   // Filters
@@ -134,6 +122,7 @@ export default function AppointmentsTable({
       Array.from(visibleColumns).includes(column.uid),
     );
   }, [visibleColumns]);
+
   const filteredItems = React.useMemo(() => {
     let filteredAppointments = [...appointments];
 
@@ -199,13 +188,16 @@ export default function AppointmentsTable({
 
     return filteredAppointments;
   }, [appointments, filterValue, statusFilters, dateFilter]);
+
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
   const items = React.useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
+
   const sortedItems = React.useMemo(() => {
     return [...items].sort((a: AppointmentsData, b: AppointmentsData) => {
       const first = a[
@@ -219,6 +211,7 @@ export default function AppointmentsTable({
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
+
   const onRowsPerPageChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setRowsPerPage(Number(e.target.value));
@@ -226,6 +219,7 @@ export default function AppointmentsTable({
     },
     [],
   );
+
   const onSearchChange = React.useCallback((value?: string) => {
     if (value) {
       setFilterValue(value);
@@ -234,6 +228,7 @@ export default function AppointmentsTable({
       setFilterValue("");
     }
   }, []);
+
   const onClear = React.useCallback(() => {
     setFilterValue("");
     setPage(1);
@@ -449,8 +444,11 @@ export default function AppointmentsTable({
                     <DropdownItem
                       startContent={<EditIcon className="h-4 w-4" />}
                       onPress={() => {
-                        setAppointmentToModify(appointment.id);
-                        onModifyOpen();
+                        setActionToPerform({
+                          action: "update",
+                          id: appointment.id,
+                        });
+                        setShowActionModal(true);
                       }}
                     >
                       Modifier
@@ -464,8 +462,11 @@ export default function AppointmentsTable({
                     <DropdownItem
                       color="danger"
                       onPress={() => {
-                        setAppointmentToDelete(appointment.id);
-                        onDeleteOpen();
+                        setActionToPerform({
+                          action: "delete",
+                          id: appointment.id,
+                        });
+                        setShowActionModal(true);
                       }}
                       startContent={<TrashIcon className="h-4 w-4" />}
                     >
@@ -574,6 +575,7 @@ export default function AppointmentsTable({
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
   const topContent = React.useMemo(() => {
     return (
       <>
@@ -944,187 +946,178 @@ export default function AppointmentsTable({
   ]);
 
   let RenderModals = () => {
-    return (
-      <>
-        {AppointmentToModify && (
-          <>
-            <Modal
-              shouldBlockScroll
-              isOpen={isModifyModalOpen}
-              onOpenChange={onModifyOpen}
-              placement="center"
-              backdrop="blur"
-              classNames={{
-                base: "md:max-h-[85dvh]",
-                wrapper: "overflow-hidden",
-              }}
-              onClose={() => {
-                setAppointmentToModify(null);
-              }}
-            >
-              <ModalContent>
-                {(onClose) => (
-                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                    <div className="rounded-md">
-                      <ModalHeader className="flex flex-col gap-1">
-                        Modifier le rendez-vous
-                        <p className="text-sm font-[450] text-default-500">
-                          Modifiez les informations du rendez-vous ci-dessous.
-                        </p>
-                      </ModalHeader>
-                      <ModalBody>
-                        <AppointmentForm
-                          mode="edit"
-                          appointmentId={AppointmentToModify}
-                          onSuccess={() => {
-                            onClose();
-                            setAppointmentToModify(null);
-                            router.refresh();
-                          }}
-                          onCancel={() => {
-                            setAppointmentToModify(null);
-                            onClose();
-                          }}
-                        />
-                      </ModalBody>
-                    </div>
+    let modalsCopy = {
+      update: {
+        title: "Modifier le rendez-vous",
+        description: "Modifiez les informations du rendez-vous ci-dessous.",
+      },
+      delete: {
+        title: "Supprimer le rendez-vous",
+        description: "Êtes-vous sûr de vouloir supprimer ce rendez-vous ?",
+      },
+    };
+
+    if (!actionToPerform || !showActionModal) return null;
+
+    if (actionToPerform.action === "update") {
+      return (
+        <Modal
+          isOpen={showActionModal}
+          onClose={() => clearAction()}
+          placement="center"
+          backdrop="blur"
+          classNames={{
+            base: "md:max-h-[85dvh]",
+            wrapper: "overflow-hidden",
+          }}
+        >
+          <ModalContent>
+            <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+              <div className="rounded-md">
+                <ModalHeader className="flex flex-col">
+                  {modalsCopy.delete.title}
+                  <p className="text-sm font-[450] text-default-500">
+                    {modalsCopy.delete.description}
+                  </p>
+                </ModalHeader>
+                <ModalBody>
+                  <AppointmentForm
+                    appointmentId={actionToPerform.id}
+                    mode="edit"
+                    onSuccess={() => {
+                      clearAction();
+                      router.refresh();
+                    }}
+                    onCancel={() => {
+                      clearAction();
+                    }}
+                  />
+                </ModalBody>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
+      );
+    }
+
+    if (actionToPerform.action === "delete") {
+      return (
+        <Modal
+          isOpen={showActionModal}
+          onClose={() => clearAction()}
+          placement="center"
+          backdrop="blur"
+          classNames={{
+            base: "md:max-h-[85dvh]",
+            wrapper: "overflow-hidden",
+          }}
+        >
+          <ModalContent>
+            <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+              <div className="rounded-md">
+                <ModalHeader className="flex flex-col">
+                  {modalsCopy.delete.title}
+                  <p className="text-sm font-[450] text-default-500">
+                    {modalsCopy.delete.description}
+                  </p>
+                </ModalHeader>
+                <ModalBody className="px-4">
+                  <div className="flex w-full items-center justify-end gap-2 pt-3">
+                    <Button
+                      color="default"
+                      variant="light"
+                      onPress={() => {
+                        clearAction();
+                      }}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      color="secondary"
+                      onPress={() => {
+                        deleteAppointment.mutate(
+                          {
+                            id: actionToPerform.id,
+                          },
+                          {
+                            onSuccess: () => {
+                              clearAction();
+                              router.refresh();
+                              toast.success("Rendez-vous supprimé avec succès");
+                            },
+                            onError: (error) => {
+                              toast.error("Erreur lors de la suppression");
+                            },
+                          },
+                        );
+                      }}
+                      isLoading={deleteAppointment.isPending}
+                    >
+                      {deleteAppointment.isPending
+                        ? "Suppression..."
+                        : "Supprimer"}
+                    </Button>
                   </div>
-                )}
-              </ModalContent>
-            </Modal>
-          </>
-        )}
-        {AppointmentToDelete && (
-          <>
-            <Modal
-              shouldBlockScroll
-              isOpen={isDeleteModalOpen}
-              onOpenChange={onDeleteOpenChange}
-              placement="center"
-              backdrop="blur"
-              classNames={{
-                base: "md:max-h-[85dvh]",
-                wrapper: "overflow-hidden",
-              }}
-              onClose={() => {
-                setAppointmentToDelete(null);
-              }}
-            >
-              <ModalContent>
-                {(onClose) => (
-                  <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-                    <div className="rounded-md">
-                      <ModalHeader className="flex flex-col">
-                        Supprimer le rendez-vous
-                        <p className="text-sm font-[450] text-default-500">
-                          Êtes-vous sûr de vouloir supprimer ce rendez-vous ?
-                        </p>
-                      </ModalHeader>
-                      <ModalBody className="px-4">
-                        <div className="flex w-full items-center justify-end gap-2 pt-3">
-                          <Button
-                            color="default"
-                            variant="light"
-                            onClick={() => {
-                              setAppointmentToDelete(null);
-                              onClose();
-                            }}
-                          >
-                            Annuler
-                          </Button>
-                          <Button
-                            color="secondary"
-                            onClick={async () => {
-                              await deleteAppointment.mutateAsync(
-                                { id: AppointmentToDelete },
-                                {
-                                  onSuccess: () => {
-                                    onClose();
-                                    setAppointmentToDelete(null);
-                                    toast.success(
-                                      "Rendez-vous supprimé avec succès !",
-                                      {
-                                        duration: 1500,
-                                      },
-                                    );
-                                    router.refresh();
-                                  },
-                                  onError: (error) => {
-                                    toast.error(error.message, {
-                                      duration: 1500,
-                                    });
-                                  },
-                                },
-                              );
-                            }}
-                            isLoading={deleteAppointment.isPending}
-                          >
-                            {deleteAppointment.isPending
-                              ? "Suppression..."
-                              : "Supprimer"}
-                          </Button>
-                        </div>
-                      </ModalBody>
-                    </div>
-                  </div>
-                )}
-              </ModalContent>
-            </Modal>
-          </>
-        )}
-      </>
-    );
+                </ModalBody>
+              </div>
+            </div>
+          </ModalContent>
+        </Modal>
+      );
+    }
   };
 
   return (
-    <div className="w-full max-2xl:w-[calc(100dvw-385px)] max-xl:w-[calc(100dvw-380px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-50px)] max-sm:w-[calc(100dvw-40px)] [@media(min-width:1536px)]:w-[calc(100dvw-380px)]">
-      <Table
-        aria-label="Rendez-vous Table"
-        isHeaderSticky
-        bottomContent={bottomContent}
-        bottomContentPlacement="outside"
-        classNames={{
-          wrapper: "max-h-[50vh] custom-scrollbar",
-          tr: "rounded-small",
-        }}
-        selectedKeys={selectedKeys}
-        selectionMode="multiple"
-        sortDescriptor={sortDescriptor}
-        topContent={topContent}
-        topContentPlacement="outside"
-        onSelectionChange={setSelectedKeys}
-        onSortChange={setSortDescriptor}
-      >
-        <TableHeader columns={headerColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              align={column.uid === "actions" ? "center" : "start"}
-              allowsSorting={column.sortable}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          emptyContent={
-            <>
-              <p className="text-lg font-medium">Aucun appointment trouvé</p>
-            </>
-          }
-          items={sortedItems}
+    <>
+      <div className="w-full max-2xl:w-[calc(100dvw-385px)] max-xl:w-[calc(100dvw-380px)] max-lg:w-[calc(100dvw-340px)] max-md:w-[calc(100dvw-50px)] max-sm:w-[calc(100dvw-40px)] [@media(min-width:1536px)]:w-[calc(100dvw-380px)]">
+        <Table
+          aria-label="Rendez-vous Table"
+          isHeaderSticky
+          bottomContent={bottomContent}
+          bottomContentPlacement="outside"
+          classNames={{
+            wrapper: "max-h-[50vh] custom-scrollbar",
+            tr: "rounded-small",
+          }}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          sortDescriptor={sortDescriptor}
+          topContent={topContent}
+          topContentPlacement="outside"
+          onSelectionChange={setSelectedKeys}
+          onSortChange={setSortDescriptor}
         >
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          <TableHeader columns={headerColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                align={column.uid === "actions" ? "center" : "start"}
+                allowsSorting={column.sortable}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody
+            emptyContent={
+              <>
+                <p className="text-lg font-medium">Aucun rendez-vous trouvé</p>
+              </>
+            }
+            items={sortedItems}
+          >
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <RenderModals />
-    </div>
+    </>
   );
 }
 

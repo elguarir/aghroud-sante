@@ -359,7 +359,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="px-1 py-2 max-w-md">
+                  <div className="max-w-md px-1 py-2">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {payment?.notes || "Aucune notes disponibles"}
@@ -691,12 +691,16 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                                 <Tooltip
                                   content={`${format(
                                     startOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
+                                      .subtract({
+                                        months: 1,
+                                      })
                                       .toDate(getLocalTimeZone()),
                                     "dd/MM/yyyy",
                                   )} - ${format(
                                     endOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
+                                      .subtract({
+                                        months: 1,
+                                      })
                                       .toDate(getLocalTimeZone()),
                                     "dd/MM/yyyy",
                                   )}`}
@@ -709,10 +713,14 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                                       setDateFilter({
                                         start: startOfMonth(
                                           today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
+                                        ).subtract({
+                                          months: 1,
+                                        }),
                                         end: endOfMonth(
                                           today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
+                                        ).subtract({
+                                          months: 1,
+                                        }),
                                       });
                                     }}
                                   >
@@ -975,7 +983,9 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                             color="secondary"
                             onClick={async () => {
                               await deletePayment.mutateAsync(
-                                { id: PaymentToDelete },
+                                {
+                                  id: PaymentToDelete,
+                                },
                                 {
                                   onSuccess: () => {
                                     onClose();

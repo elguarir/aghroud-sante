@@ -275,7 +275,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="px-1 py-2 max-w-md">
+                  <div className="max-w-md px-1 py-2">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {expense?.notes || "Aucune notes disponibles"}
@@ -498,7 +498,9 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                             color="secondary"
                             onClick={async () => {
                               await deleteExpense.mutateAsync(
-                                { id: ExpenseToDelete },
+                                {
+                                  id: ExpenseToDelete,
+                                },
                                 {
                                   onSuccess: () => {
                                     onClose();
@@ -823,12 +825,16 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                                 <Tooltip
                                   content={`${format(
                                     startOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
+                                      .subtract({
+                                        months: 1,
+                                      })
                                       .toDate(getLocalTimeZone()),
                                     "dd/MM/yyyy",
                                   )} - ${format(
                                     endOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
+                                      .subtract({
+                                        months: 1,
+                                      })
                                       .toDate(getLocalTimeZone()),
                                     "dd/MM/yyyy",
                                   )}`}
@@ -841,10 +847,14 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                                       setDateFilter({
                                         start: startOfMonth(
                                           today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
+                                        ).subtract({
+                                          months: 1,
+                                        }),
                                         end: endOfMonth(
                                           today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
+                                        ).subtract({
+                                          months: 1,
+                                        }),
                                       });
                                     }}
                                   >

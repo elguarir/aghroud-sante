@@ -156,18 +156,26 @@ export const appointmentRouter = createTRPCRouter({
             },
           },
         },
+        orderBy: {
+          startTime: "asc",
+        },
       });
     }),
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      return await ctx.db.appointment.delete({
-        where: { id: input.id },
-      });
+      // return await ctx.db.appointment.delete({
+      //   where: { id: input.id },
+      // });
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      return { id: input.id };
     }),
   checkAvailability: publicProcedure
     .input(
-      z.object({ therapistId: z.string().optional(), startTime: z.date() }),
+      z.object({
+        therapistId: z.string().optional(),
+        startTime: z.date(),
+      }),
     )
     .query(async ({ ctx, input }) => {
       // Check if the therapist is available at the given time
@@ -180,6 +188,9 @@ export const appointmentRouter = createTRPCRouter({
           endTime: {
             gte: input.startTime,
           },
+        },
+        orderBy: {
+          startTime: "desc",
         },
       });
     }),

@@ -23,7 +23,3 @@ const Wrapper = ({ className, children, ...rest }: ScrollAreaProps) => {
 };
 
 export default Wrapper;
-
-{
-  /* <ScrollArea className="h-[calc(100dvh-56px)] flex-col flex flex-1 w-full p-4 lg:p-6"></ScrollArea> */
-}

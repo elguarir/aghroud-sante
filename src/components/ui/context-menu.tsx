@@ -87,7 +87,8 @@ const ContextMenuItem = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex cursor-default select-none items-center rounded-small px-2 py-1.5 text-sm text-default-600 outline-none transition-colors duration-200 focus:bg-default-200/80 focus:text-default-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        variant === "danger" && "text-danger focus:text-danger-foreground focus:bg-danger",
+        variant === "danger" &&
+          "text-danger focus:bg-danger focus:text-danger-foreground",
         inset && "pl-8",
         className,
       )}

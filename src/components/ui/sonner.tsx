@@ -21,8 +21,9 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton:
             "group-[.toast]:bg-red-500 group-[.toast]:text-default-500",
-            // :where([data-sonner-toast]):hover :where([data-close-button]):hover
-          closeButton: "text-default-foreground bg-default-50 border-default-300 hover:group-hover:bg-default-100 hover:group-hover:border-default-400 transition-colors duration-200",
+          // :where([data-sonner-toast]):hover :where([data-close-button]):hover
+          closeButton:
+            "text-default-foreground bg-default-50 border-default-300 hover:group-hover:bg-default-100 hover:group-hover:border-default-400 transition-colors duration-200",
         },
       }}
       duration={1500}
