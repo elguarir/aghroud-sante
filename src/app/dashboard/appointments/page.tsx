@@ -11,8 +11,8 @@ const AppointmentsPage = async () => {
 
   return (
     <Wrapper>
-      <TabsProvider defaultTab="table" className="grid w-full gap-4">
-        <div className="flex h-full flex-col gap-4">
+      <TabsProvider defaultTab="table">
+        <div className="flex h-full flex-col gap-6">
           <div className="flex w-full items-center justify-between gap-2">
             <h1 className="text-xl font-semibold md:text-2xl">Rendez-vous</h1>
             <div className="flex items-center gap-2">
@@ -20,18 +20,16 @@ const AppointmentsPage = async () => {
               <AddNewAppointmentModal />
             </div>
           </div>
-          <div className="flex h-full min-h-[78dvh] flex-1 flex-col pb-5 pt-7 shadow-sm">
-            <TabBody key={"table"} value={"table"} className="h-full w-full">
-              <AppointmentsTable appointments={appointments} />
-            </TabBody>
-            <TabBody
-              key={"calendar"}
-              value={"calendar"}
-              className="h-full w-full"
-            >
-              <AppointmentsCalendar appointments={appointments} />
-            </TabBody>
-          </div>
+          <TabBody key={"table"} value={"table"} className="h-full w-full">
+            <AppointmentsTable appointments={appointments} />
+          </TabBody>
+          <TabBody
+            key={"calendar"}
+            value={"calendar"}
+            className="h-full w-full"
+          >
+            <AppointmentsCalendar appointments={appointments} />
+          </TabBody>
         </div>
       </TabsProvider>
     </Wrapper>

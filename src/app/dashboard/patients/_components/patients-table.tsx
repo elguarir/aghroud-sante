@@ -258,7 +258,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
         case "actions":
           return (
             <div className="relative flex items-center justify-end gap-2">
-              <Dropdown>
+              <Dropdown placement="bottom-end">
                 <DropdownTrigger>
                   <Button isIconOnly size="sm" variant="light">
                     <MoreVertical className="text-default-300" />

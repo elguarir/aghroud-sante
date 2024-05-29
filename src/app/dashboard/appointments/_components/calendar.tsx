@@ -2,7 +2,6 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button, ButtonGroup } from "@nextui-org/button";
 import {
-  parseISO,
   isSameDay,
   isSameMonth,
   isEqual,
@@ -17,7 +16,6 @@ import { useState } from "react";
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  DotsVerticalIcon,
 } from "@radix-ui/react-icons";
 import {
   ContextMenu,
@@ -25,15 +23,11 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import {
-  CalendarPlusIcon,
-  ClockFadingIcon,
-  GridViewIcon,
-  ListViewIcon,
-} from "@/components/icons";
-import { Tab, Tabs } from "@nextui-org/tabs";
+import { CalendarPlusIcon, ClockFadingIcon } from "@/components/icons";
 import { useCalendarStore } from "@/hooks/use-calendar-store";
 import { fr } from "date-fns/locale";
+import { RouterOutput } from "@/server/api/root";
+import { AppointmentStatus } from "./appointments-data";
 
 const colStartClasses = [
   "",
@@ -58,7 +52,7 @@ function CalendarHeader({
 }: CalendarHeaderProps) {
   return (
     <div className="flex h-full items-center gap-2">
-      <h2 className="flex-auto capitalize font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 className="flex-auto font-semibold capitalize text-neutral-900 dark:text-neutral-100">
         {format(parse(currentMonth, "MMM-yyyy", new Date()), "MMMM yyyy", {
           locale: fr,
         })}
@@ -112,20 +106,20 @@ interface DaysGridProps {
   selectedDay: Date;
   setSelectedDay: (day: Date) => void;
   firstDayCurrentMonth: Date;
-  meetings: Meeting[];
+  appointments: RouterOutput["appointment"]["all"];
 }
 function DaysGrid({
   days,
   selectedDay,
   setSelectedDay,
   firstDayCurrentMonth,
-  meetings,
+  appointments,
 }: DaysGridProps) {
   return (
     <div className="mt-2 grid grid-cols-7 divide-x-[0.114em] divide-y-[0.114em] overflow-hidden rounded-lg border-2 border-dashed border-default-300/40 text-[10px] font-[450]">
       {days.map((day, dayIdx) => {
-        let thisDayMeetings = meetings.filter((meeting) =>
-          isSameDay(parseISO(meeting.startDatetime), day),
+        let thisDayAppointments = appointments.filter((appointment) =>
+          isSameDay(appointment.startTime, day),
         );
         return (
           <DayCell
@@ -135,7 +129,7 @@ function DaysGrid({
             selectedDay={selectedDay}
             setSelectedDay={setSelectedDay}
             firstDayCurrentMonth={firstDayCurrentMonth}
-            meetings={thisDayMeetings}
+            thisDayAppointments={thisDayAppointments}
           />
         );
       })}
@@ -148,7 +142,7 @@ interface DayCellProps {
   selectedDay: Date;
   setSelectedDay: (day: Date) => void;
   firstDayCurrentMonth: Date;
-  meetings: Meeting[];
+  thisDayAppointments: RouterOutput["appointment"]["all"];
 }
 function DayCell({
   day,
@@ -156,33 +150,37 @@ function DayCell({
   selectedDay,
   setSelectedDay,
   firstDayCurrentMonth,
-  meetings,
+  thisDayAppointments,
 }: DayCellProps) {
-  const [mettingToShow, setMeetingToShow] = useState<Meeting | undefined>(
-    meetings[0],
-  );
+  const [appointmentToShow, setAppointmentToShow] = useState<
+    RouterOutput["appointment"]["all"][number] | undefined
+  >(thisDayAppointments[0]);
   const setCalendarAction = useCalendarStore(
     (state) => state.setCalendarAction,
   );
-  const showNextButton = meetings.length > 1 && mettingToShow !== meetings[0];
+  const showNextButton =
+    thisDayAppointments.length > 1 &&
+    appointmentToShow !== thisDayAppointments[0];
   const showPreviousButton =
-    meetings.length > 1 && mettingToShow !== meetings[meetings.length - 1];
+    thisDayAppointments.length > 1 &&
+    appointmentToShow !== thisDayAppointments[thisDayAppointments.length - 1];
 
-  const handleNextMeeting = () => {
-    let nextMeetingIdx = meetings.findIndex(
-      (meeting) => meeting.id === mettingToShow?.id,
+  const handleNextAppointment = () => {
+    let nextAppointmentIdx = thisDayAppointments.findIndex(
+      (appointment) => appointment.id === appointmentToShow?.id,
     );
-    nextMeetingIdx = (nextMeetingIdx + 1) % meetings.length;
-    setMeetingToShow(meetings[nextMeetingIdx]);
+    nextAppointmentIdx = (nextAppointmentIdx + 1) % thisDayAppointments.length;
+    setAppointmentToShow(thisDayAppointments[nextAppointmentIdx]);
   };
 
-  const handlePreviousMeeting = () => {
-    let previousMeetingIdx = meetings.findIndex(
-      (meeting) => meeting.id === mettingToShow?.id,
+  const handlePreviousAppointment = () => {
+    let previousAppointmentIdx = thisDayAppointments.findIndex(
+      (appointment) => appointment.id === appointmentToShow?.id,
     );
-    previousMeetingIdx =
-      (previousMeetingIdx - 1 + meetings.length) % meetings.length;
-    setMeetingToShow(meetings[previousMeetingIdx]);
+    previousAppointmentIdx =
+      (previousAppointmentIdx - 1 + thisDayAppointments.length) %
+      thisDayAppointments.length;
+    setAppointmentToShow(thisDayAppointments[previousAppointmentIdx]);
   };
 
   return (
@@ -190,7 +188,7 @@ function DayCell({
       <ContextMenuTrigger asChild>
         <div
           className={cn(
-            "flex h-32 w-full flex-col justify-start gap-y-2 border-default-300/40 bg-default-100/50 p-1.5 hover:bg-default-100/80 peer-has-[hover=true]:bg-red-500",
+            "flex h-32 w-full flex-col justify-start gap-y-2 border-default-300/40 bg-default-100/50 p-1.5 hover:bg-default-100/80",
             isSunday(day) && "!border-l-0",
             dayIdx <= 6 && "!border-t-0",
             dayIdx === 0 && colStartClasses[getDay(day)],
@@ -222,32 +220,32 @@ function DayCell({
           >
             <time dateTime={format(day, "yyyy-MM-dd")}>{format(day, "d")}</time>
           </button>
-          {mettingToShow && (
+          {appointmentToShow && (
             <>
               <div className="flex w-full flex-1 flex-col">
                 <div className="flex w-full items-center justify-end pr-1">
                   <button
                     type="button"
                     disabled={!showNextButton}
-                    onClick={handleNextMeeting}
+                    onClick={handleNextAppointment}
                   >
-                    <span className="sr-only">Next meeting</span>
+                    <span className="sr-only">Next appointment</span>
                     <ChevronUpIcon
                       className={`h-3 w-3 ${!showNextButton ? "text-default-600 opacity-50" : "text-primary-500"}`}
                     />
                   </button>
                 </div>
-                <MeetingPreview
-                  key={mettingToShow.id}
-                  meeting={mettingToShow}
+                <AppointmentPreview
+                  key={appointmentToShow.id}
+                  appointment={appointmentToShow}
                 />
                 <div className="flex w-full items-center justify-end pr-1">
                   <button
                     type="button"
                     disabled={!showPreviousButton}
-                    onClick={handlePreviousMeeting}
+                    onClick={handlePreviousAppointment}
                   >
-                    <span className="sr-only">Previous meeting</span>
+                    <span className="sr-only">Previous appointment</span>
                     <ChevronDownIcon
                       className={`h-3 w-3 ${!showPreviousButton ? "text-default-600 opacity-50" : "text-primary-500"}`}
                     />
@@ -284,66 +282,32 @@ function DayCell({
   );
 }
 
-function MeetingPreview({ meeting }: MeetingProps) {
+function AppointmentPreview({
+  appointment,
+}: {
+  appointment: RouterOutput["appointment"]["all"][number];
+}) {
+  let status = AppointmentStatus.find((st) => st.value === appointment.status);
+  let color = `bg-${status?.color}`;
   return (
-    <div className="peer flex items-center space-x-2 rounded-md border border-default-foreground/5 bg-default-100 p-1.5">
+    <div className="flex items-center space-x-2 rounded-md border border-default-foreground/5 bg-default-100 p-1 py-1.5">
+      <div className={cn("h-full w-[3.5px] rounded-medium", color)} />
       <div className="flex-auto">
-        <p className="max-w-full truncate text-default-700">{meeting.name}</p>
+        <p className="max-w-full truncate text-default-700">
+          {appointment.patient.firstName} {appointment.patient.lastName}
+        </p>
         <p className="mt-0.5">
-          <time dateTime={meeting.startDatetime}>
-            {format(parseISO(meeting.startDatetime), "h:mm a")}
+          <time dateTime={appointment.startTime.toTimeString()}>
+            {format(appointment.startTime, "HH:mm")}
           </time>{" "}
           -{" "}
-          <time dateTime={meeting.endDatetime}>
-            {format(parseISO(meeting.endDatetime), "h:mm a")}
+          <time dateTime={appointment.endTime.toTimeString()}>
+            {format(appointment.endTime, "HH:mm")}
           </time>
         </p>
-      </div>
-      <div className="flex h-full items-center">
-        <button>
-          <DotsVerticalIcon className="h-3.5 w-3.5 text-default-600" />
-        </button>
       </div>
     </div>
   );
 }
 
-export interface Meeting {
-  id: number;
-  name: string;
-  imageUrl: string;
-  startDatetime: string;
-  endDatetime: string;
-}
-
-interface MeetingProps {
-  meeting: Meeting;
-}
-function Meeting({ meeting }: MeetingProps) {
-  let startDateTime = parseISO(meeting.startDatetime);
-  let endDateTime = parseISO(meeting.endDatetime);
-
-  return (
-    <li className="group flex items-center space-x-4 rounded-xl px-4 py-2 focus-within:bg-neutral-100 hover:bg-neutral-100 dark:focus-within:bg-neutral-800 dark:hover:bg-neutral-800">
-      <img
-        src={meeting.imageUrl}
-        alt=""
-        className="h-10 w-10 flex-none rounded-full"
-      />
-      <div className="flex-auto">
-        <p className="text-neutral-900 dark:text-neutral-100">{meeting.name}</p>
-        <p className="mt-0.5">
-          <time dateTime={meeting.startDatetime}>
-            {format(startDateTime, "h:mm a")}
-          </time>{" "}
-          -{" "}
-          <time dateTime={meeting.endDatetime}>
-            {format(endDateTime, "h:mm a")}
-          </time>
-        </p>
-      </div>
-    </li>
-  );
-}
-
-export { CalendarHeader, DaysOfWeek, DaysGrid, MeetingPreview, Meeting };
+export { CalendarHeader, DaysOfWeek, DaysGrid, AppointmentPreview };

@@ -38,12 +38,12 @@ export const appointmentRouter = createTRPCRouter({
         where: { id: input.id },
         data: {
           patientId: input.data.patientId,
-          therapistId: input.data.therapistId,
-          serviceId: input.data.serviceId,
+          therapistId: input.data.therapistId ?? null,
+          serviceId: input.data.serviceId ?? null,
           startTime: input.data.startTime,
           endTime: input.data.endTime,
           status: input.data.status,
-          notes: input.data.notes,
+          notes: input.data.notes ?? "",
           floor: input.data.floor,
         },
       });
@@ -164,13 +164,11 @@ export const appointmentRouter = createTRPCRouter({
   delete: publicProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // return await ctx.db.appointment.delete({
-      //   where: { id: input.id },
-      // });
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return { id: input.id };
+      return await ctx.db.appointment.delete({
+        where: { id: input.id },
+      });
     }),
-  checkAvailability: publicProcedure
+  checkTherapistAvailability: publicProcedure
     .input(
       z.object({
         therapistId: z.string().optional(),
@@ -193,5 +191,78 @@ export const appointmentRouter = createTRPCRouter({
           startTime: "desc",
         },
       });
+    }),
+  checkTimeAvailability: publicProcedure
+    .input(
+      z.object({
+        floor: z.number().optional(),
+        startTime: z.date(),
+        endTime: z.date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // check if the time is available for the given floor
+      const conflictingAppointments = await ctx.db.appointment.findMany({
+        where: {
+          floor: input.floor,
+          AND: [
+            {
+              startTime: {
+                lt: input.endTime,
+              },
+            },
+            {
+              endTime: {
+                gt: input.startTime,
+              },
+            },
+            {
+              status: {
+                not: "CANCELLED",
+              },
+            },
+          ],
+        },
+        select: {
+          id: true,
+          startTime: true,
+          endTime: true,
+          status: true,
+          notes: true,
+          floor: true,
+          createdAt: true,
+          updatedAt: true,
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              phoneNumber: true,
+            },
+          },
+          therapist: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              speciality: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              price: true,
+              duration: true,
+              createdAt: true,
+            },
+          },
+        },
+      });
+
+      return {
+        isAvailable: conflictingAppointments.length === 0,
+        conflicts: conflictingAppointments,
+      };
     }),
 });

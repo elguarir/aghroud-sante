@@ -19,19 +19,25 @@ import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
 import { cn } from "@/lib/utils";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import { Avatar } from "@nextui-org/avatar";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useState } from "react";
 import {
   Appointment,
   AppointmentSchema,
-  AppointmentStatus,
 } from "@/lib/schemas/new-appointment";
 import { Calendar } from "@nextui-org/calendar";
 import { TimeInput, Tooltip } from "@nextui-org/react";
-import { InfoCircledIcon, ThickArrowRightIcon } from "@radix-ui/react-icons";
+import {
+  InfoCircledIcon,
+  ReloadIcon,
+  ThickArrowRightIcon,
+} from "@radix-ui/react-icons";
 import { Therapist } from "@prisma/client";
 import TherapistForm from "./therapist-form";
 import { Modal } from "@/components/reusable-modal";
 import { toast } from "sonner";
+import { RouterOutput } from "@/server/api/root";
+import { Alert } from "@/components/ui/alert";
+import { AppointmentStatus } from "./appointments-data";
 
 type Props = {
   mode?: "create" | "edit";
@@ -98,6 +104,10 @@ const AppointmentForm = ({
     },
   });
 
+  const [availabilityResult, setAvailabilityResult] = useState<
+    RouterOutput["appointment"]["checkTimeAvailability"] | null
+  >(null);
+
   const {
     patientId,
     startTime,
@@ -117,7 +127,9 @@ const AppointmentForm = ({
     api.service.getAll.useQuery();
   const { data: therapists, isLoading: isLoadingTherapists } =
     api.therapist.getAll.useQuery();
+  const checkAvailability = api.appointment.checkTimeAvailability.useMutation();
   const utils = api.useUtils();
+
   async function onSubmit(values: Appointment) {
     if (mode === "create") {
       console.log("values", values);
@@ -146,6 +158,19 @@ const AppointmentForm = ({
       );
     }
   }
+  async function handleCheckAvailability() {
+    if (!floor || !startTime || !endTime) {
+      toast.info(
+        "Vous devez remplir les champs requis: étage, date de début et date de fin",
+      );
+    }
+    let result = await checkAvailability.mutateAsync({
+      floor,
+      startTime,
+      endTime,
+    });
+    setAvailabilityResult(result);
+  }
 
   if (isLoading) {
     return (
@@ -168,6 +193,7 @@ const AppointmentForm = ({
       <Fieldset type="fieldset" legend="Informations sur le rendez-vous">
         <div className="grid w-full gap-y-6 pt-4">
           <div className="flex w-full justify-center gap-4">
+            {/* Calendar */}
             <Calendar
               disableAnimation
               classNames={{
@@ -200,6 +226,7 @@ const AppointmentForm = ({
             />
           </div>
           <div className="flex w-full items-end gap-2.5">
+            {/* Start Time */}
             <div className="w-full">
               <TimeInput
                 classNames={{
@@ -221,6 +248,7 @@ const AppointmentForm = ({
             <div className="mb-2.5 w-fit">
               <ThickArrowRightIcon className="h-5 w-5 text-default-500" />
             </div>
+            {/* End Time */}
             <div className="w-full">
               <TimeInput
                 classNames={{
@@ -244,6 +272,7 @@ const AppointmentForm = ({
                       }
                       placement="top"
                       showArrow
+                      size="sm"
                       color="danger"
                     >
                       <button
@@ -264,6 +293,7 @@ const AppointmentForm = ({
             </div>
           </div>
           <div className="grid grid-cols-1 gap-x-3 gap-y-6 md:grid-cols-2">
+            {/* Status */}
             <div className="w-full">
               <Select
                 label="Statut"
@@ -321,6 +351,7 @@ const AppointmentForm = ({
                 }}
               </Select>
             </div>
+            {/* Floor */}
             <div className="w-full">
               <Input
                 isDisabled={isDisabled}
@@ -345,7 +376,67 @@ const AppointmentForm = ({
                 }}
               />
             </div>
+            {/* Availability */}
+            {/* {availabilityResult === null ? (
+              <div className="col-span-full flex items-center justify-end">
+                <Button
+                  isLoading={checkAvailability.isPending}
+                  color="secondary"
+                  variant="faded"
+                  onClick={handleCheckAvailability}
+                >
+                  {checkAvailability.isPending
+                    ? "Vérification..."
+                    : "Vérifier la disponibilité"}
+                </Button>
+              </div>
+            ) : ( */}
+            <Alert
+              variant={
+                availabilityResult === null
+                  ? "default"
+                  : availabilityResult.isAvailable
+                    ? "success"
+                    : "danger"
+              }
+              className="col-span-full"
+              endContent={
+                <Tooltip
+                  delay={150}
+                  closeDelay={100}
+                  content="Re-vérifier la disponibilité"
+                  size="sm"
+                >
+                  <button
+                    onClick={handleCheckAvailability}
+                    disabled={checkAvailability.isPending}
+                    className="flex items-center transition-opacity hover:opacity-60 focus-visible:outline-none"
+                    type="button"
+                  >
+                    {checkAvailability.isPending ? (
+                      <Spinner size="sm" color="current" />
+                    ) : (
+                      <ReloadIcon className="size-4" />
+                    )}
+                  </button>
+                </Tooltip>
+              }
+            >
+              {availabilityResult === null ? (
+                <>
+                  <p className="leading-tight">
+                    Vérifiez la disponibilité de la date et de l'étage
+                  </p>
+                </>
+              ) : availabilityResult.isAvailable ? (
+                <p className="leading-tight">La date est disponible.</p>
+              ) : (
+                <p className="leading-tight">La date n'est pas disponible.</p>
+              )}
+            </Alert>
+            {/* )} */}
           </div>
+          {/* Patients */}
           <div className="w-full">
             <Autocomplete
               label="Patient"
@@ -374,7 +465,7 @@ const AppointmentForm = ({
                 },
               }}
               description="Selectionnez un patient ou rechercher un patient par son nom"
-              placeholder="Chercer un patient"
+              placeholder="Chercher un patient"
               // @ts-ignore
               selectedKey={String(patientId)}
               onSelectionChange={(v) => {
@@ -408,6 +499,7 @@ const AppointmentForm = ({
               )}
             </Autocomplete>
           </div>
+          {/* Therapists */}
           <div className="flex w-full items-end gap-2">
             <div className="w-full">
               <Select
@@ -484,6 +576,7 @@ const AppointmentForm = ({
                     showArrow
                     delay={150}
                     closeDelay={100}
+                    size="sm"
                   >
                     <Button isIconOnly variant="flat" className="!size-12">
                       <PlusCircledIconFilled className="h-6 w-6 text-default-500" />
