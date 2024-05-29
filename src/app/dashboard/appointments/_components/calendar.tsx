@@ -258,7 +258,7 @@ function DayCell({
           onClick={() => {
             setCalendarAction({
               action: "view",
-              date: new Date(day.toUTCString()),
+              date: new Date(day.setHours(15)),
             });
           }}
         >
@@ -271,7 +271,7 @@ function DayCell({
           onClick={() => {
             setCalendarAction({
               action: "create",
-              date: new Date(day.toUTCString()),
+              date: new Date(day.setHours(15)),
             });
           }}
         >

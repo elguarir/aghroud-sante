@@ -17,6 +17,7 @@ interface Props {
 }
 
 const AppointmentsAgenda = (props: Props) => {
+  console.log("date", props.date)
   const { data: appointments, isLoading } =
     api.appointment.allWithFilter.useQuery({ date: props.date });
   const setCalendarAction = useCalendarStore(
