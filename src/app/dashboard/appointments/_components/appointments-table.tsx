@@ -11,12 +11,12 @@ import {
   SortDescriptor,
   Selection,
 } from "@nextui-org/table";
-import { CircleFadingPlus, MoreVertical } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { ChevronDownIcon } from "lucide-react";
 import { SearchIcon } from "lucide-react";
 import { columns, AppointmentsData } from "./appointments-data";
 import { User } from "@nextui-org/user";
-import { Button, ButtonGroup } from "@nextui-org/button";
+import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Pagination } from "@nextui-org/pagination";
 import {
@@ -51,7 +51,7 @@ import {
   endOfWeek,
   startOfWeek,
 } from "@internationalized/date";
-import { AppointmentStatus } from "@/lib/schemas/new-appointment";
+import { AppointmentStatus } from "./appointments-data"
 import AppointmentForm from "./appointment-form";
 
 const INITIAL_VISIBLE_COLUMNS = [

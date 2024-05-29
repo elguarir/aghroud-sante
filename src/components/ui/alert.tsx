@@ -6,6 +6,7 @@ import {
   ExclamationTriangleIcon,
   InfoCircledIcon,
 } from "@radix-ui/react-icons";
+
 const alertVariants = cva(
   "flex shadow-sm w-full items-center gap-1.5 rounded-medium [&_svg]:size-4",
   {

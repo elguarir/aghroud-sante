@@ -18,14 +18,15 @@ export const LoginForm = () => {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [errorMessage, dispatch] = useFormState(authenticate, undefined);
+
   return (
     <Card shadow="sm" className="w-full">
       <CardHeader className="flex flex-col items-start space-y-1 p-6">
         <h3 className="text-large font-semibold leading-none tracking-tight">
-          Welcome back
+          Connectez-vous
         </h3>
         <p className="text-small text-default-500">
-          Log in to your account to continue
+          Connectez-vous à votre compte pour continuer
         </p>
       </CardHeader>
       <CardBody className="p-6 pt-1">
@@ -42,9 +43,10 @@ export const LoginForm = () => {
             autoComplete="off"
             validate={(value) => {
               if (!value.includes("@")) {
-                return "Please enter a valid email address";
+                return "S'il vous plaît, entrez une adresse email valide.";
               }
             }}
+            validationBehavior="native"
             placeholder="Enter your email"
             variant="bordered"
             labelPlacement="outside"
@@ -53,7 +55,7 @@ export const LoginForm = () => {
             }
           />
           <Input
-            label="Password"
+            label="Mot de passe"
             name="password"
             id="password"
             isRequired
@@ -81,15 +83,15 @@ export const LoginForm = () => {
             }
           />
           <div className="flex flex-col gap-2">
-            <div className="flex justify-between px-1 py-2">
-              <Checkbox
+            <div className="flex justify-end w-full px-1 py-2">
+              {/* <Checkbox
                 classNames={{
                   label: "text-small",
                 }}
                 name="remember"
               >
                 Remember me
-              </Checkbox>
+              </Checkbox> */}
               <Link color="primary" href="/forgot-password" size="sm">
                 Forgot password?
               </Link>
