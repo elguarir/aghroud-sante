@@ -112,7 +112,7 @@ export default function AppointmentsTable({
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "startTime",
-    direction: "ascending",
+    direction: "descending",
   });
   const [page, setPage] = React.useState(1);
   const headerColumns = React.useMemo(() => {

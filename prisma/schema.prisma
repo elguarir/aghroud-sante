@@ -68,8 +68,8 @@ model Appointment {
     patientId   Int               @map("patient_id")
     therapistId String?           @map("therapist_id")
     serviceId   String?           @map("service_id")
-    startTime   DateTime          @map("start_time") @db.Timestamptz()
-    endTime     DateTime          @map("end_time") @db.Timestamptz()
+    startTime   DateTime          @map("start_time")
+    endTime     DateTime          @map("end_time")
     floor       Int?
     notes       String?           @db.Text
     // etage       Int?
