@@ -78,7 +78,7 @@ const AppointmentForm = ({
               minute: 0,
             })
             .toDate(),
-          patientId: null,
+          patientId: undefined,
           floor: 1,
           notes: undefined,
           therapistId: undefined,
@@ -442,10 +442,13 @@ const AppointmentForm = ({
               label="Patient"
               isDisabled={isDisabled}
               variant="bordered"
-              // isRequired
-              validate={() => {
-                if (!patientId) return "Veuillez remplir ce champ";
-              }}
+              isRequired
+              isInvalid={!!errors.patientId}
+              errorMessage={errors.patientId?.message}
+              // validate={(err) => {
+              //   console.log(err)
+              //   if (!patientId) return "Veuillez remplir ce champ";
+              // }}
               defaultItems={patients ?? []}
               isLoading={isLoadingPatients}
               labelPlacement="outside"

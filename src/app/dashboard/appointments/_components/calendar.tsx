@@ -13,10 +13,7 @@ import {
 } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-} from "@radix-ui/react-icons";
+import { ChevronDownIcon, ChevronUpIcon } from "@radix-ui/react-icons";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -259,7 +256,10 @@ function DayCell({
       <ContextMenuContent className="w-[150px]">
         <ContextMenuItem
           onClick={() => {
-            setCalendarAction({ action: "view", date: day });
+            setCalendarAction({
+              action: "view",
+              date: new Date(day.toUTCString()),
+            });
           }}
         >
           <div className="flex items-center gap-2">
@@ -269,7 +269,10 @@ function DayCell({
         </ContextMenuItem>
         <ContextMenuItem
           onClick={() => {
-            setCalendarAction({ action: "create", date: day });
+            setCalendarAction({
+              action: "create",
+              date: new Date(day.toUTCString()),
+            });
           }}
         >
           <div className="flex items-center gap-2">
