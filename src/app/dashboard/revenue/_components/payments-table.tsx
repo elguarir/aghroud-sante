@@ -373,8 +373,6 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
           return (
             <div className="flex flex-col">
               <p className="text-bold text-nowrap text-small capitalize">
-                {/* {payment.paymentDate.toLocaleDateString("fr-FR")} */}
-                {/* format: 12/05/2024, 10:30 */}
                 {format(payment.paymentDate, "dd/MM/yyyy, HH:mm")}
               </p>
             </div>
@@ -421,6 +419,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     },
     [],
   );
+
   const RenderFilters = React.useCallback(
     ({ filter }: { filter: string }) => {
       switch (filter) {
@@ -493,6 +492,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     },
     [paymentFilters, dateFilter],
   );
+
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
@@ -513,6 +513,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+  
   const topContent = React.useMemo(() => {
     return (
       <>
@@ -547,13 +548,14 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                 >
                   <PopoverTrigger>
                     <Button
-                      disableAnimation
                       startContent={
                         <CircleFadingPlus className="h-4 w-4 text-default-500" />
                       }
                       endContent={<RenderFilters filter="paymentMethod" />}
                       color="default"
                       variant="bordered"
+                      disableAnimation
+                      className="data-[pressed=true]:scale-100"
                     >
                       Méthode de paiement
                     </Button>
@@ -603,6 +605,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                   <PopoverTrigger>
                     <Button
                       disableAnimation
+                      className="data-[pressed=true]:scale-100"
                       startContent={
                         <CircleFadingPlus className="h-4 w-4 text-default-500" />
                       }

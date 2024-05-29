@@ -170,6 +170,7 @@ const PaymentForm = ({
                 endContent={
                   <span className="text-small text-default-500">MAD</span>
                 }
+                validationBehavior="native"
                 validate={(v) => {
                   if (v === undefined || v === null || v === "") {
                     return "Veuillez remplir ce champ.";
@@ -278,9 +279,13 @@ const PaymentForm = ({
             <DatePicker
               classNames={{
                 calendarContent: "min-w-[256px] overflow-x-hidden",
-                // .focus-within\:border-default-foreground:focus-within
                 inputWrapper:
                   "!focus-within:border-primary !hover:focus-whitin:border-primary !transition-all !duration-200",
+              }}
+              calendarProps={{
+                classNames: {
+                  title: "capitalize",
+                },
               }}
               timeInputProps={{
                 variant: "faded",

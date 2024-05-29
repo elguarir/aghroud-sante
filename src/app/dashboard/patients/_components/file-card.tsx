@@ -136,7 +136,6 @@ export const FileCard = ({ file, state, remove }: FileCardProps) => {
             }}
             aria-label="upload progress"
             value={state.progress}
-            // disableAnimation
             size="sm"
           />
         </div>

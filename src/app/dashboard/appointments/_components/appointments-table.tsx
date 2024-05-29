@@ -40,14 +40,10 @@ import {
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
-import { DateValue, RangeCalendar, RangeValue } from "@nextui-org/calendar";
+import { DateValue, RangeValue } from "@nextui-org/calendar";
 import {
   getLocalTimeZone,
   today,
-  startOfMonth,
-  endOfMonth,
-  startOfYear,
-  endOfYear,
   endOfWeek,
   startOfWeek,
 } from "@internationalized/date";
@@ -161,29 +157,6 @@ export default function AppointmentsTable({
     //     }
     //     return false;
     //   });
-    // }
-
-    // if (hasDateFilter) {
-    //   let isSameDayFilter = isSameDay(
-    //     dateFilter.start.toDate(getLocalTimeZone()),
-    //     dateFilter.end.toDate(getLocalTimeZone()),
-    //   );
-    //   if (isSameDayFilter) {
-    //     filteredAppointments = filteredAppointments.filter((appointment) => {
-    //       return isSameDay(
-    //         appointment.appointmentDate,
-    //         dateFilter.start.toDate(getLocalTimeZone()),
-    //       );
-    //     });
-    //   } else {
-    //     filteredAppointments = filteredAppointments.filter((appointment) => {
-    //       return (
-    //         appointment.appointmentDate >=
-    //           dateFilter.start.toDate(getLocalTimeZone()) &&
-    //         appointment.appointmentDate <= dateFilter.end.toDate(getLocalTimeZone())
-    //       );
-    //     });
-    //   }
     // }
 
     return filteredAppointments;

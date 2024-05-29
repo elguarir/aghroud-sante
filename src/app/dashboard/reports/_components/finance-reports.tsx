@@ -2,16 +2,12 @@
 import {
   BarChartIcon,
   LineChartIcon,
-  MoneyBagIcon,
   MoneyReceiveSquareIcon,
   MoneySendSquareIcon,
   UserGroupIcon,
 } from "@/components/icons";
-import { Chip } from "@nextui-org/chip";
 import * as Tab from "../../../../components/ui/tabs";
-import { Tooltip } from "@nextui-org/tooltip";
-import { ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons";
-import { Card, Color, DonutChart, Legend } from "@tremor/react";
+import { Card, Color, DonutChart } from "@tremor/react";
 import dynamic from "next/dynamic";
 import { Spinner } from "@nextui-org/spinner";
 import { Select, SelectItem } from "@nextui-org/select";
@@ -19,9 +15,7 @@ import { colorValues } from "@/lib/constants";
 import { ExpenseTypes } from "@/lib/schemas/new-expense";
 import { eachDayOfInterval, format } from "date-fns";
 import { fr } from "date-fns/locale";
-import TotalPatientsCard from "./total-patients";
-import TotalExpensesCard from "./total-expenses";
-import TotalRevenueCard from "./total-revenue";
+import StatCard from "@/components/reports/stat-card";
 
 /**
  *
@@ -116,24 +110,32 @@ export function FinanceReports() {
       Revenu: 1350,
     },
   ];
-
-  const daysOfWeek = eachDayOfInterval({
-    start: new Date(),
-    end: new Date(new Date().setDate(new Date().getDate() + 6)),
-  });
-
-  const weekdays = daysOfWeek.map((day) => {
-    const formattedDay = format(day, "EEE", { locale: fr });
-    return formattedDay.charAt(0).toUpperCase() + formattedDay.slice(1);
-  });
-
   return (
     <div className="grid w-full gap-x-6 gap-y-8 xl:grid-cols-12">
       <div className="col-span-full">
         <div className="grid h-full w-full gap-6 md:grid-cols-2 xl:grid-cols-4">
-          <TotalRevenueCard />
-          <TotalExpensesCard />
-          <TotalPatientsCard />
+          <StatCard
+            icon={
+              <MoneyReceiveSquareIcon className="h-8 w-8 text-default-600" />
+            }
+            title="Revenu"
+            currentValue={35500}
+            previousValue={32000}
+          />
+          <StatCard
+            icon={<MoneySendSquareIcon className="h-8 w-8 text-default-600" />}
+            title={"Dépenses"}
+            hideComparison
+            currentValue={12000}
+            previousValue={20000}
+          />
+          <StatCard
+            icon={<UserGroupIcon className="h-8 w-8 text-default-600" />}
+            title={"Total Patient"}
+            currentValue={150}
+            previousValue={120}
+            showPercentage={false}
+          />
         </div>
       </div>
       <Card className="col-span-full min-h-[25rem] rounded-xl max-md:px-4 max-md:py-5 xl:col-span-6">
@@ -329,7 +331,6 @@ function ExpensesByCategoryChart() {
                 valueFormatter={dataFormatter}
                 colors={colors}
                 className="h-48 w-full"
-                onValueChange={(v) => console.log(v)}
               />
             </div>
             <div className="col-span-full flex h-full w-full flex-col justify-center px-3 md:col-span-7">

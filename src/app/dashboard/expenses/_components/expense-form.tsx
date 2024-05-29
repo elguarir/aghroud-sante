@@ -160,6 +160,7 @@ const ExpenseForm = ({
                 endContent={
                   <span className="text-small text-default-500">MAD</span>
                 }
+                validationBehavior="native"
                 validate={(v) => {
                   if (v === undefined || v === null || v === "") {
                     return "Veuillez remplir ce champ.";
@@ -211,6 +212,10 @@ const ExpenseForm = ({
                 inputWrapper:
                   "!focus-whitin:border-primary !hover:focus-whitin:border-primary !transition-all !duration-200",
               }}
+              timeInputProps={{
+                variant: "faded"
+              }}
+              disableAnimation
               calendarProps={{
                 classNames: {
                   title: "capitalize",

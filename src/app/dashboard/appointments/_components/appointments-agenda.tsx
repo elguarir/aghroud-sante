@@ -151,6 +151,14 @@ const AppointmentCard = ({
             </Chip>
           </li>
           <li className="flex items-start gap-2.5 py-2">
+            <span className="text-default-500">
+              Étage:
+            </span>
+            <span className="text-default-700">
+              {appointment.floor || "Non défini"} étage
+            </span>
+          </li>
+          <li className="flex items-start gap-2.5 py-2">
             <span className="text-default-500">Notes:</span>
             <span className="text-default-700">
               {appointment.notes || "Non défini"}
