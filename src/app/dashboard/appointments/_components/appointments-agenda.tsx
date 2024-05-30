@@ -17,7 +17,7 @@ interface Props {
 }
 
 const AppointmentsAgenda = (props: Props) => {
-  console.log("date", props.date)
+  console.log("date", props.date);
   const { data: appointments, isLoading } =
     api.appointment.allWithFilter.useQuery({ date: props.date });
   const setCalendarAction = useCalendarStore(
@@ -151,9 +151,7 @@ const AppointmentCard = ({
             </Chip>
           </li>
           <li className="flex items-start gap-2.5 py-2">
-            <span className="text-default-500">
-              Étage:
-            </span>
+            <span className="text-default-500">Étage:</span>
             <span className="text-default-700">
               {appointment.floor || "Non défini"} étage
             </span>

@@ -20,10 +20,7 @@ import { cn } from "@/lib/utils";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/autocomplete";
 import { Avatar } from "@nextui-org/avatar";
 import React, { PropsWithChildren, useState } from "react";
-import {
-  Appointment,
-  AppointmentSchema,
-} from "@/lib/schemas/new-appointment";
+import { Appointment, AppointmentSchema } from "@/lib/schemas/new-appointment";
 import { Calendar } from "@nextui-org/calendar";
 import { TimeInput, Tooltip } from "@nextui-org/react";
 import {

@@ -46,6 +46,7 @@ import PatientForm from "./patient-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
+import { capitalize } from "@/lib/utils";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
@@ -113,6 +114,9 @@ export default function PatientTable({ patients }: PatientTableProps) {
         (patient) =>
           patient.firstName.toLowerCase().includes(filterValue.toLowerCase()) ||
           patient.lastName.toLowerCase().includes(filterValue.toLowerCase()) ||
+          `${patient.firstName.toLowerCase().includes(filterValue.toLowerCase())} ${patient.firstName.toLowerCase().includes(filterValue.toLowerCase())}}`.includes(
+            filterValue.toLowerCase(),
+          ) ||
           patient?.email?.toLowerCase().includes(filterValue.toLowerCase()) ||
           patient?.phoneNumber
             ?.toLowerCase()
@@ -619,7 +623,3 @@ export default function PatientTable({ patients }: PatientTableProps) {
     </>
   );
 }
-
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};

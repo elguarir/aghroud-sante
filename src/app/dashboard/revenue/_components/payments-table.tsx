@@ -33,7 +33,14 @@ import {
   CheckIcon,
   CrossCircledIcon,
 } from "@radix-ui/react-icons";
-import { format, isEqual, isSameDay } from "date-fns";
+import {
+  endOfDay,
+  format,
+  isEqual,
+  isSameDay,
+  isWithinInterval,
+  startOfDay,
+} from "date-fns";
 import {
   Modal,
   ModalBody,
@@ -58,6 +65,7 @@ import {
 } from "@internationalized/date";
 import { DateInput } from "@nextui-org/date-input";
 import { Tooltip } from "@nextui-org/tooltip";
+import { capitalize } from "@/lib/utils";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "label",
@@ -183,11 +191,10 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
         });
       } else {
         filteredPayments = filteredPayments.filter((payment) => {
-          return (
-            payment.paymentDate >=
-              dateFilter.start.toDate(getLocalTimeZone()) &&
-            payment.paymentDate <= dateFilter.end.toDate(getLocalTimeZone())
-          );
+          return isWithinInterval(payment.paymentDate, {
+            start: startOfDay(dateFilter.start.toDate(getLocalTimeZone())),
+            end: endOfDay(dateFilter.end.toDate(getLocalTimeZone())),
+          });
         });
       }
     }
@@ -513,7 +520,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
       </div>
     );
   }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
-  
+
   const topContent = React.useMemo(() => {
     return (
       <>
@@ -1079,7 +1086,3 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
     </div>
   );
 }
-
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};

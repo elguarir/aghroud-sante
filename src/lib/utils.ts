@@ -148,3 +148,35 @@ export const cloudUpload = async ({
     }
   }
 };
+export const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+
+// Tremor Raw focusInput [v0.0.1]
+export const focusInput = [
+  // base
+  "focus-visible:ring-2",
+  // ring color
+  "focus-visible:ring-blue-200 focus-visible:dark:ring-blue-700/30",
+  // border color
+  "focus-visible:border-blue-500 focus-visible:dark:border-blue-700",
+];
+
+// Tremor Raw hasErrorInput [v0.0.1]
+export const hasErrorInput = [
+  // base
+  "ring-2",
+  // border color
+  "border-red-500 dark:border-red-700",
+  // ring color
+  "ring-red-200 dark:ring-red-700/30",
+];
+
+// Tremor Raw focusRing [v0.0.1]
+export const focusRing = [
+  // base
+  "outline outline-offset-2 outline-0 focus-visible:outline-2",
+  // outline color
+  "outline-blue-500 dark:outline-blue-500",
+];

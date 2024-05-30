@@ -22,7 +22,6 @@ import { CalendarHeader, DaysGrid, DaysOfWeek } from "./calendar";
 import { actionCopy, useCalendarStore } from "@/hooks/use-calendar-store";
 import AppointmentsAgenda from "./appointments-agenda";
 
-
 interface Props {
   appointments: RouterOutput["appointment"]["all"];
 }
@@ -32,7 +31,7 @@ export default function AppointmentsCalendar(props: Props) {
   let [selectedDay, setSelectedDay] = useState(today);
   let [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
   let firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
-  console.log('appointments', props.appointments)
+  console.log("appointments", props.appointments);
   let days = eachDayOfInterval({
     start: startOfWeek(firstDayCurrentMonth),
     end: endOfWeek(endOfMonth(firstDayCurrentMonth)),

@@ -1,5 +1,3 @@
-//currently building an internal management software for a kinesitherapy center, the requirements needed are to keep track of appointments, patients, also services they needed on each session, keeping track of payments, also keeping track of expenses and revenue on each week. also providing some monthly reports etc...
-//i'using react, nextjs,prisma,postgresql, first let's talk about non technical requirements. the problem and the flow needed if you need any information feel free to ask
 
 generator client {
     provider = "prisma-client-js"
@@ -112,8 +110,7 @@ model Document {
     @@map("documents")
 }
 
-// Payments model: for this model, we need to keep track of the payments made by the patients, the payments made might not exactly be related to an appointment, it could be for a service or a product, or multiple sessions or paid in advance.
-// we also need an enum for the payment label which could be "appointment", "service", "product", "advance", etc...
+
 
 model Payment {
     id               String   @id @default(cuid())

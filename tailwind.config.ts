@@ -104,26 +104,6 @@ module.exports = {
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
-          hide: {
-            from: { opacity: "1" },
-            to: { opacity: "0" },
-          },
-          slideDownAndFade: {
-            from: { opacity: "0", transform: "translateY(-6px)" },
-            to: { opacity: "1", transform: "translateY(0)" },
-          },
-          slideLeftAndFade: {
-            from: { opacity: "0", transform: "translateX(6px)" },
-            to: { opacity: "1", transform: "translateX(0)" },
-          },
-          slideUpAndFade: {
-            from: { opacity: "0", transform: "translateY(6px)" },
-            to: { opacity: "1", transform: "translateY(0)" },
-          },
-          slideRightAndFade: {
-            from: { opacity: "0", transform: "translateX(-6px)" },
-            to: { opacity: "1", transform: "translateX(0)" },
-          },
         },
         "accordion-up": {
           from: {
@@ -131,6 +111,26 @@ module.exports = {
             opacity: 0.5,
           },
           to: { height: "0", opacity: 0 },
+        },
+        hide: {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        slideDownAndFade: {
+          from: { opacity: "0", transform: "translateY(-6px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        slideLeftAndFade: {
+          from: { opacity: "0", transform: "translateX(6px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        slideUpAndFade: {
+          from: { opacity: "0", transform: "translateY(6px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        slideRightAndFade: {
+          from: { opacity: "0", transform: "translateX(-6px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
         },
       },
       animation: {

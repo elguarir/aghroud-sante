@@ -49,7 +49,11 @@ function Alert({
     <div className={cn(alertVariants({ variant }), className)} {...props}>
       {iconComponent && <div className="flex-shrink-0">{iconComponent}</div>}
       <div>{children}</div>
-      {endContent && <div className="flex-shrink-0 ml-auto flex items-center">{endContent}</div>}
+      {endContent && (
+        <div className="ml-auto flex flex-shrink-0 items-center">
+          {endContent}
+        </div>
+      )}
     </div>
   );
 }

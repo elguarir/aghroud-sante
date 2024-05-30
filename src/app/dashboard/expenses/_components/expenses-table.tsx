@@ -28,7 +28,7 @@ import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Chip } from "@nextui-org/chip";
 import { ArrowRightIcon, CheckIcon } from "@radix-ui/react-icons";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, isWithinInterval } from "date-fns";
 import {
   Modal,
   ModalBody,
@@ -53,6 +53,7 @@ import {
 } from "@internationalized/date";
 import { DateInput } from "@nextui-org/date-input";
 import { Tooltip } from "@nextui-org/tooltip";
+import { capitalize } from "@/lib/utils";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "label",
@@ -129,8 +130,16 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     if (hasSearchFilter) {
       filteredExpenses = filteredExpenses.filter((expense) => {
         return (
-          expense
-            .toString()
+          expense.label
+            ?.toString()
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+            expense.amount
+              .toString()
+              .toLowerCase()
+              .includes(filterValue.toLowerCase()) ||
+            expense.notes
+            ?.toString()
             .toLowerCase()
             .includes(filterValue.toLowerCase()) ||
           format(expense.expenseDate, "dd/MM/yyyy, HH:mm")
@@ -163,11 +172,10 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
         });
       } else {
         filteredExpenses = filteredExpenses.filter((expense) => {
-          return (
-            expense.expenseDate >=
-              dateFilter.start.toDate(getLocalTimeZone()) &&
-            expense.expenseDate <= dateFilter.end.toDate(getLocalTimeZone())
-          );
+          return isWithinInterval(expense.expenseDate, {
+            start: dateFilter.start.toDate(getLocalTimeZone()),
+            end: dateFilter.end.toDate(getLocalTimeZone()),
+          });
         });
       }
     }
@@ -1073,7 +1081,3 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
     </div>
   );
 }
-
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};

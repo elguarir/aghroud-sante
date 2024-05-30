@@ -5,12 +5,15 @@ const prisma = new PrismaClient();
 
 async function seedPayments() {
   const payments = [];
-  const numberOfPayments = 5; // Number of payment records to generate
+  const numberOfPayments = 300; // Number of payment records to generate
 
   for (let i = 0; i < numberOfPayments; i++) {
     const payment = {
       id: faker.string.nanoid(8),
-      patientId: faker.helpers.arrayElement([1, 2]), // Assuming you have patients with IDs 1 and 2
+      // array from starting with 30
+      patientId: faker.helpers.arrayElement(
+        Array.from({ length: 10 }, (_, i) => i + 27),
+      ),
       label: faker.helpers.arrayElement([
         "appointment",
         "service",
@@ -19,7 +22,7 @@ async function seedPayments() {
       ]),
       amount: parseInt(faker.finance.amount({ min: 100, max: 1200, dec: 0 })),
       numberOfSessions: faker.number.int({ min: 1, max: 10 }),
-      paymentDate: faker.date.recent({ days: 30 }), // Last 6 months
+      paymentDate: faker.date.recent({ days: 400 }), // Last 6 months
       paymentMethod: faker.helpers.arrayElement([
         "cash",
         "transfer",
@@ -43,7 +46,7 @@ async function seedPayments() {
 
 async function seedPatients() {
   const patients = [];
-  const numberOfPatients = 5;
+  const numberOfPatients = 15;
 
   for (let i = 0; i < numberOfPatients; i++) {
     const firstName = faker.person.firstName();
@@ -80,7 +83,7 @@ async function seedPatients() {
 
 async function seedExpenses() {
   const expenses = [];
-  const numberOfExpenses = 50; // Number of expense records to generate
+  const numberOfExpenses = 100; // Number of expense records to generate
 
   const expenseTypes = [
     "OPERATIONAL",
@@ -95,7 +98,7 @@ async function seedExpenses() {
     const expense = {
       label: faker.company.buzzPhrase(),
       amount: parseInt(faker.finance.amount({ min: 20, max: 1000, dec: 0 })),
-      expenseDate: faker.date.recent({ days: 160 }),
+      expenseDate: faker.date.recent({ days: 400 }),
       type: faker.helpers.arrayElement(expenseTypes) as ExpenseType,
       notes: faker.lorem.sentence(),
       createdAt: faker.date.recent({ days: 60 }),

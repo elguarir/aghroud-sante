@@ -13,9 +13,9 @@ import { Spinner } from "@nextui-org/spinner";
 import { Select, SelectItem } from "@nextui-org/select";
 import { colorValues } from "@/lib/constants";
 import { ExpenseTypes } from "@/lib/schemas/new-expense";
-import { eachDayOfInterval, format } from "date-fns";
-import { fr } from "date-fns/locale";
 import StatCard from "@/components/reports/stat-card";
+import { DateRange } from "@/components/ui/date-picker";
+import { api } from "@/trpc/react";
 
 /**
  *
@@ -47,69 +47,81 @@ const dataFormatter = (number: number) =>
     maximumFractionDigits: 0,
   }).format(number) + " MAD";
 
-export function FinanceReports() {
-  const data = [
+interface FinanceReportsProps {
+  dateRange: DateRange | undefined;
+}
+
+export function FinanceReports(props: FinanceReportsProps) {
+  const testdata = [
     {
-      date: "Jan",
+      date: "Jan 23",
       Dépenses: 1000,
       Revenu: 1400,
     },
     {
-      date: "Feb",
+      date: "Feb 23",
       Dépenses: 650,
       Revenu: 1200,
     },
     {
-      date: "Mar",
+      date: "Mar 23",
       Dépenses: 500,
       Revenu: 800,
     },
     {
-      date: "Apr",
+      date: "Apr 23",
       Dépenses: 700,
       Revenu: 1500,
     },
     {
-      date: "May",
+      date: "May 23",
       Dépenses: 1200,
       Revenu: 1500,
     },
     {
-      date: "Jun",
+      date: "Jun 23",
       Dépenses: 650,
       Revenu: 1350,
     },
     {
-      date: "Jul",
+      date: "Jul 23",
       Dépenses: 1000,
       Revenu: 1400,
     },
     {
-      date: "Aug",
+      date: "Aug 23",
       Dépenses: 650,
       Revenu: 1200,
     },
     {
-      date: "Sep",
+      date: "Sep 23",
       Dépenses: 500,
       Revenu: 800,
     },
     {
-      date: "Oct",
+      date: "Oct 23",
       Dépenses: 700,
       Revenu: 1500,
     },
     {
-      date: "Nov",
+      date: "Nov  23",
       Dépenses: 1200,
       Revenu: 1500,
     },
     {
-      date: "Dec",
+      date: "Dec 23",
       Dépenses: 650,
       Revenu: 1350,
     },
   ];
+
+  const { data, isLoading } = api.analytics.getRevenueByRange.useQuery({
+    from: props.dateRange?.from,
+    to: props.dateRange?.to,
+  });
+
+  console.log(data)
+
   return (
     <div className="grid w-full gap-x-6 gap-y-8 xl:grid-cols-12">
       <div className="col-span-full">
@@ -165,32 +177,48 @@ export function FinanceReports() {
             </Tab.List>
           </div>
           <Tab.Body key={"line"} value={"line"} className="h-full w-full">
-            <AreaChart
-              className="h-72"
-              data={data}
-              index="date"
-              showAnimation
-              showGradient
-              curveType="natural"
-              categories={["Revenu", "Dépenses"]}
-              colors={["blue", "orange"]}
-              yAxisWidth={40}
-            />
+            {isLoading ? (
+              <>
+                <div className="flex min-h-72 w-full items-center justify-center">
+                  <Spinner size="lg" color="current" />
+                </div>
+              </>
+            ) : (
+              <AreaChart
+                className="h-80"
+                data={data?.financeData ?? []}
+                index="date"
+                onValueChange={(value) => console.log(value)}
+                showAnimation
+                showGradient
+                curveType="natural"
+                categories={["Revenu", "Dépenses"]}
+                colors={["blue", "orange"]}
+                yAxisWidth={40}
+              />
+            )}
           </Tab.Body>
           <Tab.Body key={"bar"} value={"bar"} className="h-full w-full">
-            <BarChart
-              className="h-72"
-              data={data}
-              index="date"
-              showAnimation
-              categories={["Revenu", "Dépenses"]}
-              colors={["blue", "orange"]}
-              yAxisWidth={40}
-            />
+            {isLoading ? (
+              <>
+                <div className="flex min-h-72 w-full items-center justify-center">
+                  <Spinner size="lg" color="current" />
+                </div>
+              </>
+            ) : (
+              <BarChart
+                className="h-72"
+                data={data?.financeData ?? []}
+                index="date"
+                showAnimation
+                categories={["Revenu", "Dépenses"]}
+                colors={["blue", "orange"]}
+                yAxisWidth={40}
+              />
+            )}
           </Tab.Body>
         </Tab.Root>
       </Card>
-
       <ExpensesByCategoryChart />
     </div>
   );

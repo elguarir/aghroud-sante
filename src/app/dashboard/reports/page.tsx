@@ -1,22 +1,26 @@
 "use client";
-import React, { Key, useState } from "react";
+import { useState } from "react";
 import Wrapper from "../_components/wrapper";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import * as Tab from "../../../components/ui/tabs";
 import { FinanceReports } from "./_components/finance-reports";
 import { PatientReports } from "./_components/patient-reports";
+import { DateRange, DateRangePicker } from "@/components/ui/date-picker";
+import { getLastMonthsRange, presets } from "@/lib/constants";
 
 type Props = {};
 
 const ReportsPage = (props: Props) => {
-  const [activeTab, setActiveTab] = useState<Key>("finance");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    ...getLastMonthsRange(1),
+  });
 
   const tabs = [
     {
       title: "Finance",
       key: "finance",
-      content: <FinanceReports />,
+      content: <FinanceReports dateRange={dateRange} />,
     },
     {
       title: "Rendez-vous",
@@ -45,13 +49,31 @@ const ReportsPage = (props: Props) => {
         </div>
         <div className="flex h-full flex-1 flex-col">
           <div className="flex min-h-[78dvh] w-full flex-col space-y-2">
-            <Tab.Root defaultTab="finance" className="grid w-full gap-4">
-              <div className="flex w-full items-center justify-between gap-4 @container">
+            <Tab.Root defaultTab="finance" className="grid w-full gap-6">
+              <div className="flex w-full flex-wrap items-center justify-between gap-4 @container">
                 <Tab.List>
                   {tabs.map((tab) => (
                     <Tab.Item key={tab.key} title={tab.title} />
                   ))}
                 </Tab.List>
+                <div>
+                  <DateRangePicker
+                    presets={presets}
+                    value={dateRange}
+                    align="end"
+                    onChange={setDateRange}
+                    className="w-64 min-w-fit"
+                    locale={fr}
+                    translations={{
+                      range: "Période",
+                      apply: "Appliquer",
+                      cancel: "Annuler",
+                      start: "Début",
+                      end: "Fin",
+                    }}
+                    placeholder="Choisir une période"
+                  />
+                </div>
               </div>
               {/* content */}
               {tabs.map((tab) => (

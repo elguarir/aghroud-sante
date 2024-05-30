@@ -155,6 +155,6 @@ export const patientRouter = createTRPCRouter({
 
       // return patient;
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      return true
+      return true;
     }),
 });

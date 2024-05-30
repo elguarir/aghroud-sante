@@ -83,7 +83,7 @@ export const LoginForm = () => {
             }
           />
           <div className="flex flex-col gap-2">
-            <div className="flex justify-end w-full px-1 py-2">
+            <div className="flex w-full justify-end px-1 py-2">
               {/* <Checkbox
                 classNames={{
                   label: "text-small",

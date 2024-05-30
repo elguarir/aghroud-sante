@@ -47,8 +47,9 @@ import {
   endOfWeek,
   startOfWeek,
 } from "@internationalized/date";
-import { AppointmentStatus } from "./appointments-data"
+import { AppointmentStatus } from "./appointments-data";
 import AppointmentForm from "./appointment-form";
+import { capitalize } from "@/lib/utils";
 
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
@@ -1094,6 +1095,3 @@ export default function AppointmentsTable({
   );
 }
 
-const capitalize = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};

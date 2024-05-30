@@ -10,6 +10,7 @@ import {
   ServicesIcon,
   SettingsIcon,
 } from "@/components/icons";
+import { endOfMonth, subMonths, startOfMonth } from "date-fns";
 
 export const links = [
   {
@@ -93,3 +94,68 @@ export const colorValues = [
   "pink",
   "rose",
 ];
+
+
+interface DateRange {
+  from: Date;
+  to: Date;
+}
+
+export const getLastMonthsRange = (numberOfMonths: number): DateRange => {
+  const today = new Date();
+
+  const to = endOfMonth(today);
+  const from = startOfMonth(subMonths(today, numberOfMonths - 1));
+
+  return { from, to };
+};
+
+export const presets = [
+  {
+    label: "Ce mois",
+    dateRange: {
+      from: startOfMonth(new Date()),
+      to: endOfMonth(new Date()),
+    },
+  },
+  {
+    label: "Le mois dernier",
+    dateRange: {
+      from: startOfMonth(new Date().setDate(0)),
+      to: endOfMonth(new Date().setDate(0)),
+    },
+  },
+  {
+    label: "3 derniers mois",
+    dateRange: {
+      ...getLastMonthsRange(3),
+    },
+  },
+  {
+    label: "6 derniers mois",
+    dateRange: {
+      ...getLastMonthsRange(6),
+    },
+  },
+  {
+    label: "Cette année",
+    dateRange: {
+      from: new Date(new Date().setFullYear(new Date().getFullYear(), 0, 1)),
+      to: new Date(),
+    },
+  },
+  {
+    label: "L'année dernière",
+    dateRange: {
+      from: new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1, 0, 1),
+      ),
+      to: new Date(
+        new Date().setFullYear(new Date().getFullYear() - 1, 11, 31),
+      ),
+    },
+  },
+];
+
+
+

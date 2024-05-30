@@ -18,7 +18,7 @@ export const appRouter = createTRPCRouter({
   payment: paymentRouter,
   expense: expenseRouter,
   service: serviceRouter,
-  reports: analyticsRouter,
+  analytics: analyticsRouter,
   document: documentRouter,
 });
 

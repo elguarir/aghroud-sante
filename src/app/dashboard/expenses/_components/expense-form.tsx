@@ -213,7 +213,7 @@ const ExpenseForm = ({
                   "!focus-whitin:border-primary !hover:focus-whitin:border-primary !transition-all !duration-200",
               }}
               timeInputProps={{
-                variant: "faded"
+                variant: "faded",
               }}
               disableAnimation
               calendarProps={{
