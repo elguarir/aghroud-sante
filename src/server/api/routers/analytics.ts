@@ -17,6 +17,7 @@ import { fr } from "date-fns/locale";
 import { Expense, ExpenseType, Payment } from "@prisma/client";
 import { capitalize } from "@/lib/utils";
 import { ExpenseTypes } from "@/app/dashboard/expenses/_components/expense-data";
+import { db } from "@/server/db";
 
 type FinanceReport = {
   date: string;
@@ -53,6 +54,8 @@ export const analyticsRouter = createTRPCRouter({
           endOfDay(to),
         );
 
+        const summaryData = await getSummaryData(expenses, payments, startOfDay(from), to);
+
         return {
           financeData: getDataForRange({
             from: startOfDay(from),
@@ -60,6 +63,7 @@ export const analyticsRouter = createTRPCRouter({
             records: { payments, expenses },
           }),
           groupedExpenses,
+          summaryData,
         };
       } else {
         const oldestPayment = payments.reduce((acc, curr) => {
@@ -78,6 +82,14 @@ export const analyticsRouter = createTRPCRouter({
           startOfDay(oldestDate),
           endOfDay(new Date()),
         );
+
+        const summaryData = await getSummaryData(
+          expenses,
+          payments,
+          startOfDay(oldestDate),
+          endOfDay(new Date()),
+        );
+
         return {
           financeData: getDataForRange({
             from: startOfDay(oldestDate),
@@ -85,6 +97,16 @@ export const analyticsRouter = createTRPCRouter({
             records: { payments, expenses },
           }),
           groupedExpenses,
+          summaryData: {
+            current: summaryData.current,
+            previous: summaryData.current,
+            percentageChange: {
+              totalExpenses: 0,
+              totalRevenue: 0,
+              netIncome: 0,
+              totalPatients: 0,
+            },
+          },
         };
       }
     }),
@@ -306,7 +328,7 @@ const getGroupedExpensesForRange = (
   to: Date,
 ) => {
   const filteredExpenses = expenses.filter((expense) =>
-    isDateInRange(expense.expenseDate, from, to),
+    isDateInRange(expense.expenseDate, startOfDay(from), to),
   );
 
   const expensesByCategory = getExpensesByCategory(filteredExpenses);
@@ -344,6 +366,96 @@ const getExpensesByCategory = (
   );
 
   return expensesByCategory;
+};
+
+const getSummaryData = async (
+  expenses: Expense[],
+  payments: Payment[],
+  from: Date,
+  to: Date,
+) => {
+  // current period
+  const allPatients = await db.patient.findMany({
+    select: {
+      id: true,
+      createdAt: true,
+    },
+  });
+
+  const totalPatients = allPatients.filter((patient) =>
+    isDateInRange(patient.createdAt, startOfDay(from), endOfDay(to)),
+  ).length;
+
+  const totalExpenses = expenses
+    .filter((expense) => isDateInRange(expense.expenseDate, startOfDay(from), endOfDay(to)))
+    .reduce((acc, curr) => acc + curr.amount, 0);
+  const totalRevenue = payments
+    .filter((payment) => isDateInRange(payment.paymentDate, startOfDay(from), endOfDay(to)))
+    .reduce((acc, curr) => acc + curr.amount, 0);
+  const netIncome = totalRevenue - totalExpenses;
+
+  // previous period
+  const TotalDaysBetween = Math.floor(isHowManyMonthsBetween(from, endOfDay(to)));
+  const previousFrom = new Date(from);
+  previousFrom.setMonth(previousFrom.getMonth() - TotalDaysBetween);
+  const previousTo = new Date(to);
+  previousTo.setMonth(previousTo.getMonth() - TotalDaysBetween);
+
+  const previousTotalPatients = allPatients.filter((patient) =>
+    isDateInRange(patient.createdAt, previousFrom, previousTo),
+  ).length;
+
+  const previousTotalExpenses = expenses
+    .filter((expense) =>
+      isDateInRange(expense.expenseDate, previousFrom, previousTo),
+    )
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  const previousTotalRevenue = payments
+    .filter((payment) =>
+      isDateInRange(payment.paymentDate, previousFrom, previousTo),
+    )
+    .reduce((acc, curr) => acc + curr.amount, 0);
+
+  const previousNetIncome = previousTotalRevenue - previousTotalExpenses;
+
+  const totalRevenuePercentage =
+    totalRevenue > 0
+      ? ((totalRevenue - previousTotalRevenue) / totalRevenue) * 100
+      : 0;
+
+  const totalExpensesPercentage =
+    totalExpenses > 0
+      ? ((totalExpenses - previousTotalExpenses) / totalExpenses) * 100
+      : 0;
+
+  const netIncomePercentage =
+    netIncome > 0 ? ((netIncome - previousNetIncome) / netIncome) * 100 : 0;
+
+  const totalPatientsIncrease = totalPatients - previousTotalPatients;
+
+  const summaryData = {
+    current: {
+      totalExpenses,
+      totalRevenue,
+      netIncome,
+      totalPatients,
+    },
+    previous: {
+      totalExpenses: previousTotalExpenses,
+      totalRevenue: previousTotalRevenue,
+      netIncome: previousNetIncome,
+      totalPatients: previousTotalPatients,
+    },
+    percentageChange: {
+      totalExpenses: totalExpensesPercentage,
+      totalRevenue: totalRevenuePercentage,
+      netIncome: netIncomePercentage,
+      totalPatients: totalPatientsIncrease,
+    },
+  };
+
+  return summaryData;
 };
 
 /**

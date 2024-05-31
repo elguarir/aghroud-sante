@@ -52,75 +52,10 @@ interface FinanceReportsProps {
 }
 
 export function FinanceReports(props: FinanceReportsProps) {
-  const testdata = [
-    {
-      date: "Jan 23",
-      Dépenses: 1000,
-      Revenu: 1400,
-    },
-    {
-      date: "Feb 23",
-      Dépenses: 650,
-      Revenu: 1200,
-    },
-    {
-      date: "Mar 23",
-      Dépenses: 500,
-      Revenu: 800,
-    },
-    {
-      date: "Apr 23",
-      Dépenses: 700,
-      Revenu: 1500,
-    },
-    {
-      date: "May 23",
-      Dépenses: 1200,
-      Revenu: 1500,
-    },
-    {
-      date: "Jun 23",
-      Dépenses: 650,
-      Revenu: 1350,
-    },
-    {
-      date: "Jul 23",
-      Dépenses: 1000,
-      Revenu: 1400,
-    },
-    {
-      date: "Aug 23",
-      Dépenses: 650,
-      Revenu: 1200,
-    },
-    {
-      date: "Sep 23",
-      Dépenses: 500,
-      Revenu: 800,
-    },
-    {
-      date: "Oct 23",
-      Dépenses: 700,
-      Revenu: 1500,
-    },
-    {
-      date: "Nov  23",
-      Dépenses: 1200,
-      Revenu: 1500,
-    },
-    {
-      date: "Dec 23",
-      Dépenses: 650,
-      Revenu: 1350,
-    },
-  ];
-
   const { data, isLoading } = api.analytics.getRevenueByRange.useQuery({
     from: props.dateRange?.from,
     to: props.dateRange?.to,
   });
-
-  console.log(data)
 
   return (
     <div className="grid w-full gap-x-6 gap-y-8 xl:grid-cols-12">
@@ -131,22 +66,27 @@ export function FinanceReports(props: FinanceReportsProps) {
               <MoneyReceiveSquareIcon className="h-8 w-8 text-default-600" />
             }
             title="Revenu"
-            currentValue={35500}
-            previousValue={32000}
+            currentValue={data?.summaryData.current.totalRevenue ?? 0}
+            previousValue={data?.summaryData.previous.totalRevenue ?? 0}
+            isLoading={isLoading}
+            hideComparison={props.dateRange === undefined}
           />
           <StatCard
             icon={<MoneySendSquareIcon className="h-8 w-8 text-default-600" />}
             title={"Dépenses"}
             hideComparison
-            currentValue={12000}
-            previousValue={20000}
+            currentValue={data?.summaryData.current.totalExpenses ?? 0}
+            previousValue={data?.summaryData.previous.totalExpenses ?? 0}
+            isLoading={isLoading}
           />
           <StatCard
             icon={<UserGroupIcon className="h-8 w-8 text-default-600" />}
             title={"Total Patient"}
-            currentValue={150}
-            previousValue={120}
+            currentValue={data?.summaryData.current.totalPatients ?? 0}
+            previousValue={data?.summaryData.previous.totalPatients ?? 0}
             showPercentage={false}
+            hideComparison={props.dateRange === undefined}
+            isLoading={isLoading}
           />
         </div>
       </div>
@@ -219,7 +159,10 @@ export function FinanceReports(props: FinanceReportsProps) {
           </Tab.Body>
         </Tab.Root>
       </Card>
-      <ExpensesByCategoryChart />
+      <ExpensesByCategoryChart
+        data={data?.groupedExpenses ?? []}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
@@ -278,53 +221,22 @@ const getLegendItems = (props: getLegendItemsProps) => {
     }));
 };
 
-function ExpensesByCategoryChart() {
-  let intervals = [
-    {
-      label: "3 Mois",
-      value: "3",
-    },
-    {
-      label: "6 Mois",
-      value: "6",
-    },
-    {
-      label: "9 Mois",
-      value: "9",
-    },
-  ];
+interface ExpensesByCategoryChartProps {
+  data: {
+    name: string;
+    value: number;
+  }[];
+  isLoading: boolean;
+}
 
-  const expensesByCategory = [
-    {
-      name: ExpenseTypes[0]?.label,
-      value: 1200,
-    },
-    {
-      name: ExpenseTypes[1]?.label,
-      value: 8400,
-    },
-    {
-      name: ExpenseTypes[2]?.label,
-      value: 2000,
-    },
-    {
-      name: ExpenseTypes[3]?.label,
-      value: 450,
-    },
-    {
-      name: ExpenseTypes[4]?.label,
-      value: 12000,
-    },
-    {
-      name: ExpenseTypes[5]?.label,
-      value: 780,
-    },
-  ];
-
-  const colors = colorValues.slice(0, expensesByCategory.length);
+function ExpensesByCategoryChart({
+  data,
+  isLoading,
+}: ExpensesByCategoryChartProps) {
+  const colors = colorValues.slice(0, data.length);
 
   const legendItems = getLegendItems({
-    data: expensesByCategory,
+    data: data,
     colors: colorValues as Color[],
   });
 
@@ -336,49 +248,45 @@ function ExpensesByCategoryChart() {
             <h3 className="text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
               Dépenses par catégorie
             </h3>
-            <Select
-              aria-label="Intervalle"
-              placeholder="Intervalle"
-              className="w-32"
-              defaultSelectedKeys="3"
-              variant="bordered"
-              onChange={(e) => console.log(e.target.value)}
-            >
-              {intervals.map((interval) => (
-                <SelectItem key={interval.value} value={interval.value}>
-                  {interval.label}
-                </SelectItem>
-              ))}
-            </Select>
           </div>
           <div className="grid h-full w-full grid-cols-12 gap-y-4 max-md:mt-5">
-            <div className="col-span-full flex h-full w-full items-center md:col-span-5">
-              <DonutChart
-                data={expensesByCategory}
-                variant="donut"
-                valueFormatter={dataFormatter}
-                colors={colors}
-                className="h-48 w-full"
-              />
-            </div>
-            <div className="col-span-full flex h-full w-full flex-col justify-center px-3 md:col-span-7">
-              <div className="flex w-full items-center justify-between text-tremor-label font-[450] text-tremor-content dark:text-dark-tremor-content">
-                <span>Category</span>
-                <span>Montant / Part</span>
-              </div>
-              <ul className="tremor-List-root mt-2 w-full divide-y divide-tremor-border text-tremor-content dark:divide-dark-tremor-border dark:text-dark-tremor-content">
-                {legendItems.map((item, index) => (
-                  <LegendItem
-                    key={index}
-                    color={colors[index] as Color}
-                    label={item.label as string}
-                    value={item.value}
-                    total={item.total}
-                    formatter={dataFormatter}
+            {isLoading ? (
+              <>
+                <div className="flex h-full min-h-72 col-span-full w-full items-center justify-center">
+                  <Spinner size="lg" color="current" />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="col-span-full flex h-full w-full items-center md:col-span-5">
+                  <DonutChart
+                    data={data}
+                    variant="donut"
+                    valueFormatter={dataFormatter}
+                    colors={colors}
+                    className="h-48 w-full"
                   />
-                ))}
-              </ul>
-            </div>
+                </div>
+                <div className="col-span-full flex h-full w-full flex-col justify-center px-3 md:col-span-7">
+                  <div className="flex w-full items-center justify-between text-tremor-label font-[450] text-tremor-content dark:text-dark-tremor-content">
+                    <span>Category</span>
+                    <span>Montant / Part</span>
+                  </div>
+                  <ul className="tremor-List-root mt-2 w-full divide-y divide-tremor-border text-tremor-content dark:divide-dark-tremor-border dark:text-dark-tremor-content">
+                    {legendItems.map((item, index) => (
+                      <LegendItem
+                        key={index}
+                        color={colors[index] as Color}
+                        label={item.label as string}
+                        value={item.value}
+                        total={item.total}
+                        formatter={dataFormatter}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Card>
