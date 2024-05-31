@@ -52,8 +52,12 @@ interface FinanceReportsProps {
 
 export function FinanceReports(props: FinanceReportsProps) {
   const { data, isLoading } = api.analytics.getRevenueByRange.useQuery({
-    from: props.dateRange?.from,
-    to: props.dateRange?.to,
+    from: props.dateRange?.from
+      ? new Date(props.dateRange?.from.setHours(15))
+      : undefined,
+    to: props.dateRange?.to
+      ? new Date(props.dateRange?.to.setHours(15))
+      : undefined,
   });
 
   return (
@@ -90,8 +94,12 @@ export function FinanceReports(props: FinanceReportsProps) {
           <StatCard
             icon={<CalendarIcon className="h-8 w-8 text-default-600" />}
             title={"Total Rendez-vous"}
-            currentValue={data?.summaryData.current.totalConfirmedAppointments ?? 0}
-            previousValue={data?.summaryData.previous.totalConfirmedAppointments ?? 0}
+            currentValue={
+              data?.summaryData.current.totalConfirmedAppointments ?? 0
+            }
+            previousValue={
+              data?.summaryData.previous.totalConfirmedAppointments ?? 0
+            }
             showPercentage={false}
             hideComparison={props.dateRange === undefined}
             isLoading={isLoading}
@@ -260,7 +268,7 @@ function ExpensesByCategoryChart({
           <div className="grid h-full w-full grid-cols-12 gap-y-4 max-md:mt-5">
             {isLoading ? (
               <>
-                <div className="flex h-full min-h-80 col-span-full w-full items-center justify-center">
+                <div className="col-span-full flex h-full min-h-80 w-full items-center justify-center">
                   <Spinner size="lg" color="current" />
                 </div>
               </>
