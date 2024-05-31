@@ -54,7 +54,12 @@ export const analyticsRouter = createTRPCRouter({
           endOfDay(to),
         );
 
-        const summaryData = await getSummaryData(expenses, payments, startOfDay(from), to);
+        const summaryData = await getSummaryData(
+          expenses,
+          payments,
+          startOfDay(from),
+          to,
+        );
 
         return {
           financeData: getDataForRange({
@@ -382,20 +387,42 @@ const getSummaryData = async (
     },
   });
 
+  const allConfirmedAppointments = await db.appointment.findMany({
+    select: {
+      id: true,
+      startTime: true,
+      status: true,
+    },
+    where: {
+      status: "CONFIRMED",
+    },
+  });
+
   const totalPatients = allPatients.filter((patient) =>
     isDateInRange(patient.createdAt, startOfDay(from), endOfDay(to)),
   ).length;
 
+  const totalConfirmedAppointments = allConfirmedAppointments.filter(
+    (appointment) =>
+      isDateInRange(appointment.startTime, startOfDay(from), endOfDay(to)),
+  ).length;
+
   const totalExpenses = expenses
-    .filter((expense) => isDateInRange(expense.expenseDate, startOfDay(from), endOfDay(to)))
+    .filter((expense) =>
+      isDateInRange(expense.expenseDate, startOfDay(from), endOfDay(to)),
+    )
     .reduce((acc, curr) => acc + curr.amount, 0);
   const totalRevenue = payments
-    .filter((payment) => isDateInRange(payment.paymentDate, startOfDay(from), endOfDay(to)))
+    .filter((payment) =>
+      isDateInRange(payment.paymentDate, startOfDay(from), endOfDay(to)),
+    )
     .reduce((acc, curr) => acc + curr.amount, 0);
   const netIncome = totalRevenue - totalExpenses;
 
   // previous period
-  const TotalDaysBetween = Math.floor(isHowManyMonthsBetween(from, endOfDay(to)));
+  const TotalDaysBetween = Math.floor(
+    isHowManyMonthsBetween(from, endOfDay(to)),
+  );
   const previousFrom = new Date(from);
   previousFrom.setMonth(previousFrom.getMonth() - TotalDaysBetween);
   const previousTo = new Date(to);
@@ -403,6 +430,11 @@ const getSummaryData = async (
 
   const previousTotalPatients = allPatients.filter((patient) =>
     isDateInRange(patient.createdAt, previousFrom, previousTo),
+  ).length;
+
+  const previousTotalConfirmedAppointments = allConfirmedAppointments.filter(
+    (appointment) =>
+      isDateInRange(appointment.startTime, previousFrom, previousTo),
   ).length;
 
   const previousTotalExpenses = expenses
@@ -433,25 +465,29 @@ const getSummaryData = async (
     netIncome > 0 ? ((netIncome - previousNetIncome) / netIncome) * 100 : 0;
 
   const totalPatientsIncrease = totalPatients - previousTotalPatients;
-
+  const totalAppointmentsIncrease =
+    totalConfirmedAppointments - previousTotalConfirmedAppointments;
   const summaryData = {
     current: {
       totalExpenses,
       totalRevenue,
       netIncome,
       totalPatients,
+      totalConfirmedAppointments,
     },
     previous: {
       totalExpenses: previousTotalExpenses,
       totalRevenue: previousTotalRevenue,
       netIncome: previousNetIncome,
       totalPatients: previousTotalPatients,
+      totalConfirmedAppointments: previousTotalConfirmedAppointments,
     },
     percentageChange: {
       totalExpenses: totalExpensesPercentage,
       totalRevenue: totalRevenuePercentage,
       netIncome: netIncomePercentage,
       totalPatients: totalPatientsIncrease,
+      totalConfirmedAppointments: totalAppointmentsIncrease,
     },
   };
 

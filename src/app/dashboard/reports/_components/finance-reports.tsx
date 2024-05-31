@@ -1,6 +1,7 @@
 "use client";
 import {
   BarChartIcon,
+  CalendarIcon,
   LineChartIcon,
   MoneyReceiveSquareIcon,
   MoneySendSquareIcon,
@@ -10,9 +11,7 @@ import * as Tab from "../../../../components/ui/tabs";
 import { Card, Color, DonutChart } from "@tremor/react";
 import dynamic from "next/dynamic";
 import { Spinner } from "@nextui-org/spinner";
-import { Select, SelectItem } from "@nextui-org/select";
 import { colorValues } from "@/lib/constants";
-import { ExpenseTypes } from "@/lib/schemas/new-expense";
 import StatCard from "@/components/reports/stat-card";
 import { DateRange } from "@/components/ui/date-picker";
 import { api } from "@/trpc/react";
@@ -25,7 +24,7 @@ const AreaChart = dynamic(
   () => import("@tremor/react").then((mod) => mod.AreaChart),
   {
     loading: () => (
-      <div className="flex min-h-72 w-full items-center justify-center">
+      <div className="flex min-h-80 w-full items-center justify-center">
         <Spinner size="lg" color="current" />
       </div>
     ),
@@ -35,7 +34,7 @@ const BarChart = dynamic(
   () => import("@tremor/react").then((mod) => mod.BarChart),
   {
     loading: () => (
-      <div className="flex min-h-72 w-full items-center justify-center">
+      <div className="flex min-h-80 w-full items-center justify-center">
         <Spinner size="lg" color="current" />
       </div>
     ),
@@ -81,9 +80,18 @@ export function FinanceReports(props: FinanceReportsProps) {
           />
           <StatCard
             icon={<UserGroupIcon className="h-8 w-8 text-default-600" />}
-            title={"Total Patient"}
+            title={"Total Patients"}
             currentValue={data?.summaryData.current.totalPatients ?? 0}
             previousValue={data?.summaryData.previous.totalPatients ?? 0}
+            showPercentage={false}
+            hideComparison={props.dateRange === undefined}
+            isLoading={isLoading}
+          />
+          <StatCard
+            icon={<CalendarIcon className="h-8 w-8 text-default-600" />}
+            title={"Total Rendez-vous"}
+            currentValue={data?.summaryData.current.totalConfirmedAppointments ?? 0}
+            previousValue={data?.summaryData.previous.totalConfirmedAppointments ?? 0}
             showPercentage={false}
             hideComparison={props.dateRange === undefined}
             isLoading={isLoading}
@@ -119,7 +127,7 @@ export function FinanceReports(props: FinanceReportsProps) {
           <Tab.Body key={"line"} value={"line"} className="h-full w-full">
             {isLoading ? (
               <>
-                <div className="flex min-h-72 w-full items-center justify-center">
+                <div className="flex min-h-80 w-full items-center justify-center">
                   <Spinner size="lg" color="current" />
                 </div>
               </>
@@ -131,7 +139,7 @@ export function FinanceReports(props: FinanceReportsProps) {
                 onValueChange={(value) => console.log(value)}
                 showAnimation
                 showGradient
-                curveType="natural"
+                curveType="monotone"
                 categories={["Revenu", "Dépenses"]}
                 colors={["blue", "orange"]}
                 yAxisWidth={40}
@@ -141,13 +149,13 @@ export function FinanceReports(props: FinanceReportsProps) {
           <Tab.Body key={"bar"} value={"bar"} className="h-full w-full">
             {isLoading ? (
               <>
-                <div className="flex min-h-72 w-full items-center justify-center">
+                <div className="flex min-h-80 w-full items-center justify-center">
                   <Spinner size="lg" color="current" />
                 </div>
               </>
             ) : (
               <BarChart
-                className="h-72"
+                className="h-80"
                 data={data?.financeData ?? []}
                 index="date"
                 showAnimation
@@ -252,7 +260,7 @@ function ExpensesByCategoryChart({
           <div className="grid h-full w-full grid-cols-12 gap-y-4 max-md:mt-5">
             {isLoading ? (
               <>
-                <div className="flex h-full min-h-72 col-span-full w-full items-center justify-center">
+                <div className="flex h-full min-h-80 col-span-full w-full items-center justify-center">
                   <Spinner size="lg" color="current" />
                 </div>
               </>

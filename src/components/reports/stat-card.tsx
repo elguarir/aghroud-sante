@@ -53,13 +53,14 @@ const StatCard: React.FC<StatCardProps> = ({
       <div>{icon}</div>
       <div className="flex w-full flex-col -space-y-0.5 leading-6">
         <span className="text-2xl font-[650] tabular-nums tracking-[0.020em] text-default-600">
-          {new Intl.NumberFormat("us").format(currentValue)} {showPercentage && " MAD"}
+          {new Intl.NumberFormat("us").format(currentValue)}{" "}
+          {showPercentage && " MAD"}
         </span>
         <div className="flex w-full items-center justify-between">
           <div className="flex-1 text-sm font-[450] text-default-500">
             {title}
           </div>
-          {!hideComparison && (
+          {!hideComparison && percentageChange !== 0 && (
             <div className="flex h-full items-end">
               <Tooltip
                 color="foreground"
@@ -77,7 +78,7 @@ const StatCard: React.FC<StatCardProps> = ({
                       : `Diminution de ${
                           showPercentage
                             ? `${Math.abs(percentageChange).toFixed(0)}%`
-                            : `${difference} ${title}s`
+                            : `${difference} ${title}`
                         }`}{" "}
                     <br />
                     par rapport au period dernier
