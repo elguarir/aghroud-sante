@@ -60,7 +60,7 @@ const StatCard: React.FC<StatCardProps> = ({
           <div className="flex-1 text-sm font-[450] text-default-500">
             {title}
           </div>
-          {!hideComparison && percentageChange !== 0 && (
+          {(!hideComparison || percentageChange !== 0) && (
             <div className="flex h-full items-end">
               <Tooltip
                 color="foreground"
