@@ -53,14 +53,12 @@ const Header = ({ numberOfRecords }: HeaderProps) => {
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-1  text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+        <h3 className="flex items-center gap-1 text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
           {activeTab === "rendez-vous" ? "Rendez-vous" : "Patients"}{" "}
           {activeTab === "rendez-vous" ? (
             <>{RecordBadge(appointments)}</>
           ) : (
-            <>
-              {RecordBadge(patients)}                
-            </>
+            <>{RecordBadge(patients)}</>
           )}
           {/* <Chip className="border border-default h-[22px]" variant="flat" size="sm">
               <p className="text-tiny font-[550]">{numberOfRecords}</p>

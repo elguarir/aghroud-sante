@@ -57,7 +57,7 @@ const DashboardPage = async () => {
 
   const summaryData = getThisWeeksSummary();
   const { patients, appointments } = await getThisWeeksRecentActivity();
-  
+
   return (
     <Wrapper>
       <div className="flex h-full flex-col gap-8">
@@ -200,16 +200,23 @@ const DashboardPage = async () => {
                                   <TableRow>
                                     <TableHeaderCell>Patient</TableHeaderCell>
                                     <TableHeaderCell>Temps</TableHeaderCell>
+                                    <TableHeaderCell>Étage</TableHeaderCell>
                                     <TableHeaderCell>Statut</TableHeaderCell>
                                     <TableHeaderCell>Action</TableHeaderCell>
                                   </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                  {appointments.map((appointment) => {
-                                    return (
-                                      <AppointmentRecord {...appointment} />
-                                    );
-                                  })}
+                                  {appointments
+                                    .sort(
+                                      (a, b) =>
+                                        b.startTime.getTime() -
+                                        a.startTime.getTime(),
+                                    )
+                                    .map((appointment) => {
+                                      return (
+                                        <AppointmentRecord {...appointment} />
+                                      );
+                                    })}
                                 </TableBody>
                               </Table>
                             )}
@@ -293,16 +300,23 @@ function AppointmentRecord(appointment: RouterOutput["appointment"]["all"][0]) {
                   {format(appointment.endTime, "HH:mm")}
                 </div>
               ) : (
-                <>
+                <div className="flex flex-nowrap items-center gap-px">
                   {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
                   <ArrowRightIcon className="h-4 w-4" />
                   {format(appointment.endTime, "dd/MM/yyyy, HH:mm")}
-                </>
+                </div>
               )}
             </Chip>
           </div>
         </div>
       </TableCell>
+
+      <TableCell className="py-2.5" align="center">
+        <div className="flex flex-col">
+          <p className="text-bold text-small capitalize">{appointment.floor}</p>
+        </div>
+      </TableCell>
+
       <TableCell className="py-2.5">
         <div className="flex flex-col">
           {!status ? (

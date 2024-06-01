@@ -197,6 +197,7 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
         onOpenChange={setPreview}
         placement="center"
         backdrop="blur"
+        size="lg"
         classNames={{
           base: "md:max-h-[85dvh]",
           wrapper: "overflow-hidden",
@@ -219,7 +220,7 @@ export const FileCardPreview = (props: FileCardPreviewProps) => {
                           alt={props.filename}
                         />
                       ) : (
-                        <p className="text-sm  text-default-500">
+                        <p className="text-sm text-default-500">
                           Aucun aperçu disponible pour ce fichier
                         </p>
                       )}

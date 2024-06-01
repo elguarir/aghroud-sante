@@ -63,7 +63,7 @@ const TableHeaderCell = React.forwardRef<
       // base
       "border-b px-4 py-3.5 text-left text-sm font-semibold",
       // text color
-      " text-neutral-900 dark:text-neutral-50",
+      "text-neutral-900 dark:text-neutral-50",
       // border color
       "border-neutral-200 dark:border-neutral-800",
       className,
@@ -140,7 +140,7 @@ const TableFoot = React.forwardRef<
         // base
         "border-t text-left font-medium",
         // text color
-        " text-neutral-900 dark:text-neutral-50",
+        "text-neutral-900 dark:text-neutral-50",
         // border color
         "border-neutral-200 dark:border-neutral-800",
         className,

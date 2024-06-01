@@ -241,7 +241,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent>
-                  <div className="max-w-md px-1  py-2">
+                  <div className="max-w-md px-1 py-2">
                     <div className="text-small font-bold">Notes</div>
                     <div className="text-tiny">
                       {patient?.notes || "Aucune notes disponibles"}
@@ -378,9 +378,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
                   "group-data-[focus=true]:border-primary !transition-all !duration-200",
               }}
               placeholder="Rechercher un patient"
-              startContent={
-                <SearchIcon className="h-5  w-5 text-default-500" />
-              }
+              startContent={<SearchIcon className="h-5 w-5 text-default-500" />}
               value={filterValue}
               onClear={() => onClear()}
               onValueChange={onSearchChange}
@@ -499,6 +497,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             onOpenChange={onModifyOpen}
             placement="center"
             backdrop="blur"
+            size="lg"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",
@@ -548,6 +547,7 @@ export default function PatientTable({ patients }: PatientTableProps) {
             onOpenChange={onDeleteOpenChange}
             placement="center"
             backdrop="blur"
+            size="lg"
             classNames={{
               base: "md:max-h-[85dvh]",
               wrapper: "overflow-hidden",

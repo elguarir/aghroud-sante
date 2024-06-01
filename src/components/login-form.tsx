@@ -116,7 +116,7 @@ const LoginButton = () => {
 
   return (
     <Button isLoading={pending} type="submit" fullWidth color="primary">
-      {pending ? "Signin in..." : "Sign in"}
+      {pending ? "Connexion..." : "Se connecter"}
     </Button>
   );
 };

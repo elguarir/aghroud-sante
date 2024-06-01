@@ -33,6 +33,7 @@ export function RegisterPatientModal() {
         onOpenChange={onOpenChange}
         placement="center"
         backdrop="blur"
+        size="lg"
         classNames={{
           base: "md:max-h-[85dvh]",
           wrapper: "overflow-hidden",

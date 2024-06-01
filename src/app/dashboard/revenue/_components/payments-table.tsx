@@ -634,7 +634,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
                         }}
                         onChange={setDateFilter}
                         topContent={
-                          <div className=" grid w-[250px] gap-2 bg-content1 pb-2">
+                          <div className="grid w-[250px] gap-2 bg-content1 pb-2">
                             <div className="custom-scrollbar overflow-x-auto pb-1.5">
                               <ButtonGroup
                                 fullWidth
@@ -911,6 +911,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               onOpenChange={onModifyOpen}
               placement="center"
               backdrop="blur"
+              size="lg"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -959,6 +960,7 @@ export default function PaymentTable({ payments }: PaymentTableProps) {
               onOpenChange={onDeleteOpenChange}
               placement="center"
               backdrop="blur"
+              size="lg"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",

@@ -11,7 +11,7 @@ import {
   SortDescriptor,
   Selection,
 } from "@nextui-org/table";
-import { MoreVertical } from "lucide-react";
+import { CircleFadingPlus, MoreVertical } from "lucide-react";
 import { ChevronDownIcon } from "lucide-react";
 import { SearchIcon } from "lucide-react";
 import { columns, AppointmentsData } from "./appointments-data";
@@ -50,7 +50,11 @@ import {
 import { AppointmentStatus } from "./appointments-data";
 import AppointmentForm from "./appointment-form";
 import { capitalize } from "@/lib/utils";
-
+import { Divider } from "@nextui-org/divider";
+import { Listbox, ListboxItem } from "@nextui-org/listbox";
+import { DateRange, DateRangePicker } from "@/components/ui/date-picker";
+import { presets, getLastMonthsRange } from "@/lib/constants";
+import { fr } from "date-fns/locale";
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
   "therapist",
@@ -91,15 +95,17 @@ export default function AppointmentsTable({
   const [statusFilters, setStatusFilters] = React.useState<Selection>(
     new Set([]),
   );
-  let [dateFilter, setDateFilter] = React.useState<RangeValue<DateValue>>({
-    start: startOfWeek(today(getLocalTimeZone()), "fr-FR"),
-    end: endOfWeek(today(getLocalTimeZone()), "fr-FR"),
+  const [dateFilter, setDateFilter] = useState<DateRange | undefined>({
+    ...getLastMonthsRange(1),
   });
 
   let [ManualDateFilter, setManualDateFilter] = React.useState(false);
 
   const hasSearchFilter = Boolean(filterValue);
-  const hasDateFilter = dateFilter.start && dateFilter.end;
+  const hasDateFilter =
+    dateFilter &&
+    dateFilter?.from !== undefined &&
+    dateFilter?.to !== undefined;
   const hasStatusFilter = Boolean(Array.from(statusFilters).length > 0);
 
   // Columns, Rows per page, Sort
@@ -131,6 +137,9 @@ export default function AppointmentsTable({
             .toLowerCase()
             .includes(filterValue.toLowerCase()) ||
           patient?.lastName.toLowerCase().includes(filterValue.toLowerCase()) ||
+          `${patient?.firstName} ${patient?.lastName}`
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
           patient?.email?.toLowerCase().includes(filterValue.toLowerCase()) ||
           appointment?.service?.name
             .toLowerCase()
@@ -151,14 +160,23 @@ export default function AppointmentsTable({
       });
     }
 
-    // if (hasAppointmentFilter) {
-    //   filteredAppointments = filteredAppointments.filter((appointment) => {
-    //     if (appointment.appointmentMethod) {
-    //       return Array.from(appointmentFilters).includes(appointment.appointmentMethod);
-    //     }
-    //     return false;
-    //   });
-    // }
+    if (hasStatusFilter) {
+      filteredAppointments = filteredAppointments.filter((appointment) => {
+        if (appointment.status) {
+          return Array.from(statusFilters).includes(appointment.status);
+        }
+        return false;
+      });
+    }
+
+    if (hasDateFilter) {
+      filteredAppointments = filteredAppointments.filter((appointment) => {
+        return isWithinInterval(appointment.startTime, {
+          start: dateFilter.from!,
+          end: dateFilter.to!,
+        });
+      });
+    }
 
     return filteredAppointments;
   }, [appointments, filterValue, statusFilters, dateFilter]);
@@ -393,11 +411,11 @@ export default function AppointmentsTable({
                       {format(appointment.endTime, "HH:mm")}
                     </div>
                   ) : (
-                    <>
+                    <div className="flex flex-nowrap items-center gap-px font-[450]">
                       {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
                       <ArrowRightIcon className="h-4 w-4" />
                       {format(appointment.endTime, "dd/MM/yyyy, HH:mm")}
-                    </>
+                    </div>
                   )}
                 </Chip>
               </div>
@@ -457,78 +475,53 @@ export default function AppointmentsTable({
     },
     [],
   );
-  // const RenderFilters = React.useCallback(
-  //   ({ filter }: { filter: string }) => {
-  //     switch (filter) {
-  //       case "appointmentMethod": {
-  //         const appointmentFiltersArray = Array.from(appointmentFilters);
-  //         if (appointmentFiltersArray.length > 0) {
-  //           return (
-  //             <>
-  //               <Divider orientation="vertical" className="h-[60%] w-[0.9px]" />
-  //               <div className="flex items-center gap-1">
-  //                 {appointmentFiltersArray.length <= 2 ? (
-  //                   <>
-  //                     {appointmentFiltersArray.map((method) => (
-  //                       <Chip
-  //                         key={method}
-  //                         variant="faded"
-  //                         radius="sm"
-  //                         color="secondary"
-  //                       >
-  //                         {
-  //                           appointmentMethods.find((m) => m.value === method)
-  //                             ?.label
-  //                         }
-  //                       </Chip>
-  //                     ))}
-  //                   </>
-  //                 ) : (
-  //                   <div>
-  //                     <Chip variant="faded" radius="sm" color="secondary">
-  //                       {appointmentFiltersArray.length} Séléctionnés
-  //                     </Chip>
-  //                   </div>
-  //                 )}
-  //               </div>
-  //             </>
-  //           );
-  //         } else {
-  //           return undefined;
-  //         }
-  //       }
-  //       case "appointmentDate": {
-  //         if (hasDateFilter) {
-  //           return (
-  //             <>
-  //               <Divider orientation="vertical" className="h-[60%] w-[0.9px]" />
-  //               <div className="flex items-center gap-1">
-  //                 {dateFilter.start.toString() === dateFilter.end.toString() ? (
-  //                   <Chip variant="faded" radius="sm" color="secondary">
-  //                     {format(dateFilter.start.toString(), "dd/MM/yyyy")}
-  //                   </Chip>
-  //                 ) : (
-  //                   <Chip variant="faded" radius="sm" color="secondary">
-  //                     <div className="flex w-fit flex-row items-center gap-1.5">
-  //                       {format(dateFilter.start.toString(), "dd/MM/yyyy")}
-  //                       <ArrowRightIcon className="h-4 w-4" />
-  //                       {format(dateFilter.end.toString(), "dd/MM/yyyy")}
-  //                     </div>
-  //                   </Chip>
-  //                 )}
-  //               </div>
-  //             </>
-  //           );
-  //         } else {
-  //           return undefined;
-  //         }
-  //       }
-  //       default:
-  //         return <></>;
-  //     }
-  //   },
-  //   [appointmentFilters, dateFilter],
-  // );
+
+  const RenderFilters = React.useCallback(
+    ({ filter }: { filter: string }) => {
+      switch (filter) {
+        case "status": {
+          const statusFiltersArray = Array.from(statusFilters);
+          if (statusFiltersArray.length > 0) {
+            return (
+              <>
+                <Divider orientation="vertical" className="h-[60%] w-[0.9px]" />
+                <div className="flex items-center gap-1">
+                  {statusFiltersArray.length <= 2 ? (
+                    <>
+                      {statusFiltersArray.map((method) => (
+                        <Chip
+                          key={method}
+                          variant="faded"
+                          radius="sm"
+                          color="secondary"
+                        >
+                          {
+                            AppointmentStatus.find((m) => m.value === method)
+                              ?.label
+                          }
+                        </Chip>
+                      ))}
+                    </>
+                  ) : (
+                    <div>
+                      <Chip variant="faded" radius="sm" color="secondary">
+                        {statusFiltersArray.length} Séléctionnés
+                      </Chip>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          } else {
+            return undefined;
+          }
+        }
+        default:
+          return <></>;
+      }
+    },
+    [statusFilters],
+  );
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
@@ -576,24 +569,21 @@ export default function AppointmentsTable({
               />
               {/* filters */}
               <div className="flex min-w-fit items-center gap-2">
-                {/* Appointment Method filter */}
-
-                {/* <Popover
+                <Popover
                   triggerScaleOnOpen={false}
                   placement="bottom-start"
                   offset={10}
                 >
                   <PopoverTrigger>
                     <Button
-                      disableAnimation
                       startContent={
                         <CircleFadingPlus className="h-4 w-4 text-default-500" />
                       }
-                      endContent={<RenderFilters filter="appointmentMethod" />}
+                      endContent={<RenderFilters filter="status" />}
                       color="default"
                       variant="bordered"
                     >
-                      Méthode de paiement
+                      Statu
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-full min-w-[200px] rounded-small p-1 pb-1.5">
@@ -601,16 +591,29 @@ export default function AppointmentsTable({
                       <Listbox
                         variant="flat"
                         selectionMode="multiple"
-                        selectedKeys={appointmentFilters}
-                        onSelectionChange={setAppointmentFilters}
+                        selectedKeys={statusFilters}
+                        onSelectionChange={(keys) => {
+                          setPage(1);
+                          setStatusFilters(keys);
+                        }}
                       >
-                        {appointmentMethods.map((method) => (
-                          <ListboxItem key={method.value}>
-                            {method.label}
-                          </ListboxItem>
-                        ))}
+                        {AppointmentStatus.map((method) => {
+                          let color = `bg-${method.color}`;
+                          return (
+                            <ListboxItem
+                              key={method.value}
+                              startContent={
+                                <div
+                                  className={`size-1.5 rounded-full ${color}`}
+                                ></div>
+                              }
+                            >
+                              {method.label}
+                            </ListboxItem>
+                          );
+                        })}
                       </Listbox>
-                      {hasAppointmentFilter && (
+                      {hasStatusFilter && (
                         <>
                           <Divider className="mx-auto w-[90%]" />
                           <div className="flex w-full justify-end gap-2">
@@ -621,7 +624,8 @@ export default function AppointmentsTable({
                               radius="sm"
                               fullWidth
                               onPress={() => {
-                                setAppointmentFilters(new Set([]));
+                                setPage(1);
+                                setStatusFilters(new Set([]));
                               }}
                             >
                               Réinitialiser
@@ -631,230 +635,28 @@ export default function AppointmentsTable({
                       )}
                     </div>
                   </PopoverContent>
-                </Popover> */}
+                </Popover>
 
                 {/* Date Filter */}
-
-                {/* <Popover
-                  triggerScaleOnOpen={false}
-                  placement="bottom"
-                  offset={10}
-                >
-                  <PopoverTrigger>
-                    <Button
-                      disableAnimation
-                      startContent={
-                        <CircleFadingPlus className="h-4 w-4 text-default-500" />
-                      }
-                      endContent={<RenderFilters filter="appointmentDate" />}
-                      color="default"
-                      variant="bordered"
-                    >
-                      Date
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-fit max-w-[255px] rounded-small border-none p-0 shadow-none">
-                    <div className="flex flex-col gap-2">
-                      <RangeCalendar
-                        disableAnimation
-                        aria-label="Rendez-vous Date Range"
-                        value={dateFilter}
-                        classNames={{
-                          title: "capitalize",
-                        }}
-                        onChange={setDateFilter}
-                        topContent={
-                          <div className=" grid w-[250px] gap-2 bg-content1 pb-2">
-                            <div className="custom-scrollbar overflow-x-auto pb-1.5">
-                              <ButtonGroup
-                                fullWidth
-                                className="w-fit bg-content1 px-3 pt-3 [&>button]:border-default-200/60 [&>button]:text-default-500"
-                                radius="sm"
-                                size="sm"
-                                variant="bordered"
-                              >
-                                <Tooltip
-                                  content={
-                                    !ManualDateFilter
-                                      ? "Filtrer manuellement"
-                                      : "Terminé"
-                                  }
-                                  size="sm"
-                                  closeDelay={100}
-                                  delay={150}
-                                >
-                                  <Button
-                                    onPress={() => {
-                                      setManualDateFilter(!ManualDateFilter);
-                                    }}
-                                    variant="ghost"
-                                    isIconOnly
-                                  >
-                                    {ManualDateFilter ? (
-                                      <CheckIcon className="h-5 w-5" />
-                                    ) : (
-                                      <EditIcon className="h-4 w-4" />
-                                    )}
-                                  </Button>
-                                </Tooltip>
-                                <Tooltip
-                                  content={`${format(
-                                    startOfMonth(
-                                      today(getLocalTimeZone()),
-                                    ).toDate(getLocalTimeZone()),
-                                    "dd/MM/yyyy",
-                                  )} - ${format(
-                                    endOfMonth(
-                                      today(getLocalTimeZone()),
-                                    ).toDate(getLocalTimeZone()),
-                                    "dd/MM/yyyy",
-                                  )}`}
-                                  size="sm"
-                                  closeDelay={100}
-                                  delay={150}
-                                >
-                                  <Button
-                                    onPress={() => {
-                                      setDateFilter({
-                                        start: startOfMonth(
-                                          today(getLocalTimeZone()),
-                                        ),
-                                        end: endOfMonth(
-                                          today(getLocalTimeZone()),
-                                        ),
-                                      });
-                                    }}
-                                  >
-                                    Mois en cours
-                                  </Button>
-                                </Tooltip>
-                                <Tooltip
-                                  content={`${format(
-                                    startOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
-                                      .toDate(getLocalTimeZone()),
-                                    "dd/MM/yyyy",
-                                  )} - ${format(
-                                    endOfMonth(today(getLocalTimeZone()))
-                                      .subtract({ months: 1 })
-                                      .toDate(getLocalTimeZone()),
-                                    "dd/MM/yyyy",
-                                  )}`}
-                                  size="sm"
-                                  closeDelay={100}
-                                  delay={150}
-                                >
-                                  <Button
-                                    onPress={() => {
-                                      setDateFilter({
-                                        start: startOfMonth(
-                                          today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
-                                        end: endOfMonth(
-                                          today(getLocalTimeZone()),
-                                        ).subtract({ months: 1 }),
-                                      });
-                                    }}
-                                  >
-                                    Mois précédent
-                                  </Button>
-                                </Tooltip>
-                                <Tooltip
-                                  content={`${format(
-                                    startOfYear(
-                                      today(getLocalTimeZone()),
-                                    ).toDate(getLocalTimeZone()),
-                                    "dd/MM/yyyy",
-                                  )} - ${format(
-                                    endOfYear(today(getLocalTimeZone())).toDate(
-                                      getLocalTimeZone(),
-                                    ),
-                                    "dd/MM/yyyy",
-                                  )}`}
-                                  size="sm"
-                                  closeDelay={100}
-                                  delay={150}
-                                >
-                                  <Button
-                                    onPress={() => {
-                                      setDateFilter({
-                                        start: startOfYear(
-                                          today(getLocalTimeZone()),
-                                        ),
-                                        end: endOfYear(
-                                          today(getLocalTimeZone()),
-                                        ),
-                                      });
-                                    }}
-                                  >
-                                    Année en cours
-                                  </Button>
-                                </Tooltip>
-                              </ButtonGroup>
-                            </div>
-                            {ManualDateFilter && (
-                              <div className="grid w-[250px] grid-cols-2 gap-2 px-3">
-                                <DateInput
-                                  aria-label="Start Date"
-                                  variant="bordered"
-                                  errorMessage={null}
-                                  classNames={{
-                                    inputWrapper:
-                                      "group-data-[focus=true]:border-primary !transition-all !duration-200",
-                                  }}
-                                  size="sm"
-                                  value={dateFilter.start}
-                                  onChange={(value) => {
-                                    setDateFilter({
-                                      start: value,
-                                      end: dateFilter.end,
-                                    });
-                                  }}
-                                />
-                                <DateInput
-                                  aria-label="End Date"
-                                  variant="bordered"
-                                  size="sm"
-                                  value={dateFilter.end}
-                                  onChange={(value) => {
-                                    setDateFilter({
-                                      start: dateFilter.start,
-                                      end: value,
-                                    });
-                                  }}
-                                  errorMessage={null}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        }
-                        bottomContent={
-                          <>
-                            <div>
-                              <Button
-                                size="sm"
-                                variant="light"
-                                color="default"
-                                radius="none"
-                                fullWidth
-                                onPress={() => {
-                                  setDateFilter({
-                                    start: startOfMonth(
-                                      today(getLocalTimeZone()),
-                                    ),
-                                    end: endOfMonth(today(getLocalTimeZone())),
-                                  });
-                                }}
-                              >
-                                Réinitialiser
-                              </Button>
-                            </div>
-                          </>
-                        }
-                      />
-                    </div>
-                  </PopoverContent>
-                </Popover> */}
+                <DateRangePicker
+                  presets={presets}
+                  value={dateFilter}
+                  align="end"
+                  onChange={(range) => {
+                    setPage(1);
+                    setDateFilter(range);
+                  }}
+                  className="w-64 min-w-fit rounded-large"
+                  locale={fr}
+                  translations={{
+                    range: "Période",
+                    apply: "Appliquer",
+                    cancel: "Annuler",
+                    start: "Début",
+                    end: "Fin",
+                  }}
+                  placeholder="Choisir une période"
+                />
               </div>
             </div>
             {/* columns */}
@@ -930,7 +732,6 @@ export default function AppointmentsTable({
         description: "Êtes-vous sûr de vouloir supprimer ce rendez-vous ?",
       },
     };
-
     if (!actionToPerform || !showActionModal) return null;
 
     if (actionToPerform.action === "update") {
@@ -940,6 +741,7 @@ export default function AppointmentsTable({
           onClose={() => clearAction()}
           placement="center"
           backdrop="blur"
+          size="lg"
           classNames={{
             base: "md:max-h-[85dvh]",
             wrapper: "overflow-hidden",
@@ -981,6 +783,7 @@ export default function AppointmentsTable({
           onClose={() => clearAction()}
           placement="center"
           backdrop="blur"
+          size="lg"
           classNames={{
             base: "md:max-h-[85dvh]",
             wrapper: "overflow-hidden",

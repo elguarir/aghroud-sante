@@ -152,7 +152,6 @@ export const capitalize = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-
 // Tremor Raw focusInput [v0.0.1]
 export const focusInput = [
   // base
@@ -180,7 +179,6 @@ export const focusRing = [
   // outline color
   "outline-blue-500 dark:outline-blue-500",
 ];
-
 
 export async function Await<T>({
   promise,

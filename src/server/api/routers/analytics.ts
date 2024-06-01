@@ -77,10 +77,13 @@ export const analyticsRouter = createTRPCRouter({
         const oldestExpense = expenses.reduce((acc, curr) => {
           return acc.expenseDate < curr.expenseDate ? acc : curr;
         });
+
         const oldestDate =
           oldestPayment.paymentDate < oldestExpense.expenseDate
             ? oldestPayment.paymentDate
             : oldestExpense.expenseDate;
+
+        console.log("oldestDate", oldestDate, "new Date()", new Date());
 
         const groupedExpenses = getGroupedExpensesForRange(
           expenses,
@@ -94,13 +97,14 @@ export const analyticsRouter = createTRPCRouter({
           startOfDay(oldestDate),
           endOfDay(new Date()),
         );
+        const financeData = getDataForRange({
+          from: startOfDay(oldestDate),
+          to: endOfDay(new Date()),
+          records: { payments, expenses },
+        });
 
         return {
-          financeData: getDataForRange({
-            from: startOfDay(oldestDate),
-            to: endOfDay(new Date()),
-            records: { payments, expenses },
-          }),
+          financeData,
           groupedExpenses,
           summaryData: {
             current: summaryData.current,
@@ -140,9 +144,20 @@ interface getDataForRangeProps {
   };
 }
 
-export const getDataForRange = ({ from, to, records }: getDataForRangeProps) => {
+export const getDataForRange = ({
+  from,
+  to,
+  records,
+}: getDataForRangeProps) => {
   const { expenses, payments } = records;
-
+  console.log(
+    "from",
+    from,
+    "to",
+    to,
+    "months",
+    isHowManyMonthsBetween(from, to),
+  );
   // if the difference between the two dates is less than or equal to 31 days
   if (Math.floor(isHowManyMonthsBetween(from, to)) <= 1) {
     const data: FinanceReport[] = [];
@@ -154,8 +169,8 @@ export const getDataForRange = ({ from, to, records }: getDataForRangeProps) => 
 
     return data;
   }
-  // if the difference between the two dates is less than or equal to 6 months
-  if (Math.floor(isHowManyMonthsBetween(from, to)) <= 6) {
+  // if the difference between the two dates is less than or equal to 8 months
+  if (Math.floor(isHowManyMonthsBetween(from, to)) <= 8) {
     // get data by weeks
     const data: FinanceReport[] = [];
     const weeks = getWeeksInRange(from, to);
@@ -191,7 +206,7 @@ export const getDataForRange = ({ from, to, records }: getDataForRangeProps) => 
   }
 
   // if the difference between the two dates is one year or more
-  if (isHowManyMonthsBetween(from, to) >= 12) {
+  if (Math.floor(isHowManyMonthsBetween(from, to)) >= 8) {
     const data: FinanceReport[] = [];
     const months = getMonthsInRange(from, to);
     for (const month of months) {
@@ -218,6 +233,7 @@ export const getDataForRange = ({ from, to, records }: getDataForRangeProps) => 
         },
       });
     }
+    console.log("data", data, "length", data.length);
     return data;
   }
 };

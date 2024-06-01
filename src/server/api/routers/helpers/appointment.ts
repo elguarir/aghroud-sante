@@ -40,7 +40,7 @@ export async function getAllAppointments() {
       },
     },
     orderBy: {
-      startTime: "asc",
+      startTime: "desc",
     },
   });
 }

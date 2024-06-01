@@ -134,11 +134,11 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
             ?.toString()
             .toLowerCase()
             .includes(filterValue.toLowerCase()) ||
-            expense.amount
-              .toString()
-              .toLowerCase()
-              .includes(filterValue.toLowerCase()) ||
-            expense.notes
+          expense.amount
+            .toString()
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          expense.notes
             ?.toString()
             .toLowerCase()
             .includes(filterValue.toLowerCase()) ||
@@ -424,6 +424,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
               onOpenChange={onModifyOpen}
               placement="center"
               backdrop="blur"
+              size="lg"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -472,6 +473,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
               onOpenChange={onDeleteOpenChange}
               placement="center"
               backdrop="blur"
+              size="lg"
               classNames={{
                 base: "md:max-h-[85dvh]",
                 wrapper: "overflow-hidden",
@@ -766,7 +768,7 @@ export default function ExpenseTable({ expenses }: ExpenseTableProps) {
                         }}
                         onChange={setDateFilter}
                         topContent={
-                          <div className=" grid w-[250px] gap-2 bg-content1 pb-2">
+                          <div className="grid w-[250px] gap-2 bg-content1 pb-2">
                             <div className="custom-scrollbar overflow-x-auto pb-1.5">
                               <ButtonGroup
                                 fullWidth

@@ -104,7 +104,7 @@ const AppointmentCard = ({
               </div>
             </div>
             <div className="mt-auto flex justify-end">
-              <button className="rounded-sm text-tiny font-medium  text-primary underline focus-visible:outline-none">
+              <button className="rounded-sm text-tiny font-medium text-primary underline focus-visible:outline-none">
                 <span className="transition duration-250 group-data-[state=closed]:block group-data-[state=open]:hidden">
                   Détails
                 </span>

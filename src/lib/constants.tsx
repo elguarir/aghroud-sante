@@ -95,7 +95,6 @@ export const colorValues = [
   "rose",
 ];
 
-
 interface DateRange {
   from: Date;
   to: Date;
@@ -156,6 +155,3 @@ export const presets = [
     },
   },
 ];
-
-
-
