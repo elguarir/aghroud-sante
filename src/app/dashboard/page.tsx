@@ -19,9 +19,12 @@ import {
   UserGroupIcon,
 } from "@/components/icons";
 import { Suspense } from "react";
-import { getThisWeeksSummary } from "@/server/api/routers/helpers/analytics";
+import {
+  getThisWeeksRecentActivity,
+  getThisWeeksSummary,
+} from "@/server/api/routers/helpers/analytics";
 import { Card } from "@tremor/react";
-import * as PatientActivity from "./_components/recent-patient-activity";
+import * as Activity from "./_components/recent-patient-activity";
 import { ScrollShadow } from "@nextui-org/scroll-shadow";
 import {
   Table,
@@ -32,8 +35,6 @@ import {
   TableRoot,
   TableRow,
 } from "@/components/ui/table";
-import { getAllPatients } from "@/server/api/routers/helpers/patient";
-import { getAllAppointments } from "@/server/api/routers/helpers/appointment";
 import { Chip } from "@nextui-org/chip";
 import { RouterOutput } from "@/server/api/root";
 import { AppointmentStatus } from "./appointments/_components/appointments-data";
@@ -53,59 +54,9 @@ const DashboardPage = async () => {
     locale: fr,
     weekStartsOn: 1,
   });
-  const summaryData = getThisWeeksSummary();
-  // const data: Array<{
-  //   id: number;
-  //   name: string;
-  //   sales: string;
-  //   region: string;
-  //   status: string;
-  //   deltaType: string;
-  // }> = [
-  //   {
-  //     id: 1,
-  //     name: "Peter McCrown",
-  //     sales: "1,000,000",
-  //     region: "Region A",
-  //     status: "overperforming",
-  //     deltaType: "moderateIncrease",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Jon Mueller",
-  //     sales: "2,202,000",
-  //     region: "Region B",
-  //     status: "overperforming",
-  //     deltaType: "moderateIncrease",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "Peter Federer",
-  //     sales: "1,505,000",
-  //     region: "Region C",
-  //     status: "underperforming",
-  //     deltaType: "moderateDecrease",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "Maxime Bujet",
-  //     sales: "500,000",
-  //     region: "Region D",
-  //     status: "overperforming",
-  //     deltaType: "moderateDecrease",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "Emma Nelly",
-  //     sales: "600,000",
-  //     region: "Region E",
-  //     status: "underperforming",
-  //     deltaType: "moderateDecrease",
-  //   },
-  // ];
 
-  const patients = await getAllPatients();
-  const appointments = await getAllAppointments();
+  const summaryData = getThisWeeksSummary();
+  const { patients, appointments } = await getThisWeeksRecentActivity();
 
   return (
     <Wrapper>
@@ -114,9 +65,9 @@ const DashboardPage = async () => {
           <div className="flex flex-col">
             <h1 className="text-xl font-semibold md:text-2xl">Dashboard</h1>
             <span className="capitalize text-default-500">
-              {format(start, "dd, MMMM", { locale: fr })}{" "}
+              {format(start, "dd, MMMM", { locale: fr, weekStartsOn: 1 })}{" "}
               <span className="lowercase">à</span>{" "}
-              {format(end, "dd, MMMM", { locale: fr })}
+              {format(end, "dd, MMMM", { locale: fr, weekStartsOn: 1 })}
             </span>
           </div>
           <div>
@@ -223,10 +174,15 @@ const DashboardPage = async () => {
               </div>
               <div className="grid h-full w-full gap-6 lg:grid-cols-2">
                 <Card className="rounded-xl p-5">
-                  <PatientActivity.Root>
-                    <PatientActivity.Header />
+                  <Activity.Root>
+                    <Activity.Header
+                      numberOfRecords={{
+                        appointments: appointments.length,
+                        patients: patients.length,
+                      }}
+                    />
                     <div className="flex min-h-[15.5rem] flex-1 flex-col">
-                      <PatientActivity.Body value="rendez-vous">
+                      <Activity.Body value="rendez-vous">
                         <div className="flex h-full w-full items-center justify-center">
                           <ScrollShadow
                             className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
@@ -260,19 +216,20 @@ const DashboardPage = async () => {
                             <TableRoot className="custom-scrollbar h-full max-w-full"></TableRoot>
                           </ScrollShadow>
                         </div>
-                      </PatientActivity.Body>
-                      <PatientActivity.Body value="patients">
+                      </Activity.Body>
+
+                      <Activity.Body value="patients">
                         <div className="flex h-full w-full items-center justify-center">
                           <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
                             Aucun patient inscrit cette semaine
                           </p>
                         </div>
-                      </PatientActivity.Body>
+                      </Activity.Body>
                     </div>
                     <div className="mt-auto">
-                      <PatientActivity.Footer />
+                      <Activity.Footer />
                     </div>
-                  </PatientActivity.Root>
+                  </Activity.Root>
                 </Card>
                 <Card className="rounded-xl p-5">
                   <div className="grid w-full gap-4">

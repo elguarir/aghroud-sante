@@ -142,19 +142,17 @@ export const patientRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      // let patient = await ctx.db.patient.delete({
-      //   where: { id: input.id },
-      // });
+      let patient = await ctx.db.patient.delete({
+        where: { id: input.id },
+      });
 
-      // if (!patient) {
-      //   throw new TRPCError({
-      //     code: "INTERNAL_SERVER_ERROR",
-      //     message: "Échec de la suppression du patient",
-      //   });
-      // }
+      if (!patient) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Échec de la suppression du patient",
+        });
+      }
 
-      // return patient;
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      return true;
+      return patient;
     }),
 });

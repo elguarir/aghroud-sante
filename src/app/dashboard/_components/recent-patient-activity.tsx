@@ -5,6 +5,7 @@ import { Button } from "@nextui-org/button";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { CalendarIcon, PatientsIcon } from "@/components/icons";
+import { Chip } from "@nextui-org/chip";
 
 type Props = {};
 
@@ -24,14 +25,48 @@ const Body = ({ children, value }: { children: ReactNode; value: string }) => {
   return children;
 };
 
-const Header = () => {
+interface HeaderProps {
+  numberOfRecords?: {
+    appointments: number;
+    patients: number;
+  };
+}
+const Header = ({ numberOfRecords }: HeaderProps) => {
   const { activeTab } = Tab.useTabs();
-
+  const { appointments, patients } = numberOfRecords || {};
   return (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-          {activeTab === "rendez-vous" ? "Rendez-vous" : "Patients"}
+        <h3 className="flex items-center gap-1  text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
+          {activeTab === "rendez-vous" ? "Rendez-vous" : "Patients"}{" "}
+          {activeTab === "rendez-vous" ? (
+            <>
+              {appointments && appointments > 0 && (
+                <Chip
+                  className="h-[22px] border border-default"
+                  variant="flat"
+                  size="sm"
+                >
+                  <p className="text-tiny font-[550]">{appointments}</p>
+                </Chip>
+              )}
+            </>
+          ) : (
+            <>
+              {patients && patients > 0 && (
+                <Chip
+                  className="h-[22px] border border-default"
+                  variant="flat"
+                  size="sm"
+                >
+                  <p className="text-tiny font-[550]">{patients}</p>
+                </Chip>
+              )}
+            </>
+          )}
+          {/* <Chip className="border border-default h-[22px]" variant="flat" size="sm">
+              <p className="text-tiny font-[550]">{numberOfRecords}</p>
+            </Chip> */}
         </h3>
       </div>
       <Tab.List

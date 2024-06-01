@@ -247,14 +247,14 @@ export const getThisWeeksSummary = async () => {
   const start = startOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
   const end = endOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
   const summaryData = getSummaryData(expenses, payments, start, end);
-  await new Promise((resolve) => setTimeout(resolve, 1000));
   return summaryData;
 };
 
 export const getThisWeeksRecentActivity = async () => {
   const start = startOfWeek(new Date(), { weekStartsOn: 1 });
   const end = endOfWeek(new Date(), { weekStartsOn: 1 });
-  const [recentlyRegisteredPatients, recentPayments] = await Promise.all([
+
+  const [patients, appointments] = await Promise.all([
     db.patient.findMany({
       where: {
         createdAt: {
@@ -262,18 +262,87 @@ export const getThisWeeksRecentActivity = async () => {
           lte: end,
         },
       },
-    }),
-    db.payment.findMany({
-      where: {
-        paymentDate: {
-          gte: start,
-          lte: end,
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        dateOfBirth: true,
+        email: true,
+        address: true,
+        insuranceProvider: true,
+        notes: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            appointments: true,
+          },
         },
+      },
+    }),
+    // starttime - endtime
+    db.appointment.findMany({
+      where: {
+        OR: [
+          {
+            startTime: {
+              gte: start,
+              lte: end,
+            },
+          },
+          {
+            endTime: {
+              gte: start,
+              lte: end,
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        startTime: true,
+        endTime: true,
+        status: true,
+        notes: true,
+        floor: true,
+        createdAt: true,
+        updatedAt: true,
+        patient: {
+          select: {
+            id: true,
+            phoneNumber: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+        therapist: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            speciality: true,
+            createdAt: true,
+          },
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            duration: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: "asc",
       },
     }),
   ]);
 
-  return { recentlyRegisteredPatients, recentPayments };
+  return { patients, appointments };
 };
 
 /**
