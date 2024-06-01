@@ -57,7 +57,7 @@ const DashboardPage = async () => {
 
   const summaryData = getThisWeeksSummary();
   const { patients, appointments } = await getThisWeeksRecentActivity();
-
+  
   return (
     <Wrapper>
       <div className="flex h-full flex-col gap-8">
