@@ -7,7 +7,10 @@ import {
   endOfYear,
   startOfYear,
   subYears,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
+import { getSummaryData } from "../analytics";
 
 export interface getRevenueByWeekProps {
   month: number;
@@ -230,6 +233,48 @@ export async function getRevenueComparisonByMonth(
 
   return { data: revenueData };
 }
+
+export const getThisWeeksSummary = async () => {
+  const [payments, expenses] = await Promise.all([
+    db.payment.findMany({
+      where: {
+        isPaid: true,
+      },
+    }),
+    db.expense.findMany(),
+  ]);
+
+  const start = startOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
+  const end = endOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
+  const summaryData = getSummaryData(expenses, payments, start, end);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return summaryData;
+};
+
+export const getThisWeeksRecentActivity = async () => {
+  const start = startOfWeek(new Date(), { weekStartsOn: 1 });
+  const end = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const [recentlyRegisteredPatients, recentPayments] = await Promise.all([
+    db.patient.findMany({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+    }),
+    db.payment.findMany({
+      where: {
+        paymentDate: {
+          gte: start,
+          lte: end,
+        },
+      },
+    }),
+  ]);
+
+  return { recentlyRegisteredPatients, recentPayments };
+};
 
 /**
  * prisma schema:

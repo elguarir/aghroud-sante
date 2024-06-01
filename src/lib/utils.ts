@@ -180,3 +180,16 @@ export const focusRing = [
   // outline color
   "outline-blue-500 dark:outline-blue-500",
 ];
+
+
+export async function Await<T>({
+  promise,
+  children,
+}: {
+  promise: Promise<T>;
+  children: (result: T) => JSX.Element;
+}) {
+  let result = await promise;
+
+  return children(result);
+}

@@ -378,28 +378,28 @@ export default function AppointmentsTable({
           return (
             <div className="flex flex-col">
               <div className="text-bold flex w-fit flex-nowrap items-center gap-1 text-nowrap text-small capitalize">
-                {isSameDay(appointment.startTime, appointment.endTime) ? (
-                  <Chip
-                    variant={"dot"}
-                    classNames={{
-                      dot: isOnGoing && "animate-pulse",
-                    }}
-                    color={isOnGoing ? "success" : "default"}
-                    className="w-fit rounded-md text-default-600"
-                  >
+                <Chip
+                  variant={"dot"}
+                  classNames={{
+                    dot: isOnGoing && "animate-pulse",
+                  }}
+                  color={isOnGoing ? "success" : "default"}
+                  className="w-fit rounded-md text-default-600"
+                >
+                  {isSameDay(appointment.startTime, appointment.endTime) ? (
                     <div className="flex flex-nowrap items-center gap-px font-[450]">
                       {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
                       <ArrowRightIcon className="h-3.5 w-3.5" />
                       {format(appointment.endTime, "HH:mm")}
                     </div>
-                  </Chip>
-                ) : (
-                  <>
-                    {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
-                    <ArrowRightIcon className="h-4 w-4" />
-                    {format(appointment.endTime, "dd/MM/yyyy, HH:mm")}
-                  </>
-                )}
+                  ) : (
+                    <>
+                      {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
+                      <ArrowRightIcon className="h-4 w-4" />
+                      {format(appointment.endTime, "dd/MM/yyyy, HH:mm")}
+                    </>
+                  )}
+                </Chip>
               </div>
             </div>
           );
@@ -1094,4 +1094,3 @@ export default function AppointmentsTable({
     </>
   );
 }
-

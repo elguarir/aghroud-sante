@@ -39,6 +39,9 @@ export async function getAllAppointments() {
         },
       },
     },
+    orderBy: {
+      startTime: "asc",
+    },
   });
 }
 

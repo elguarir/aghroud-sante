@@ -36,9 +36,9 @@ const StatCard: React.FC<StatCardProps> = ({
     return (
       <Card className="flex flex-col items-start gap-2 rounded-xl py-4">
         <div>{icon}</div>
-        <div className="flex w-full flex-col space-y-3 leading-6">
+        <div className="flex w-full flex-col space-y-2 pt-1.5 leading-6">
           <Skeleton className="h-6 w-[75%] rounded-xl border border-default-600/5 !bg-default before:[animation-duration:_900ms_!important]" />
-          <div className="mt-1 flex w-full items-center justify-between">
+          <div className="flex w-full items-center justify-between">
             <Skeleton className="h-4 w-[45%] rounded-full border border-default-600/5 !bg-default text-sm font-[450] text-default-500 before:[animation-duration:_900ms_!important]" />
             <div className="flex h-full items-end">
               <Skeleton className="h-4 w-12 rounded-full border border-default-600/5 !bg-default before:[animation-duration:_900ms_!important]" />
@@ -60,7 +60,7 @@ const StatCard: React.FC<StatCardProps> = ({
           <div className="flex-1 text-sm font-[450] text-default-500">
             {title}
           </div>
-          {(!hideComparison || percentageChange !== 0) && (
+          {(!hideComparison) && (
             <div className="flex h-full items-end">
               <Tooltip
                 color="foreground"

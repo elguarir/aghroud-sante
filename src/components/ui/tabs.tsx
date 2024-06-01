@@ -6,12 +6,12 @@ import React, {
   ReactNode,
   HTMLAttributes,
 } from "react";
-
 import {
-  Tabs as NextUITabs,
-  Tab as NextUITab,
+    Tabs as NextUITabs,
+    Tab as NextUITab,
   TabsProps,
 } from "@nextui-org/tabs";
+
 
 interface TabsContextProps {
   activeTab: string;

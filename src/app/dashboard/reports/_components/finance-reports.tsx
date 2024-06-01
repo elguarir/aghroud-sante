@@ -72,7 +72,10 @@ export function FinanceReports(props: FinanceReportsProps) {
             currentValue={data?.summaryData.current.totalRevenue ?? 0}
             previousValue={data?.summaryData.previous.totalRevenue ?? 0}
             isLoading={isLoading}
-            hideComparison={props.dateRange === undefined}
+            hideComparison={
+              props.dateRange === undefined ||
+              data?.summaryData.percentageChange.totalRevenue === 0
+            }
           />
           <StatCard
             icon={<MoneySendSquareIcon className="h-8 w-8 text-default-600" />}
@@ -88,7 +91,10 @@ export function FinanceReports(props: FinanceReportsProps) {
             currentValue={data?.summaryData.current.totalPatients ?? 0}
             previousValue={data?.summaryData.previous.totalPatients ?? 0}
             showPercentage={false}
-            hideComparison={props.dateRange === undefined}
+            hideComparison={
+              props.dateRange === undefined ||
+              data?.summaryData.percentageChange.totalPatients === 0
+            }
             isLoading={isLoading}
           />
           <StatCard
@@ -101,7 +107,11 @@ export function FinanceReports(props: FinanceReportsProps) {
               data?.summaryData.previous.totalConfirmedAppointments ?? 0
             }
             showPercentage={false}
-            hideComparison={props.dateRange === undefined}
+            hideComparison={
+              props.dateRange === undefined ||
+              data?.summaryData.percentageChange.totalConfirmedAppointments ===
+                0
+            }
             isLoading={isLoading}
           />
         </div>

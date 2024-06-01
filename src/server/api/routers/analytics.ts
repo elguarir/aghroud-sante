@@ -110,6 +110,7 @@ export const analyticsRouter = createTRPCRouter({
               totalRevenue: 0,
               netIncome: 0,
               totalPatients: 0,
+              totalConfirmedAppointments: 0,
             },
           },
         };
@@ -139,7 +140,7 @@ interface getDataForRangeProps {
   };
 }
 
-const getDataForRange = ({ from, to, records }: getDataForRangeProps) => {
+export const getDataForRange = ({ from, to, records }: getDataForRangeProps) => {
   const { expenses, payments } = records;
 
   // if the difference between the two dates is less than or equal to 31 days
@@ -221,11 +222,11 @@ const getDataForRange = ({ from, to, records }: getDataForRangeProps) => {
   }
 };
 
-const isDateInRange = (date: Date, from: Date, to: Date) => {
+export const isDateInRange = (date: Date, from: Date, to: Date) => {
   return date >= from && date <= to;
 };
 
-const findFinanceData = (
+export const findFinanceData = (
   expenses: Expense[],
   payments: Payment[],
   date: Date,
@@ -260,7 +261,7 @@ const findFinanceData = (
   return res;
 };
 
-const getDaysInRange = (from: Date, to: Date) => {
+export const getDaysInRange = (from: Date, to: Date) => {
   const days: Date[] = [];
   let current = from;
 
@@ -272,7 +273,7 @@ const getDaysInRange = (from: Date, to: Date) => {
   return days;
 };
 
-const getWeeksInRange = (
+export const getWeeksInRange = (
   from: Date,
   to: Date,
   options: { weekStartsOn?: Day; locale?: Locale } = {},
@@ -307,12 +308,12 @@ const getWeeksInRange = (
   }));
 };
 
-const isHowManyMonthsBetween = (from: Date, to: Date) => {
+export const isHowManyMonthsBetween = (from: Date, to: Date) => {
   const diff = Math.abs(to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24);
   return diff / 30;
 };
 
-const getMonthsInRange = (from: Date, to: Date) => {
+export const getMonthsInRange = (from: Date, to: Date) => {
   const months: { start: string; end: string }[] = [];
   let current = startOfMonth(from);
 
@@ -327,7 +328,7 @@ const getMonthsInRange = (from: Date, to: Date) => {
   return months;
 };
 
-const getGroupedExpensesForRange = (
+export const getGroupedExpensesForRange = (
   expenses: Expense[],
   from: Date,
   to: Date,
@@ -341,7 +342,7 @@ const getGroupedExpensesForRange = (
   return expensesByCategory;
 };
 
-const getExpensesByCategory = (
+export const getExpensesByCategory = (
   expenses: Expense[],
 ): { name: string; value: number }[] => {
   const categoryMap = expenses.reduce(
@@ -373,31 +374,43 @@ const getExpensesByCategory = (
   return expensesByCategory;
 };
 
-const getSummaryData = async (
+export const getSummaryData = async (
   expenses: Expense[],
   payments: Payment[],
   from: Date,
   to: Date,
 ) => {
-  // current period
-  const allPatients = await db.patient.findMany({
-    select: {
-      id: true,
-      createdAt: true,
-    },
-  });
+  // Helper function to calculate date range
+  const calculatePreviousPeriod = (start: Date, end: Date) => {
+    const diffDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+    const previousStart = new Date(start);
+    previousStart.setDate(start.getDate() - diffDays);
+    const previousEnd = new Date(end);
+    previousEnd.setDate(end.getDate() - diffDays);
+    return { previousFrom: previousStart, previousTo: previousEnd };
+  };
 
-  const allConfirmedAppointments = await db.appointment.findMany({
-    select: {
-      id: true,
-      startTime: true,
-      status: true,
-    },
-    where: {
-      status: "CONFIRMED",
-    },
-  });
+  // Fetching all patients and confirmed appointments
+  const [allPatients, allConfirmedAppointments] = await Promise.all([
+    db.patient.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+      },
+    }),
+    db.appointment.findMany({
+      select: {
+        id: true,
+        startTime: true,
+        status: true,
+      },
+      where: {
+        status: "CONFIRMED",
+      },
+    }),
+  ]);
 
+  // Calculating metrics for the current period
   const totalPatients = allPatients.filter((patient) =>
     isDateInRange(patient.createdAt, startOfDay(from), endOfDay(to)),
   ).length;
@@ -412,21 +425,17 @@ const getSummaryData = async (
       isDateInRange(expense.expenseDate, startOfDay(from), endOfDay(to)),
     )
     .reduce((acc, curr) => acc + curr.amount, 0);
+
   const totalRevenue = payments
     .filter((payment) =>
       isDateInRange(payment.paymentDate, startOfDay(from), endOfDay(to)),
     )
     .reduce((acc, curr) => acc + curr.amount, 0);
+
   const netIncome = totalRevenue - totalExpenses;
 
-  // previous period
-  const TotalDaysBetween = Math.floor(
-    isHowManyMonthsBetween(from, endOfDay(to)),
-  );
-  const previousFrom = new Date(from);
-  previousFrom.setMonth(previousFrom.getMonth() - TotalDaysBetween);
-  const previousTo = new Date(to);
-  previousTo.setMonth(previousTo.getMonth() - TotalDaysBetween);
+  // Calculating metrics for the previous period
+  const { previousFrom, previousTo } = calculatePreviousPeriod(from, to);
 
   const previousTotalPatients = allPatients.filter((patient) =>
     isDateInRange(patient.createdAt, previousFrom, previousTo),
@@ -451,22 +460,27 @@ const getSummaryData = async (
 
   const previousNetIncome = previousTotalRevenue - previousTotalExpenses;
 
+  // Calculating percentage changes
   const totalRevenuePercentage =
-    totalRevenue > 0
-      ? ((totalRevenue - previousTotalRevenue) / totalRevenue) * 100
+    previousTotalRevenue > 0
+      ? ((totalRevenue - previousTotalRevenue) / previousTotalRevenue) * 100
       : 0;
 
   const totalExpensesPercentage =
-    totalExpenses > 0
-      ? ((totalExpenses - previousTotalExpenses) / totalExpenses) * 100
+    previousTotalExpenses > 0
+      ? ((totalExpenses - previousTotalExpenses) / previousTotalExpenses) * 100
       : 0;
 
   const netIncomePercentage =
-    netIncome > 0 ? ((netIncome - previousNetIncome) / netIncome) * 100 : 0;
+    previousNetIncome > 0
+      ? ((netIncome - previousNetIncome) / previousNetIncome) * 100
+      : 0;
 
   const totalPatientsIncrease = totalPatients - previousTotalPatients;
   const totalAppointmentsIncrease =
     totalConfirmedAppointments - previousTotalConfirmedAppointments;
+
+  // Constructing the summary data
   const summaryData = {
     current: {
       totalExpenses,
@@ -493,6 +507,127 @@ const getSummaryData = async (
 
   return summaryData;
 };
+
+// const getSummaryData = async (
+//   expenses: Expense[],
+//   payments: Payment[],
+//   from: Date,
+//   to: Date,
+// ) => {
+//   // current period
+//   const allPatients = await db.patient.findMany({
+//     select: {
+//       id: true,
+//       createdAt: true,
+//     },
+//   });
+
+//   const allConfirmedAppointments = await db.appointment.findMany({
+//     select: {
+//       id: true,
+//       startTime: true,
+//       status: true,
+//     },
+//     where: {
+//       status: "CONFIRMED",
+//     },
+//   });
+
+//   const totalPatients = allPatients.filter((patient) =>
+//     isDateInRange(patient.createdAt, startOfDay(from), endOfDay(to)),
+//   ).length;
+
+//   const totalConfirmedAppointments = allConfirmedAppointments.filter(
+//     (appointment) =>
+//       isDateInRange(appointment.startTime, startOfDay(from), endOfDay(to)),
+//   ).length;
+
+//   const totalExpenses = expenses
+//     .filter((expense) =>
+//       isDateInRange(expense.expenseDate, startOfDay(from), endOfDay(to)),
+//     )
+//     .reduce((acc, curr) => acc + curr.amount, 0);
+//   const totalRevenue = payments
+//     .filter((payment) =>
+//       isDateInRange(payment.paymentDate, startOfDay(from), endOfDay(to)),
+//     )
+//     .reduce((acc, curr) => acc + curr.amount, 0);
+//   const netIncome = totalRevenue - totalExpenses;
+
+//   // previous period
+//   const TotalDaysBetween = Math.floor(
+//     isHowManyMonthsBetween(from, endOfDay(to)),
+//   );
+//   const previousFrom = new Date(from);
+//   previousFrom.setMonth(previousFrom.getMonth() - TotalDaysBetween);
+//   const previousTo = new Date(to);
+//   previousTo.setMonth(previousTo.getMonth() - TotalDaysBetween);
+
+//   const previousTotalPatients = allPatients.filter((patient) =>
+//     isDateInRange(patient.createdAt, previousFrom, previousTo),
+//   ).length;
+
+//   const previousTotalConfirmedAppointments = allConfirmedAppointments.filter(
+//     (appointment) =>
+//       isDateInRange(appointment.startTime, previousFrom, previousTo),
+//   ).length;
+
+//   const previousTotalExpenses = expenses
+//     .filter((expense) =>
+//       isDateInRange(expense.expenseDate, previousFrom, previousTo),
+//     )
+//     .reduce((acc, curr) => acc + curr.amount, 0);
+
+//   const previousTotalRevenue = payments
+//     .filter((payment) =>
+//       isDateInRange(payment.paymentDate, previousFrom, previousTo),
+//     )
+//     .reduce((acc, curr) => acc + curr.amount, 0);
+
+//   const previousNetIncome = previousTotalRevenue - previousTotalExpenses;
+
+//   const totalRevenuePercentage =
+//     totalRevenue > 0
+//       ? ((totalRevenue - previousTotalRevenue) / totalRevenue) * 100
+//       : 0;
+
+//   const totalExpensesPercentage =
+//     totalExpenses > 0
+//       ? ((totalExpenses - previousTotalExpenses) / totalExpenses) * 100
+//       : 0;
+
+//   const netIncomePercentage =
+//     netIncome > 0 ? ((netIncome - previousNetIncome) / netIncome) * 100 : 0;
+
+//   const totalPatientsIncrease = totalPatients - previousTotalPatients;
+//   const totalAppointmentsIncrease =
+//     totalConfirmedAppointments - previousTotalConfirmedAppointments;
+//   const summaryData = {
+//     current: {
+//       totalExpenses,
+//       totalRevenue,
+//       netIncome,
+//       totalPatients,
+//       totalConfirmedAppointments,
+//     },
+//     previous: {
+//       totalExpenses: previousTotalExpenses,
+//       totalRevenue: previousTotalRevenue,
+//       netIncome: previousNetIncome,
+//       totalPatients: previousTotalPatients,
+//       totalConfirmedAppointments: previousTotalConfirmedAppointments,
+//     },
+//     percentageChange: {
+//       totalExpenses: totalExpensesPercentage,
+//       totalRevenue: totalRevenuePercentage,
+//       netIncome: netIncomePercentage,
+//       totalPatients: totalPatientsIncrease,
+//       totalConfirmedAppointments: totalAppointmentsIncrease,
+//     },
+//   };
+
+//   return summaryData;
+// };
 
 /**
  * prisma schema:

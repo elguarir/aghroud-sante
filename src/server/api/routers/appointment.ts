@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { AppointmentSchema } from "@/lib/schemas/new-appointment";
 import { TRPCError } from "@trpc/server";
 import { endOfDay, startOfDay } from "date-fns";
 
 export const appointmentRouter = createTRPCRouter({
-  create: publicProcedure
+  create: protectedProcedure
     .input(AppointmentSchema)
     .mutation(async ({ ctx, input }) => {
       let appointment = await ctx.db.appointment.create({
@@ -31,7 +31,7 @@ export const appointmentRouter = createTRPCRouter({
 
       return appointment;
     }),
-  update: publicProcedure
+  update: protectedProcedure
     .input(z.object({ id: z.string(), data: AppointmentSchema }))
     .mutation(async ({ ctx, input }) => {
       let appointment = await ctx.db.appointment.update({
@@ -58,14 +58,14 @@ export const appointmentRouter = createTRPCRouter({
 
       return appointment;
     }),
-  get: publicProcedure
+  get: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.appointment.findUnique({
         where: { id: input.id },
       });
     }),
-  all: publicProcedure.query(async ({ ctx }) => {
+  all: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.appointment.findMany({
       select: {
         id: true,
@@ -109,7 +109,7 @@ export const appointmentRouter = createTRPCRouter({
       },
     });
   }),
-  allWithFilter: publicProcedure
+  allWithFilter: protectedProcedure
     .input(z.object({ date: z.date() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.appointment.findMany({
@@ -161,14 +161,14 @@ export const appointmentRouter = createTRPCRouter({
         },
       });
     }),
-  delete: publicProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.appointment.delete({
         where: { id: input.id },
       });
     }),
-  checkTherapistAvailability: publicProcedure
+  checkTherapistAvailability: protectedProcedure
     .input(
       z.object({
         therapistId: z.string().optional(),
@@ -192,7 +192,7 @@ export const appointmentRouter = createTRPCRouter({
         },
       });
     }),
-  checkTimeAvailability: publicProcedure
+  checkTimeAvailability: protectedProcedure
     .input(
       z.object({
         floor: z.number().optional(),

@@ -91,12 +91,12 @@ const AppointmentForm = ({
       return {
         startTime: new Date(appointment.startTime),
         endTime: new Date(appointment.endTime),
-        serviceId: appointment.serviceId,
-        therapistId: appointment.therapistId,
-        floor: appointment.floor,
+        serviceId: appointment.serviceId ?? undefined,
+        therapistId: appointment.therapistId ?? undefined,
+        floor: appointment.floor ?? undefined,
         patientId: appointment.patientId,
         status: appointment.status,
-        notes: appointment.notes,
+        notes: appointment.notes ?? undefined,
       };
     },
   });

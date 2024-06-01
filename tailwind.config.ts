@@ -25,7 +25,7 @@ module.exports = {
             inverted: colors.white,
           },
           background: {
-            muted: colors.neutral[50],
+            muted: colors.neutral[500],
             subtle: colors.neutral[100],
             DEFAULT: colors.white,
             emphasis: colors.neutral[700],
@@ -55,7 +55,7 @@ module.exports = {
             inverted: colors.blue[950],
           },
           background: {
-            muted: "#131A2B",
+            muted: colors.neutral[300],
             subtle: colors.neutral[800],
             DEFAULT: colors.neutral[900],
             emphasis: colors.neutral[300],

@@ -22,16 +22,16 @@ const ReportsPage = (props: Props) => {
       key: "finance",
       content: <FinanceReports dateRange={dateRange} />,
     },
-    {
-      title: "Rendez-vous",
-      key: "rendez-vous",
-      content: <div>Rendez-vous</div>,
-    },
-    {
-      title: "Patients",
-      key: "patients",
-      content: <PatientReports />,
-    },
+    // {
+    //   title: "Rendez-vous",
+    //   key: "rendez-vous",
+    //   content: <div>Rendez-vous</div>,
+    // },
+    // {
+    //   title: "Patients",
+    //   key: "patients",
+    //   content: <PatientReports />,
+    // },
   ];
 
   return (
