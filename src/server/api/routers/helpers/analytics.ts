@@ -247,13 +247,11 @@ export const getThisWeeksSummary = async () => {
   const start = startOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
   const end = endOfWeek(new Date().setHours(15), { weekStartsOn: 1 });
   const summaryData = getSummaryData(expenses, payments, start, end);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   return summaryData;
 };
 
-export const getThisWeeksRecentActivity = async () => {
-  const start = startOfWeek(new Date(), { weekStartsOn: 1 });
-  const end = endOfWeek(new Date(), { weekStartsOn: 1 });
-
+export const getWeekActivity = async (start: Date, end: Date) => {
   const [patients, appointments] = await Promise.all([
     db.patient.findMany({
       where: {
@@ -342,7 +340,23 @@ export const getThisWeeksRecentActivity = async () => {
     }),
   ]);
 
-  return { patients, appointments };
+  return {
+    patients: patients.map((p) => ({
+      id: p.id,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      phoneNumber: p.phoneNumber,
+      dateOfBirth: p.dateOfBirth,
+      email: p.email,
+      address: p.address,
+      insuranceProvider: p.insuranceProvider,
+      notes: p.notes,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
+      appointmentsCount: p._count.appointments,
+    })),
+    appointments,
+  };
 };
 
 /**

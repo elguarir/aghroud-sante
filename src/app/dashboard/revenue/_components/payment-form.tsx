@@ -120,7 +120,6 @@ const PaymentForm = ({
     );
   }
 
-  const router = useRouter();
   const isDisabled =
     createPayment.isPending ||
     isLoading ||

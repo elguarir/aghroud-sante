@@ -5,6 +5,9 @@ import axios from "axios";
 import { vanilla } from "@/trpc/react";
 import { extentions } from "./extentions";
 import { env } from "@/env";
+import { createParser } from "nuqs";
+import { format, parse } from "date-fns";
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -191,3 +194,18 @@ export async function Await<T>({
 
   return children(result);
 }
+
+export const parseAsDate = createParser({
+  parse(queryValue) {
+    const isValid = z
+      .date()
+      .safeParse(new Date(parse(queryValue, "MM-dd-yyyy", new Date()))).success;
+    if (!isValid) {
+      return null;
+    }
+    return new Date(parse(queryValue, "MM-dd-yyyy", new Date()).setHours(15));
+  },
+  serialize(value) {
+    return format(value, "MM-dd-yyyy");
+  },
+});
