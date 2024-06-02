@@ -29,24 +29,11 @@ import { EditIcon, EyeFilledIcon, TrashIcon } from "@/components/icons";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Chip } from "@nextui-org/chip";
 import { ArrowRightIcon, ClockIcon } from "@radix-ui/react-icons";
-import { format, isEqual, isSameDay, isWithinInterval } from "date-fns";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/modal";
+import { format, isSameDay, isWithinInterval } from "date-fns";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
-import { DateValue, RangeValue } from "@nextui-org/calendar";
-import {
-  getLocalTimeZone,
-  today,
-  endOfWeek,
-  startOfWeek,
-} from "@internationalized/date";
 import { AppointmentStatus } from "./appointments-data";
 import AppointmentForm from "./appointment-form";
 import { capitalize } from "@/lib/utils";
@@ -55,6 +42,9 @@ import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { DateRange, DateRangePicker } from "@/components/ui/date-picker";
 import { presets, getLastMonthsRange } from "@/lib/constants";
 import { fr } from "date-fns/locale";
+import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
+import { Therapist } from "@prisma/client";
+import { Avatar } from "@nextui-org/avatar";
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
   "therapist",
@@ -90,7 +80,8 @@ export default function AppointmentsTable({
   };
 
   const deleteAppointment = api.appointment.delete.useMutation();
-
+  const { data: therapists, isLoading: isLoadingTherapists } =
+    api.therapist.getAll.useQuery();
   // Filters
   const [statusFilters, setStatusFilters] = React.useState<Selection>(
     new Set([]),
@@ -98,8 +89,9 @@ export default function AppointmentsTable({
   const [dateFilter, setDateFilter] = useState<DateRange | undefined>({
     ...getLastMonthsRange(1),
   });
-
-  let [ManualDateFilter, setManualDateFilter] = React.useState(false);
+  const [therapistFilter, setTherapistFilter] = useState<string | undefined>(
+    undefined,
+  );
 
   const hasSearchFilter = Boolean(filterValue);
   const hasDateFilter =
@@ -107,7 +99,7 @@ export default function AppointmentsTable({
     dateFilter?.from !== undefined &&
     dateFilter?.to !== undefined;
   const hasStatusFilter = Boolean(Array.from(statusFilters).length > 0);
-
+  const hasTherapistFilter = Boolean(therapistFilter);
   // Columns, Rows per page, Sort
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
@@ -120,7 +112,6 @@ export default function AppointmentsTable({
   const [page, setPage] = React.useState(1);
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === "all") return columns;
-
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid),
     );
@@ -175,6 +166,12 @@ export default function AppointmentsTable({
           start: dateFilter.from!,
           end: dateFilter.to!,
         });
+      });
+    }
+
+    if (hasTherapistFilter) {
+      filteredAppointments = filteredAppointments.filter((appointment) => {
+        return appointment.therapist?.id === therapistFilter;
       });
     }
 
@@ -522,6 +519,7 @@ export default function AppointmentsTable({
     },
     [statusFilters],
   );
+
   const bottomContent = React.useMemo(() => {
     return (
       <div className="flex flex-wrap items-center justify-between px-2 py-2">
@@ -637,7 +635,6 @@ export default function AppointmentsTable({
                       </div>
                     </PopoverContent>
                   </Popover>
-
                   {/* Date Filter */}
                   <div className="w-fit">
                     <DateRangePicker
@@ -646,7 +643,14 @@ export default function AppointmentsTable({
                       align="end"
                       onChange={(range) => {
                         setPage(1);
-                        setDateFilter(range);
+                        setDateFilter({
+                          from: range?.from
+                            ? new Date(range?.from?.setHours(15))
+                            : range?.from,
+                          to: range?.to
+                            ? new Date(range?.to?.setHours(15))
+                            : range?.to,
+                        });
                       }}
                       className="w-64 min-w-fit rounded-large"
                       locale={fr}
@@ -659,6 +663,78 @@ export default function AppointmentsTable({
                       }}
                       placeholder="Choisir une période"
                     />
+                  </div>
+                  {/* Therapist Filter */}
+                  <div className="w-fit">
+                    <Select
+                      items={therapists ?? []}
+                      isLoading={isLoadingTherapists}
+                      placeholder="Sélectionnez un médecin"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      value={therapistFilter}
+                      onChange={(e) => {
+                        if (e.target.value === "") {
+                          setPage(1);
+                          setTherapistFilter(undefined);
+                        } else {
+                          setPage(1);
+                          setTherapistFilter(e.target.value);
+                        }
+                      }}
+                      classNames={{
+                        mainWrapper: "w-full",
+                        trigger:
+                          "data-[open=true]:border-primary w-fit min-w-[220px] data-[focus=true]:border-primary !transition-all !duration-200",
+                      }}
+                      renderValue={(items: SelectedItems<Therapist>) => {
+                        return items.map((item) => (
+                          <div
+                            key={item.key}
+                            className="flex items-center gap-2"
+                          >
+                            <Avatar
+                              alt={item.data?.name}
+                              className="flex-shrink-0 border"
+                              size="sm"
+                              src={item.data?.image}
+                            />
+                            <div className="flex flex-col">
+                              <span>{item.data?.name}</span>
+                              <span className="text-tiny text-default-500">
+                                ({item.data?.speciality})
+                              </span>
+                            </div>
+                          </div>
+                        ));
+                      }}
+                    >
+                      {(therapist) => (
+                        <SelectItem
+                          variant="faded"
+                          key={therapist.id}
+                          textValue={therapist.name}
+                          value={therapist.id}
+                        >
+                          <div className="flex w-fit flex-nowrap items-center gap-2">
+                            <Avatar
+                              alt={therapist.name}
+                              className="flex-shrink-0"
+                              size="sm"
+                              src={therapist.image}
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-nowrap text-small">
+                                {therapist.name}
+                              </span>
+                              <span className="text-tiny text-default-400">
+                                {therapist.speciality}
+                              </span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -717,8 +793,9 @@ export default function AppointmentsTable({
     filterValue,
     statusFilters,
     visibleColumns,
+    therapists,
+    therapistFilter,
     dateFilter,
-    ManualDateFilter,
     onSearchChange,
     onRowsPerPageChange,
     appointments.length,
