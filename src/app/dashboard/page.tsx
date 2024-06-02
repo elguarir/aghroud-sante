@@ -21,8 +21,8 @@ import {
 } from "@/components/icons";
 import { Suspense } from "react";
 import {
-  getThisWeeksSummary,
-  getWeekActivity,
+  getActivity,
+  getSummary,
 } from "@/server/api/routers/helpers/analytics";
 import { Card } from "@tremor/react";
 import * as Activity from "./_components/recent-patient-activity";
@@ -41,6 +41,7 @@ import { RouterOutput } from "@/server/api/root";
 import { AppointmentStatus } from "./appointments/_components/appointments-data";
 import WeekNavigation from "./_components/week-navigation";
 import { parseAsIsoDateTime } from "nuqs/server";
+import { Spinner } from "@nextui-org/spinner";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -69,8 +70,8 @@ const DashboardPage = async ({ searchParams }: Props) => {
       .withOptions({ clearOnDefault: true })
       .parse(to) || defaultEnd;
 
-  const summaryData = getThisWeeksSummary();
-  const { patients, appointments } = await getWeekActivity(start, end);
+  const summaryData = getSummary(start, end);
+  const activity = getActivity(start, end);
 
   return (
     <Wrapper>
@@ -190,113 +191,145 @@ const DashboardPage = async ({ searchParams }: Props) => {
               </div>
               <div className="grid h-full w-full gap-6 lg:grid-cols-2">
                 <Card className="rounded-xl p-5">
-                  <Activity.Root>
-                    <Activity.Header
-                      numberOfRecords={{
-                        appointments: appointments.length,
-                        patients: patients.length,
-                      }}
-                    />
-                    <div className="flex min-h-[15.5rem] flex-1 flex-col">
-                      <Activity.Body value="rendez-vous">
-                        <div className="flex h-full w-full items-center justify-center">
-                          <ScrollShadow
-                            className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
-                            hideScrollBar
-                          >
-                            {appointments.length === 0 ? (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                                  Aucun rendez-vous cette semaine
-                                </p>
-                              </div>
-                            ) : (
-                              <TableRoot className="custom-scrollbar h-full max-w-full">
-                                <Table>
-                                  <TableHead>
-                                    <TableRow>
-                                      <TableHeaderCell>Patient</TableHeaderCell>
-                                      <TableHeaderCell>Temps</TableHeaderCell>
-                                      <TableHeaderCell>Étage</TableHeaderCell>
-                                      <TableHeaderCell>Statut</TableHeaderCell>
-                                      <TableHeaderCell>Action</TableHeaderCell>
-                                    </TableRow>
-                                  </TableHead>
-                                  <TableBody>
-                                    {appointments
-                                      .sort(
-                                        (a, b) =>
-                                          b.startTime.getTime() -
-                                          a.startTime.getTime(),
-                                      )
-                                      .map((appointment) => {
-                                        return (
-                                          <AppointmentRecord
-                                            key={appointment.id}
-                                            {...appointment}
-                                          />
-                                        );
-                                      })}
-                                  </TableBody>
-                                </Table>
-                              </TableRoot>
-                            )}
-                          </ScrollShadow>
-                        </div>
-                      </Activity.Body>
-
-                      <Activity.Body value="patients">
-                        <div className="flex h-full w-full items-center justify-center">
-                          <ScrollShadow
-                            className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
-                            hideScrollBar
-                          >
-                            {patients.length === 0 ? (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                                  Aucun patient cette semaine
-                                </p>
-                              </div>
-                            ) : (
-                              <Table>
-                                <TableHead>
-                                  <TableRow>
-                                    <TableHeaderCell>Patient</TableHeaderCell>
-                                    <TableHeaderCell>
-                                      Date naissance
-                                    </TableHeaderCell>
-                                    <TableHeaderCell>Télé</TableHeaderCell>
-                                    <TableHeaderCell>Insrit le</TableHeaderCell>
-                                    <TableHeaderCell>Action</TableHeaderCell>
-                                  </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                  {patients
-                                    .sort(
-                                      (a, b) =>
-                                        b.createdAt.getTime() -
-                                        a.createdAt.getTime(),
-                                    )
-                                    .map((patient) => {
-                                      return (
-                                        <PatientRecord
-                                          {...patient}
-                                          key={patient.id}
-                                        />
-                                      );
-                                    })}
-                                </TableBody>
-                              </Table>
-                            )}
-                            <TableRoot className="custom-scrollbar h-full max-w-full"></TableRoot>
-                          </ScrollShadow>
-                        </div>
-                      </Activity.Body>
-                    </div>
-                    <div className="mt-auto">
-                      <Activity.Footer />
-                    </div>
-                  </Activity.Root>
+                  <Suspense
+                    key={start.toString() + end.toString()}
+                    fallback={
+                      <div className=" flex h-full min-h-72 w-full items-center justify-center">
+                        <Spinner size="lg" color="current" />
+                      </div>
+                    }
+                  >
+                    <Await promise={activity}>
+                      {({ patients, appointments }) => (
+                        <>
+                          <Activity.Root>
+                            <Activity.Header
+                              numberOfRecords={{
+                                appointments: appointments.length,
+                                patients: patients.length,
+                              }}
+                            />
+                            <div className="flex min-h-[15.5rem] flex-1 flex-col">
+                              <Activity.Body value="rendez-vous">
+                                <div className="flex h-full w-full items-center justify-center">
+                                  <ScrollShadow
+                                    className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
+                                    hideScrollBar
+                                  >
+                                    {appointments.length === 0 ? (
+                                      <div className="flex h-full w-full items-center justify-center">
+                                        <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                                          Aucun rendez-vous cette semaine
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      <TableRoot className="custom-scrollbar h-full max-w-full">
+                                        <Table>
+                                          <TableHead>
+                                            <TableRow>
+                                              <TableHeaderCell>
+                                                Patient
+                                              </TableHeaderCell>
+                                              <TableHeaderCell>
+                                                Temps
+                                              </TableHeaderCell>
+                                              <TableHeaderCell>
+                                                Étage
+                                              </TableHeaderCell>
+                                              <TableHeaderCell>
+                                                Statut
+                                              </TableHeaderCell>
+                                              <TableHeaderCell>
+                                                Action
+                                              </TableHeaderCell>
+                                            </TableRow>
+                                          </TableHead>
+                                          <TableBody>
+                                            {appointments
+                                              .sort(
+                                                (a, b) =>
+                                                  b.startTime.getTime() -
+                                                  a.startTime.getTime(),
+                                              )
+                                              .map((appointment) => {
+                                                return (
+                                                  <AppointmentRecord
+                                                    key={appointment.id}
+                                                    {...appointment}
+                                                  />
+                                                );
+                                              })}
+                                          </TableBody>
+                                        </Table>
+                                      </TableRoot>
+                                    )}
+                                  </ScrollShadow>
+                                </div>
+                              </Activity.Body>
+                              <Activity.Body value="patients">
+                                <div className="flex h-full w-full items-center justify-center">
+                                  <ScrollShadow
+                                    className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
+                                    hideScrollBar
+                                  >
+                                    {patients.length === 0 ? (
+                                      <div className="flex h-full w-full items-center justify-center">
+                                        <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                                          Aucun patient cette semaine
+                                        </p>
+                                      </div>
+                                    ) : (
+                                      <Table>
+                                        <TableHead>
+                                          <TableRow>
+                                            <TableHeaderCell>
+                                              Patient
+                                            </TableHeaderCell>
+                                            <TableHeaderCell>
+                                              Date naissance
+                                            </TableHeaderCell>
+                                            <TableHeaderCell>
+                                              Télé
+                                            </TableHeaderCell>
+                                            <TableHeaderCell>
+                                              Insrit le
+                                            </TableHeaderCell>
+                                            <TableHeaderCell>
+                                              Action
+                                            </TableHeaderCell>
+                                          </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                          {patients
+                                            .sort(
+                                              (a, b) =>
+                                                b.createdAt.getTime() -
+                                                a.createdAt.getTime(),
+                                            )
+                                            .map((patient) => {
+                                              return (
+                                                <PatientRecord
+                                                  {...patient}
+                                                  key={patient.id}
+                                                />
+                                              );
+                                            })}
+                                        </TableBody>
+                                      </Table>
+                                    )}
+                                    <TableRoot className="custom-scrollbar h-full max-w-full"></TableRoot>
+                                  </ScrollShadow>
+                                </div>
+                              </Activity.Body>
+                            </div>
+                            <div className="mt-auto">
+                              <Activity.Footer />
+                            </div>
+                          </Activity.Root>
+                        </>
+                      )}
+                    </Await>
+                  </Suspense>
                 </Card>
                 <Card className="rounded-xl p-5">
                   <div className="grid w-full gap-4">
