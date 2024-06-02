@@ -548,145 +548,149 @@ export default function AppointmentsTable({
       <>
         <div className="flex w-full flex-col gap-4">
           {/* search bar, filters */}
-          <div className="custom-scrollbar flex w-full items-end justify-between gap-6 overflow-x-auto py-2">
-            <div className="flex w-full min-w-fit items-center gap-2">
-              {/* search bar */}
-              <Input
-                isClearable
-                variant="bordered"
-                className="w-full min-w-[300px] max-w-[350px]"
-                classNames={{
-                  inputWrapper:
-                    "group-data-[focus=true]:border-primary !transition-all !duration-200",
-                }}
-                placeholder="Rechercher un rendez-vous"
-                startContent={
-                  <SearchIcon className="h-5 w-5 text-default-500" />
-                }
-                value={filterValue}
-                onClear={() => onClear()}
-                onValueChange={onSearchChange}
-              />
-              {/* filters */}
-              <div className="flex min-w-fit items-center gap-2">
-                <Popover
-                  triggerScaleOnOpen={false}
-                  placement="bottom-start"
-                  offset={10}
-                >
-                  <PopoverTrigger>
-                    <Button
-                      startContent={
-                        <CircleFadingPlus className="h-4 w-4 text-default-500" />
-                      }
-                      endContent={<RenderFilters filter="status" />}
-                      color="default"
-                      variant="bordered"
-                    >
-                      Statu
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full min-w-[200px] rounded-small p-1 pb-1.5">
-                    <div className="flex w-full flex-col gap-2">
-                      <Listbox
-                        variant="flat"
-                        selectionMode="multiple"
-                        selectedKeys={statusFilters}
-                        onSelectionChange={(keys) => {
-                          setPage(1);
-                          setStatusFilters(keys);
-                        }}
-                      >
-                        {AppointmentStatus.map((method) => {
-                          let color = `bg-${method.color}`;
-                          return (
-                            <ListboxItem
-                              key={method.value}
-                              startContent={
-                                <div
-                                  className={`size-1.5 rounded-full ${color}`}
-                                ></div>
-                              }
-                            >
-                              {method.label}
-                            </ListboxItem>
-                          );
-                        })}
-                      </Listbox>
-                      {hasStatusFilter && (
-                        <>
-                          <Divider className="mx-auto w-[90%]" />
-                          <div className="flex w-full justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="light"
-                              color="default"
-                              radius="sm"
-                              fullWidth
-                              onPress={() => {
-                                setPage(1);
-                                setStatusFilters(new Set([]));
-                              }}
-                            >
-                              Réinitialiser
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Date Filter */}
-                <DateRangePicker
-                  presets={presets}
-                  value={dateFilter}
-                  align="end"
-                  onChange={(range) => {
-                    setPage(1);
-                    setDateFilter(range);
+          <div className="custom-scrollbar flex h-fit w-full items-end justify-between gap-6 overflow-x-auto py-2">
+            <div className="flex w-full items-center justify-between gap-6">
+              <div className="flex w-full min-w-fit items-center gap-2">
+                {/* search bar */}
+                <Input
+                  isClearable
+                  variant="bordered"
+                  className="w-full min-w-[300px] max-w-[350px]"
+                  classNames={{
+                    inputWrapper:
+                      "group-data-[focus=true]:border-primary !transition-all !duration-200",
                   }}
-                  className="w-64 min-w-fit rounded-large"
-                  locale={fr}
-                  translations={{
-                    range: "Période",
-                    apply: "Appliquer",
-                    cancel: "Annuler",
-                    start: "Début",
-                    end: "Fin",
-                  }}
-                  placeholder="Choisir une période"
+                  placeholder="Rechercher un rendez-vous"
+                  startContent={
+                    <SearchIcon className="h-5 w-5 text-default-500" />
+                  }
+                  value={filterValue}
+                  onClear={() => onClear()}
+                  onValueChange={onSearchChange}
                 />
-              </div>
-            </div>
-            {/* columns */}
-            <div className="flex gap-3">
-              <Dropdown>
-                <DropdownTrigger className="hidden sm:flex">
-                  <Button
-                    endContent={<ChevronDownIcon className="h-4 w-4" />}
-                    variant="flat"
+                {/* filters */}
+                <div className="flex min-w-fit items-center gap-2">
+                  <Popover
+                    triggerScaleOnOpen={false}
+                    placement="bottom-start"
+                    offset={10}
                   >
-                    Colonnes
-                  </Button>
-                </DropdownTrigger>
-                <DropdownMenu
-                  color="primary"
-                  disallowEmptySelection
-                  aria-label="Table Columns"
-                  closeOnSelect={false}
-                  selectedKeys={visibleColumns}
-                  selectionMode="multiple"
-                  onSelectionChange={setVisibleColumns}
-                >
-                  {columns.map((column) => (
-                    <DropdownItem key={column.uid} className="capitalize">
-                      {capitalize(column.name)}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-              {/* <AddNewAppointmentModal /> */}
+                    <PopoverTrigger>
+                      <Button
+                        startContent={
+                          <CircleFadingPlus className="h-4 w-4 flex-shrink-0 text-default-500" />
+                        }
+                        endContent={<RenderFilters filter="status" />}
+                        color="default"
+                        variant="bordered"
+                      >
+                        Statut
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full min-w-[200px] rounded-small p-1 pb-1.5">
+                      <div className="flex w-full flex-col gap-2">
+                        <Listbox
+                          variant="flat"
+                          selectionMode="multiple"
+                          selectedKeys={statusFilters}
+                          onSelectionChange={(keys) => {
+                            setPage(1);
+                            setStatusFilters(keys);
+                          }}
+                        >
+                          {AppointmentStatus.map((method) => {
+                            let color = `bg-${method.color}`;
+                            return (
+                              <ListboxItem
+                                key={method.value}
+                                startContent={
+                                  <div
+                                    className={`size-1.5 rounded-full ${color}`}
+                                  ></div>
+                                }
+                              >
+                                {method.label}
+                              </ListboxItem>
+                            );
+                          })}
+                        </Listbox>
+                        {hasStatusFilter && (
+                          <>
+                            <Divider className="mx-auto w-[90%]" />
+                            <div className="flex w-full justify-end gap-2">
+                              <Button
+                                size="sm"
+                                variant="light"
+                                color="default"
+                                radius="sm"
+                                fullWidth
+                                onPress={() => {
+                                  setPage(1);
+                                  setStatusFilters(new Set([]));
+                                }}
+                              >
+                                Réinitialiser
+                              </Button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Date Filter */}
+                  <div className="w-fit">
+                    <DateRangePicker
+                      presets={presets}
+                      value={dateFilter}
+                      align="end"
+                      onChange={(range) => {
+                        setPage(1);
+                        setDateFilter(range);
+                      }}
+                      className="w-64 min-w-fit rounded-large"
+                      locale={fr}
+                      translations={{
+                        range: "Période",
+                        apply: "Appliquer",
+                        cancel: "Annuler",
+                        start: "Début",
+                        end: "Fin",
+                      }}
+                      placeholder="Choisir une période"
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* columns */}
+              <div className="flex gap-3">
+                <Dropdown>
+                  <DropdownTrigger className="hidden sm:flex">
+                    <Button
+                      endContent={<ChevronDownIcon className="h-4 w-4" />}
+                      variant="flat"
+                    >
+                      Colonnes
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    color="primary"
+                    disallowEmptySelection
+                    aria-label="Table Columns"
+                    closeOnSelect={false}
+                    selectedKeys={visibleColumns}
+                    selectionMode="multiple"
+                    onSelectionChange={setVisibleColumns}
+                  >
+                    {columns.map((column) => (
+                      <DropdownItem key={column.uid} className="capitalize">
+                        {capitalize(column.name)}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+                {/* <AddNewAppointmentModal /> */}
+              </div>
             </div>
           </div>
           {/* lignes oer oage */}
