@@ -30,7 +30,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Chip } from "@nextui-org/chip";
 import { ArrowRightIcon, ClockIcon } from "@radix-ui/react-icons";
 import { format, isSameDay, isWithinInterval } from "date-fns";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/modal";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
@@ -45,6 +51,7 @@ import { fr } from "date-fns/locale";
 import { Select, SelectItem, SelectedItems } from "@nextui-org/select";
 import { Therapist } from "@prisma/client";
 import { Avatar } from "@nextui-org/avatar";
+import { RouterOutput } from "@/server/api/root";
 const INITIAL_VISIBLE_COLUMNS = [
   "patient",
   "therapist",
@@ -68,20 +75,28 @@ export default function AppointmentsTable({
   );
 
   // Handling modal actions
-  const [showActionModal, setShowActionModal] = useState(false);
-  const [actionToPerform, setActionToPerform] = useState<{
-    action: "update" | "delete";
-    id: string;
-  } | null>(null);
-
-  const clearAction = () => {
-    setShowActionModal(false);
-    setActionToPerform(null);
-  };
+  const [appointmentToModify, setAppointmentToModify] = React.useState<
+    string | null
+  >(null);
+  const [appointmentToDelete, setAppointmentToDelete] = React.useState<
+    string | null
+  >(null);
+  const {
+    isOpen: isModifyModalOpen,
+    onOpen: onModifyOpen,
+    onOpenChange: onModifyOpenChange,
+  } = useDisclosure();
+  const {
+    isOpen: isDeleteModalOpen,
+    onOpen: onDeleteOpen,
+    onOpenChange: onDeleteOpenChange,
+  } = useDisclosure();
 
   const deleteAppointment = api.appointment.delete.useMutation();
   const { data: therapists, isLoading: isLoadingTherapists } =
     api.therapist.getAll.useQuery();
+  const { data: patients, isLoading: isLoadingPatients } =
+    api.patient.getAll.useQuery();
   // Filters
   const [statusFilters, setStatusFilters] = React.useState<Selection>(
     new Set([]),
@@ -93,13 +108,19 @@ export default function AppointmentsTable({
     undefined,
   );
 
+  const [patientFilter, setPatientFilter] = useState<number | undefined>(
+    undefined,
+  );
+
   const hasSearchFilter = Boolean(filterValue);
   const hasDateFilter =
     dateFilter &&
     dateFilter?.from !== undefined &&
     dateFilter?.to !== undefined;
   const hasStatusFilter = Boolean(Array.from(statusFilters).length > 0);
-  const hasTherapistFilter = Boolean(therapistFilter);
+  const hasTherapistFilter = Boolean(therapistFilter !== undefined);
+  const hasPatientFilter = Boolean(patientFilter !== undefined);
+
   // Columns, Rows per page, Sort
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(
     new Set(INITIAL_VISIBLE_COLUMNS),
@@ -161,12 +182,18 @@ export default function AppointmentsTable({
     }
 
     if (hasDateFilter) {
-      filteredAppointments = filteredAppointments.filter((appointment) => {
-        return isWithinInterval(appointment.startTime, {
-          start: dateFilter.from!,
-          end: dateFilter.to!,
+      if (isSameDay(dateFilter.from!, dateFilter.to!)) {
+        filteredAppointments = filteredAppointments.filter((appointment) => {
+          return isSameDay(appointment.startTime, dateFilter.from!);
         });
-      });
+      } else {
+        filteredAppointments = filteredAppointments.filter((appointment) => {
+          return isWithinInterval(appointment.startTime, {
+            start: dateFilter.from!,
+            end: dateFilter.to!,
+          });
+        });
+      }
     }
 
     if (hasTherapistFilter) {
@@ -175,8 +202,21 @@ export default function AppointmentsTable({
       });
     }
 
+    if (hasPatientFilter) {
+      filteredAppointments = filteredAppointments.filter((appointment) => {
+        return appointment.patient?.id === patientFilter;
+      });
+    }
+
     return filteredAppointments;
-  }, [appointments, filterValue, statusFilters, dateFilter]);
+  }, [
+    appointments,
+    filterValue,
+    statusFilters,
+    dateFilter,
+    therapistFilter,
+    patientFilter,
+  ]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -256,7 +296,7 @@ export default function AppointmentsTable({
                     </p>
                   }
                 >
-                  {appointment.patient?.email}
+                  {appointment.patient?.phoneNumber ?? null}
                 </User>
               ) : (
                 <div className="py-2">
@@ -433,29 +473,18 @@ export default function AppointmentsTable({
                     <DropdownItem
                       startContent={<EditIcon className="h-4 w-4" />}
                       onPress={() => {
-                        setActionToPerform({
-                          action: "update",
-                          id: appointment.id,
-                        });
-                        setShowActionModal(true);
+                        setAppointmentToModify(appointment.id);
+                        onModifyOpenChange();
                       }}
                     >
                       Modifier
                     </DropdownItem>
-                    <DropdownItem
-                      startContent={<ClockIcon className="h-4 w-4" />}
-                      onPress={() => {}}
-                    >
-                      Status
-                    </DropdownItem>
+
                     <DropdownItem
                       color="danger"
                       onPress={() => {
-                        setActionToPerform({
-                          action: "delete",
-                          id: appointment.id,
-                        });
-                        setShowActionModal(true);
+                        setAppointmentToDelete(appointment.id);
+                        onDeleteOpenChange();
                       }}
                       startContent={<TrashIcon className="h-4 w-4" />}
                     >
@@ -668,6 +697,73 @@ export default function AppointmentsTable({
                       placeholder="Choisir une période"
                     />
                   </div>
+                  {/* Patients Filter */}
+                  <div className="w-fit">
+                    <Select
+                      items={patients ?? []}
+                      isLoading={isLoadingPatients}
+                      placeholder="Sélectionnez un patient"
+                      labelPlacement="outside"
+                      variant="bordered"
+                      value={patientFilter}
+                      onChange={(e) => {
+                        if (e.target.value === "") {
+                          setPage(1);
+                          setPatientFilter(undefined);
+                        } else {
+                          setPage(1);
+                          setPatientFilter(parseInt(e.target.value));
+                        }
+                      }}
+                      classNames={{
+                        mainWrapper: "w-full",
+                        trigger:
+                          "data-[open=true]:border-primary w-fit min-w-[220px] data-[focus=true]:border-primary !transition-all !duration-200",
+                      }}
+                      renderValue={(
+                        items: SelectedItems<
+                          RouterOutput["patient"]["getAll"][number]
+                        >,
+                      ) => {
+                        return items.map((item) => (
+                          <div
+                            key={item.key}
+                            className="flex items-center gap-2"
+                          >
+                            <div className="flex flex-col">
+                              <span>
+                                {item.data?.firstName} {item.data?.lastName}
+                              </span>
+                              <span className="text-tiny text-default-500">
+                                ({item.data?.phoneNumber})
+                              </span>
+                            </div>
+                          </div>
+                        ));
+                      }}
+                    >
+                      {(patient) => (
+                        <SelectItem
+                          variant="faded"
+                          key={patient.id}
+                          textValue={patient.firstName + " " + patient.lastName}
+                          value={patient.id}
+                        >
+                          <div className="flex w-fit flex-nowrap items-center gap-2">
+                            <div className="flex flex-col">
+                              <span className="text-nowrap text-small">
+                                {patient.firstName} {patient.lastName}
+                              </span>
+                              <span className="text-tiny text-default-400">
+                                {patient.phoneNumber}
+                              </span>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      )}
+                    </Select>
+                  </div>
+
                   {/* Therapist Filter */}
                   <div className="w-fit">
                     <Select
@@ -769,7 +865,6 @@ export default function AppointmentsTable({
                     ))}
                   </DropdownMenu>
                 </Dropdown>
-                {/* <AddNewAppointmentModal /> */}
               </div>
             </div>
           </div>
@@ -806,128 +901,125 @@ export default function AppointmentsTable({
     hasSearchFilter,
   ]);
 
-  let RenderModals = () => {
-    let modalsCopy = {
-      update: {
-        title: "Modifier le rendez-vous",
-        description: "Modifiez les informations du rendez-vous ci-dessous.",
-      },
-      delete: {
-        title: "Supprimer le rendez-vous",
-        description: "Êtes-vous sûr de vouloir supprimer ce rendez-vous ?",
-      },
-    };
-    if (!actionToPerform || !showActionModal) return null;
+  // let RenderModals = () => {
+  //   let modalsCopy = {
+  //     update: {
+  //       title: "Modifier le rendez-vous",
+  //       description: "Modifiez les informations du rendez-vous ci-dessous.",
+  //     },
+  //     delete: {
+  //       title: "Supprimer le rendez-vous",
+  //       description: "Êtes-vous sûr de vouloir supprimer ce rendez-vous ?",
+  //     },
+  //   };
 
-    if (actionToPerform.action === "update") {
-      return (
-        <Modal
-          isOpen={showActionModal}
-          onClose={() => clearAction()}
-          placement="center"
-          backdrop="blur"
-          size="lg"
-          classNames={{
-            base: "md:max-h-[85dvh]",
-            wrapper: "overflow-hidden",
-          }}
-        >
-          <ModalContent>
-            <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-              <div className="rounded-md">
-                <ModalHeader className="flex flex-col">
-                  {modalsCopy.delete.title}
-                  <p className="text-sm font-[450] text-default-500">
-                    {modalsCopy.delete.description}
-                  </p>
-                </ModalHeader>
-                <ModalBody>
-                  <AppointmentForm
-                    appointmentId={actionToPerform.id}
-                    mode="edit"
-                    onSuccess={() => {
-                      clearAction();
-                      router.refresh();
-                    }}
-                    onCancel={() => {
-                      clearAction();
-                    }}
-                  />
-                </ModalBody>
-              </div>
-            </div>
-          </ModalContent>
-        </Modal>
-      );
-    }
-
-    if (actionToPerform.action === "delete") {
-      return (
-        <Modal
-          isOpen={showActionModal}
-          onClose={() => clearAction()}
-          placement="center"
-          backdrop="blur"
-          size="lg"
-          classNames={{
-            base: "md:max-h-[85dvh]",
-            wrapper: "overflow-hidden",
-          }}
-        >
-          <ModalContent>
-            <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
-              <div className="rounded-md">
-                <ModalHeader className="flex flex-col">
-                  {modalsCopy.delete.title}
-                  <p className="text-sm font-[450] text-default-500">
-                    {modalsCopy.delete.description}
-                  </p>
-                </ModalHeader>
-                <ModalBody className="px-4">
-                  <div className="flex w-full items-center justify-end gap-2 pt-3">
-                    <Button
-                      color="default"
-                      variant="light"
-                      onPress={() => {
-                        clearAction();
-                      }}
-                    >
-                      Annuler
-                    </Button>
-                    <Button
-                      color="secondary"
-                      onPress={() => {
-                        deleteAppointment.mutate(
-                          {
-                            id: actionToPerform.id,
-                          },
-                          {
-                            onSuccess: () => {
-                              clearAction();
-                              router.refresh();
-                              toast.success("Rendez-vous supprimé avec succès");
-                            },
-                            onError: (error) => {
-                              toast.error("Erreur lors de la suppression");
-                            },
-                          },
-                        );
-                      }}
-                      isLoading={deleteAppointment.isPending}
-                    >
-                      {deleteAppointment.isPending
-                        ? "Suppression..."
-                        : "Supprimer"}
-                    </Button>
-                  </div>
-                </ModalBody>
-              </div>
-            </div>
-          </ModalContent>
-        </Modal>
-      );
-    }
-  };
+  //   if (!actionToPerform || !showActionModal) return null;
+  //   if (actionToPerform.action === "delete") {
+  //     return (
+  //       <Modal
+  //         isOpen={showActionModal}
+  //         onClose={() => clearAction()}
+  //         placement="center"
+  //         backdrop="blur"
+  //         size="lg"
+  //         classNames={{
+  //           base: "md:max-h-[85dvh]",
+  //           wrapper: "overflow-hidden",
+  //         }}
+  //       >
+  //         <ModalContent>
+  //           <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+  //             <div className="rounded-md">
+  //               <ModalHeader className="flex flex-col">
+  //                 {modalsCopy.delete.title}
+  //                 <p className="text-sm font-[450] text-default-500">
+  //                   {modalsCopy.delete.description}
+  //                 </p>
+  //               </ModalHeader>
+  //               <ModalBody className="px-4">
+  //                 <div className="flex w-full items-center justify-end gap-2 pt-3">
+  //                   <Button
+  //                     color="default"
+  //                     variant="light"
+  //                     onPress={() => {
+  //                       clearAction();
+  //                     }}
+  //                   >
+  //                     Annuler
+  //                   </Button>
+  //                   <Button
+  //                     color="secondary"
+  //                     onPress={() => {
+  //                       deleteAppointment.mutate(
+  //                         {
+  //                           id: actionToPerform.id,
+  //                         },
+  //                         {
+  //                           onSuccess: () => {
+  //                             clearAction();
+  //                             router.refresh();
+  //                             toast.success("Rendez-vous supprimé avec succès");
+  //                           },
+  //                           onError: (error) => {
+  //                             toast.error("Erreur lors de la suppression");
+  //                           },
+  //                         },
+  //                       );
+  //                     }}
+  //                     isLoading={deleteAppointment.isPending}
+  //                   >
+  //                     {deleteAppointment.isPending
+  //                       ? "Suppression..."
+  //                       : "Supprimer"}
+  //                   </Button>
+  //                 </div>
+  //               </ModalBody>
+  //             </div>
+  //           </div>
+  //         </ModalContent>
+  //       </Modal>
+  //     );
+  //   }
+  //   return (
+  //     <Modal
+  //       isOpen={showActionModal}
+  //       onClose={() => clearAction()}
+  //       placement="center"
+  //       backdrop="blur"
+  //       size="lg"
+  //       classNames={{
+  //         base: "md:max-h-[85dvh]",
+  //         wrapper: "overflow-hidden",
+  //       }}
+  //     >
+  //       <ModalContent>
+  //         <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+  //           <div className="rounded-md">
+  //             <ModalHeader className="flex flex-col">
+  //               {modalsCopy.delete.title}
+  //               <p className="text-sm font-[450] text-default-500">
+  //                 {modalsCopy.delete.description}
+  //               </p>
+  //             </ModalHeader>
+  //             <ModalBody>
+  //               <AppointmentForm
+  //                 appointmentId={actionToPerform.id}
+  //                 mode="edit"
+  //                 onSuccess={() => {
+  //                   clearAction();
+  //                   router.refresh();
+  //                 }}
+  //                 onCancel={() => {
+  //                   clearAction();
+  //                 }}
+  //               />
+  //             </ModalBody>
+  //           </div>
+  //         </div>
+  //       </ModalContent>
+  //     </Modal>
+  //   );
+  // };
 
   return (
     <>
@@ -978,7 +1070,132 @@ export default function AppointmentsTable({
           </TableBody>
         </Table>
       </div>
-      <RenderModals />
+      {appointmentToModify && (
+        <>
+          <Modal
+            shouldBlockScroll
+            isOpen={isModifyModalOpen}
+            onOpenChange={onModifyOpen}
+            placement="center"
+            backdrop="blur"
+            size="lg"
+            classNames={{
+              base: "md:max-h-[85dvh]",
+              wrapper: "overflow-hidden",
+            }}
+            onClose={() => {
+              setAppointmentToModify(null);
+            }}
+          >
+            <ModalContent>
+              {(onClose) => (
+                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                  <div className="rounded-md">
+                    <ModalHeader className="flex flex-col gap-1">
+                      Modifier le rendez-vous
+                      <p className="text-sm font-[450] text-default-500">
+                        Modifier les informations du rendez-vous en remplissant
+                        le formulaire ci-dessous.
+                      </p>
+                    </ModalHeader>
+                    <ModalBody>
+                      <AppointmentForm
+                        mode="edit"
+                        appointmentId={appointmentToModify}
+                        onSuccess={() => {
+                          onClose();
+                          setAppointmentToModify(null);
+                          router.refresh();
+                        }}
+                        onCancel={() => {
+                          setAppointmentToModify(null);
+                          onClose();
+                        }}
+                      />
+                    </ModalBody>
+                  </div>
+                </div>
+              )}
+            </ModalContent>
+          </Modal>
+        </>
+      )}
+      {appointmentToDelete && (
+        <>
+          <Modal
+            shouldBlockScroll
+            isOpen={isDeleteModalOpen}
+            onOpenChange={onDeleteOpenChange}
+            placement="center"
+            backdrop="blur"
+            size="lg"
+            classNames={{
+              base: "md:max-h-[85dvh]",
+              wrapper: "overflow-hidden",
+            }}
+            onClose={() => {
+              setAppointmentToDelete(null);
+            }}
+          >
+            <ModalContent>
+              {(onClose) => (
+                <div className="custom-scrollbar max-h-[88dvh] overflow-y-auto p-1">
+                  <div className="rounded-md">
+                    <ModalHeader className="flex flex-col">
+                      Supprimer le rendez-vous
+                      <p className="text-sm font-[450] text-default-500">
+                        Êtes-vous sûr de vouloir supprimer ce rendez-vous?
+                      </p>
+                    </ModalHeader>
+                    <ModalBody className="px-4">
+                      <div className="flex w-full items-center justify-end gap-2 pt-3">
+                        <Button
+                          color="default"
+                          variant="light"
+                          onClick={() => {
+                            setAppointmentToDelete(null);
+                            onClose();
+                          }}
+                        >
+                          Annuler
+                        </Button>
+                        <Button
+                          color="secondary"
+                          onClick={async () => {
+                            await deleteAppointment.mutateAsync(
+                              {
+                                id: appointmentToDelete,
+                              },
+                              {
+                                onSuccess: () => {
+                                  onClose();
+                                  setAppointmentToDelete(null);
+                                  toast.success(
+                                    "Rendez-vous supprimé avec succès",
+                                  );
+                                  router.refresh();
+                                },
+                                onError: (error) => {
+                                  toast.error(error.message);
+                                },
+                              },
+                            );
+                          }}
+                          isLoading={deleteAppointment.isPending}
+                        >
+                          {deleteAppointment.isPending
+                            ? "Suppression..."
+                            : "Supprimer"}
+                        </Button>
+                      </div>
+                    </ModalBody>
+                  </div>
+                </div>
+              )}
+            </ModalContent>
+          </Modal>
+        </>
+      )}
     </>
   );
 }

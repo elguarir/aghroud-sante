@@ -309,18 +309,6 @@ export default function PatientTable({ patients }: PatientTableProps) {
     [],
   );
 
-  const onNextPage = React.useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1);
-    }
-  }, [page, pages]);
-
-  const onPreviousPage = React.useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  }, [page]);
-
   const onRowsPerPageChange = React.useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       setRowsPerPage(Number(e.target.value));
@@ -589,18 +577,11 @@ export default function PatientTable({ patients }: PatientTableProps) {
                                 onSuccess: () => {
                                   onClose();
                                   setPatientToDelete(null);
-                                  toast.success(
-                                    "Patient supprimé avec succès",
-                                    {
-                                      duration: 1500,
-                                    },
-                                  );
+                                  toast.success("Patient supprimé avec succès");
                                   router.refresh();
                                 },
                                 onError: (error) => {
-                                  toast.error(error.message, {
-                                    duration: 1500,
-                                  });
+                                  toast.error(error.message);
                                 },
                               },
                             );

@@ -187,6 +187,7 @@ const TherapistsTable = () => {
               <Button
                 color="danger"
                 variant="solid"
+                isLoading={deleteTherapist.isPending}
                 onClick={() => {
                   if (!operation.therapistId) return;
                   deleteTherapist.mutate(
@@ -206,7 +207,7 @@ const TherapistsTable = () => {
                   );
                 }}
               >
-                Supprimer
+                {deleteTherapist.isPending ? "Suppression..." : "Supprimer"}
               </Button>
             </div>
           </div>
@@ -304,7 +305,9 @@ const TherapistsTable = () => {
                               }}
                               startContent={<TrashIcon className="h-4 w-4" />}
                             >
-                              Supprimer
+                              {deleteTherapist.isPending
+                                ? "Suppression..."
+                                : "Supprimer"}
                             </DropdownItem>
                           </DropdownMenu>
                         </Dropdown>

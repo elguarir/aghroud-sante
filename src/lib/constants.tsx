@@ -10,7 +10,15 @@ import {
   ServicesIcon,
   SettingsIcon,
 } from "@/components/icons";
-import { endOfMonth, subMonths, startOfMonth } from "date-fns";
+import {
+  endOfMonth,
+  subMonths,
+  startOfMonth,
+  startOfWeek,
+  endOfWeek,
+  startOfDay,
+  endOfDay,
+} from "date-fns";
 
 export const links = [
   {
@@ -110,6 +118,46 @@ export const getLastMonthsRange = (numberOfMonths: number): DateRange => {
 };
 
 export const presets = [
+  {
+    label: "Demain",
+    dateRange: {
+      from: startOfDay(new Date(new Date().setDate(new Date().getDate() + 1))),
+      to: endOfDay(new Date(new Date().setDate(new Date().getDate() + 1))),
+    },
+  },
+  {
+    label: "Aujourd'hui",
+    dateRange: {
+      from: startOfDay(new Date()),
+      to: endOfDay(new Date()),
+    },
+  },
+  {
+    label: "Hier",
+    dateRange: {
+      from: new Date(new Date().setDate(new Date().getDate() - 1)),
+      to: new Date(new Date().setDate(new Date().getDate() - 1)),
+    },
+  },
+  {
+    label: "Cette semaine",
+    dateRange: {
+      from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+      to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+    },
+  },
+  {
+    label: "La semaine dernière",
+    dateRange: {
+      from: startOfWeek(
+        new Date(new Date().setDate(new Date().getDate() - 7)),
+        { weekStartsOn: 1 },
+      ),
+      to: endOfWeek(new Date(new Date().setDate(new Date().getDate() - 7)), {
+        weekStartsOn: 1,
+      }),
+    },
+  },
   {
     label: "Ce mois",
     dateRange: {
