@@ -38,6 +38,9 @@ export const therapistRouter = createTRPCRouter({
         createdAt: true,
         updatedAt: true,
       },
+      orderBy: {
+        updatedAt: "desc",
+      }
     });
     return therapists;
   }),

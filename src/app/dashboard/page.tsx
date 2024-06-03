@@ -80,7 +80,10 @@ const DashboardPage = async ({ searchParams }: Props) => {
           <div className="flex flex-col">
             <h1 className="text-xl font-semibold md:text-2xl">Dashboard</h1>
             <span className="capitalize text-default-500">
-              {format(start!, "dd, MMMM", { locale: fr, weekStartsOn: 1 })}{" "}
+              {format(start!, "dd, MMMM", {
+                locale: fr,
+                weekStartsOn: 1,
+              })}{" "}
               <span className="lowercase">à</span>{" "}
               {format(end!, "dd, MMMM", { locale: fr, weekStartsOn: 1 })}
             </span>
@@ -194,7 +197,7 @@ const DashboardPage = async ({ searchParams }: Props) => {
                   <Suspense
                     key={start.toString() + end.toString()}
                     fallback={
-                      <div className=" flex h-full min-h-72 w-full items-center justify-center">
+                      <div className="flex h-full min-h-72 w-full items-center justify-center">
                         <Spinner size="lg" color="current" />
                       </div>
                     }
@@ -337,12 +340,16 @@ const DashboardPage = async ({ searchParams }: Props) => {
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center justify-between">
                         <h3 className="text-lg font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                          Patients récemment inscrits
+                          Actions rapides
                         </h3>
                       </div>
                     </div>
                     {/* card content */}
-                    <div className="h-full min-h-80 w-full"></div>
+                    <div className="h-full flex items-center justify-center min-h-80 w-full">
+                      <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                        Aucune action rapide disponible
+                      </p>
+                    </div>
                   </div>
                 </Card>
               </div>
@@ -464,7 +471,6 @@ function PatientRecord(patient: RouterOutput["patient"]["getAll"][0]) {
           </div>
         </div>
       </TableCell>
-
       <TableCell className="py-2.5" align="center">
         <div className="flex flex-col">
           <p className="text-bold text-small capitalize">
@@ -472,7 +478,6 @@ function PatientRecord(patient: RouterOutput["patient"]["getAll"][0]) {
           </p>
         </div>
       </TableCell>
-
       <TableCell className="py-2.5">
         <div className="flex flex-col">
           <p className="text-bold text-small capitalize">

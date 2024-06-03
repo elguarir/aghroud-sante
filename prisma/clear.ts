@@ -11,7 +11,13 @@ async function main() {
   // get the --table argument
   const tables = process.argv[2]?.split("=")[1];
   const tablesArray = tables?.split(",");
-  const allowedTables = ["patients", "therapists", "appointments", "payments", "expenses", ];
+  const allowedTables = [
+    "patients",
+    "therapists",
+    "appointments",
+    "payments",
+    "expenses",
+  ];
 
   const truncateTables = async () => {
     for (const table of tablesArray ?? []) {
@@ -53,7 +59,6 @@ async function main() {
   //       `TRUNCATE TABLE "${table}" RESTART IDENTITY CASCADE`,
   //     );
   //   }
-
 }
 main()
   .then(async () => {

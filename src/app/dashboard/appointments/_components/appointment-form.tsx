@@ -29,7 +29,7 @@ import {
   ThickArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { Therapist } from "@prisma/client";
-import TherapistForm from "./therapist-form";
+import TherapistForm from "../../_components/therapist-form";
 import { Modal } from "@/components/reusable-modal";
 import { toast } from "sonner";
 import { RouterOutput } from "@/server/api/root";

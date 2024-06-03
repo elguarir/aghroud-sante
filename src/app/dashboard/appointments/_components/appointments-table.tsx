@@ -643,6 +643,10 @@ export default function AppointmentsTable({
                       align="end"
                       onChange={(range) => {
                         setPage(1);
+                        if (!range) {
+                          setDateFilter(undefined);
+                          return;
+                        }
                         setDateFilter({
                           from: range?.from
                             ? new Date(range?.from?.setHours(15))
