@@ -1,17 +1,10 @@
-import {
-  addDays,
-  endOfWeek,
-  format,
-  isSameDay,
-  isWithinInterval,
-  startOfWeek,
-} from "date-fns";
+import { endOfWeek, format, startOfWeek } from "date-fns";
 import Wrapper from "./_components/wrapper";
 import { Metadata } from "next";
 import { fr } from "date-fns/locale";
 import { Button } from "@nextui-org/button";
-import { ArrowRightIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
-import { Await, cn } from "@/lib/utils";
+import { ArrowRightIcon } from "@radix-ui/react-icons";
+import { Await } from "@/lib/utils";
 import StatCard from "@/components/reports/stat-card";
 import {
   CalendarIcon,
@@ -25,23 +18,11 @@ import {
   getSummary,
 } from "@/server/api/routers/helpers/analytics";
 import { Card } from "@tremor/react";
-import * as Activity from "./_components/recent-patient-activity";
-import { ScrollShadow } from "@nextui-org/scroll-shadow";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRoot,
-  TableRow,
-} from "@/components/ui/table";
-import { Chip } from "@nextui-org/chip";
-import { RouterOutput } from "@/server/api/root";
-import { AppointmentStatus } from "./appointments/_components/appointments-data";
 import WeekNavigation from "./_components/week-navigation";
 import { parseAsIsoDateTime } from "nuqs/server";
 import { Spinner } from "@nextui-org/spinner";
+import { ActivityCard } from "./_components/activity-card";
+import QuickActionsCard from "./_components/quick-actions-card";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -205,137 +186,17 @@ const DashboardPage = async ({ searchParams }: Props) => {
                     <Await promise={activity}>
                       {({ patients, appointments }) => (
                         <>
-                          <Activity.Root>
-                            <Activity.Header
-                              numberOfRecords={{
-                                appointments: appointments.length,
-                                patients: patients.length,
-                              }}
-                            />
-                            <div className="flex min-h-[15.5rem] flex-1 flex-col">
-                              <Activity.Body value="rendez-vous">
-                                <div className="flex h-full w-full items-center justify-center">
-                                  <ScrollShadow
-                                    className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
-                                    hideScrollBar
-                                  >
-                                    {appointments.length === 0 ? (
-                                      <div className="flex h-full w-full items-center justify-center">
-                                        <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                                          Aucun rendez-vous cette semaine
-                                        </p>
-                                      </div>
-                                    ) : (
-                                      <TableRoot className="custom-scrollbar h-full max-w-full">
-                                        <Table>
-                                          <TableHead>
-                                            <TableRow>
-                                              <TableHeaderCell>
-                                                Patient
-                                              </TableHeaderCell>
-                                              <TableHeaderCell>
-                                                Temps
-                                              </TableHeaderCell>
-                                              <TableHeaderCell>
-                                                Étage
-                                              </TableHeaderCell>
-                                              <TableHeaderCell>
-                                                Statut
-                                              </TableHeaderCell>
-                                              <TableHeaderCell>
-                                                Action
-                                              </TableHeaderCell>
-                                            </TableRow>
-                                          </TableHead>
-                                          <TableBody>
-                                            {appointments
-                                              .sort(
-                                                (a, b) =>
-                                                  b.startTime.getTime() -
-                                                  a.startTime.getTime(),
-                                              )
-                                              .map((appointment) => {
-                                                return (
-                                                  <AppointmentRecord
-                                                    key={appointment.id}
-                                                    {...appointment}
-                                                  />
-                                                );
-                                              })}
-                                          </TableBody>
-                                        </Table>
-                                      </TableRoot>
-                                    )}
-                                  </ScrollShadow>
-                                </div>
-                              </Activity.Body>
-                              <Activity.Body value="patients">
-                                <div className="flex h-full w-full items-center justify-center">
-                                  <ScrollShadow
-                                    className="h-full max-h-[15.5rem] w-[calc(100vw-77px)] overflow-x-auto md:w-[calc(100vw-370px)] lg:w-[calc(100vw/2-241px)]"
-                                    hideScrollBar
-                                  >
-                                    {patients.length === 0 ? (
-                                      <div className="flex h-full w-full items-center justify-center">
-                                        <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                                          Aucun patient cette semaine
-                                        </p>
-                                      </div>
-                                    ) : (
-                                      <Table>
-                                        <TableHead>
-                                          <TableRow>
-                                            <TableHeaderCell>
-                                              Patient
-                                            </TableHeaderCell>
-                                            <TableHeaderCell>
-                                              Date naissance
-                                            </TableHeaderCell>
-                                            <TableHeaderCell>
-                                              Télé
-                                            </TableHeaderCell>
-                                            <TableHeaderCell>
-                                              Insrit le
-                                            </TableHeaderCell>
-                                            <TableHeaderCell>
-                                              Action
-                                            </TableHeaderCell>
-                                          </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                          {patients
-                                            .sort(
-                                              (a, b) =>
-                                                b.createdAt.getTime() -
-                                                a.createdAt.getTime(),
-                                            )
-                                            .map((patient) => {
-                                              return (
-                                                <PatientRecord
-                                                  {...patient}
-                                                  key={patient.id}
-                                                />
-                                              );
-                                            })}
-                                        </TableBody>
-                                      </Table>
-                                    )}
-                                    <TableRoot className="custom-scrollbar h-full max-w-full"></TableRoot>
-                                  </ScrollShadow>
-                                </div>
-                              </Activity.Body>
-                            </div>
-                            <div className="mt-auto">
-                              <Activity.Footer />
-                            </div>
-                          </Activity.Root>
+                          <ActivityCard
+                            appointments={appointments}
+                            patients={patients}
+                          />
                         </>
                       )}
                     </Await>
                   </Suspense>
                 </Card>
                 <Card className="rounded-xl p-5">
-                  <div className="grid w-full gap-4">
+                  <div className="grid w-full gap-4 h-full">
                     {/* card header */}
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center justify-between">
@@ -345,10 +206,8 @@ const DashboardPage = async ({ searchParams }: Props) => {
                       </div>
                     </div>
                     {/* card content */}
-                    <div className="h-full flex items-center justify-center min-h-80 w-full">
-                      <p className="text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                        Aucune action rapide disponible
-                      </p>
+                    <div className="pt-2">
+                      <QuickActionsCard />
                     </div>
                   </div>
                 </Card>
@@ -362,134 +221,3 @@ const DashboardPage = async ({ searchParams }: Props) => {
 };
 
 export default DashboardPage;
-
-function AppointmentRecord(appointment: RouterOutput["appointment"]["all"][0]) {
-  let isOnGoing = isWithinInterval(new Date(), {
-    start: appointment.startTime,
-    end: appointment.endTime,
-  });
-
-  const status = AppointmentStatus.find(
-    (st) => st.value === appointment.status,
-  );
-
-  return (
-    <TableRow key={appointment.id}>
-      <TableCell className="py-2.5">
-        <div className="flex items-center text-nowrap">
-          <p>
-            {appointment.patient.firstName} {appointment.patient.lastName}
-          </p>
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5">
-        <div className="flex flex-col">
-          <div className="flex w-fit flex-nowrap items-center gap-1 text-nowrap capitalize">
-            <Chip
-              variant={"flat"}
-              color={isOnGoing ? "success" : "default"}
-              className={cn(
-                "w-fit rounded-md border-default/40",
-                !isOnGoing && "text-current",
-              )}
-            >
-              {isSameDay(appointment.startTime, appointment.endTime) ? (
-                <div className="flex flex-nowrap items-center gap-px">
-                  {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
-                  <ArrowRightIcon className="h-3.5 w-3.5" />
-                  {format(appointment.endTime, "HH:mm")}
-                </div>
-              ) : (
-                <div className="flex flex-nowrap items-center gap-px">
-                  {format(appointment.startTime, "dd/MM/yyyy, HH:mm")}
-                  <ArrowRightIcon className="h-4 w-4" />
-                  {format(appointment.endTime, "dd/MM/yyyy, HH:mm")}
-                </div>
-              )}
-            </Chip>
-          </div>
-        </div>
-      </TableCell>
-
-      <TableCell className="py-2.5" align="center">
-        <div className="flex flex-col">
-          <p className="text-bold text-small capitalize">{appointment.floor}</p>
-        </div>
-      </TableCell>
-
-      <TableCell className="py-2.5">
-        <div className="flex flex-col">
-          {!status ? (
-            <div className="flex flex-col">
-              <p className="text-bold text-small capitalize">Non défini</p>
-            </div>
-          ) : (
-            <Chip
-              radius="sm"
-              startContent={<div className="pl-1">{status.icon}</div>}
-              variant="flat"
-              color={status.color}
-            >
-              {status.label}
-            </Chip>
-          )}
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5">
-        <Button color="default" variant="light" isIconOnly size="sm">
-          <DotsVerticalIcon className="size-4" />
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-}
-function PatientRecord(patient: RouterOutput["patient"]["getAll"][0]) {
-  return (
-    <TableRow key={patient.id}>
-      <TableCell className="py-2.5">
-        <div className="flex items-center text-nowrap">
-          <p>
-            {patient.firstName} {patient.lastName}
-          </p>
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5">
-        <div className="flex flex-col">
-          <div className="flex w-fit flex-nowrap items-center gap-1 text-nowrap capitalize">
-            <Chip
-              variant={"flat"}
-              color={"default"}
-              className={cn(
-                "w-fit rounded-md border-default/40",
-                "text-current",
-              )}
-            >
-              {patient.dateOfBirth
-                ? format(patient.dateOfBirth, "dd/MM/yyyy")
-                : "Non défini"}
-            </Chip>
-          </div>
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5" align="center">
-        <div className="flex flex-col">
-          <p className="text-bold text-small capitalize">
-            {patient.phoneNumber ?? "Non défini"}
-          </p>
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5">
-        <div className="flex flex-col">
-          <p className="text-bold text-small capitalize">
-            {format(patient.createdAt, "dd/MM/yyyy")}
-          </p>
-        </div>
-      </TableCell>
-      <TableCell className="py-2.5">
-        <Button color="default" variant="light" isIconOnly size="sm">
-          <DotsVerticalIcon className="size-4" />
-        </Button>
-      </TableCell>
-    </TableRow>
-  );
-}

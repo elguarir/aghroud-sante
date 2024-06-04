@@ -97,6 +97,7 @@ export default function AppointmentsTable({
     api.therapist.getAll.useQuery();
   const { data: patients, isLoading: isLoadingPatients } =
     api.patient.getAll.useQuery();
+    
   // Filters
   const [statusFilters, setStatusFilters] = React.useState<Selection>(
     new Set([]),
@@ -704,6 +705,7 @@ export default function AppointmentsTable({
                       isLoading={isLoadingPatients}
                       placeholder="Sélectionnez un patient"
                       labelPlacement="outside"
+                      aria-label="Patients Filter"
                       variant="bordered"
                       value={patientFilter}
                       onChange={(e) => {
@@ -772,6 +774,7 @@ export default function AppointmentsTable({
                       placeholder="Sélectionnez un médecin"
                       labelPlacement="outside"
                       variant="bordered"
+                      aria-label="Therapist Filter"
                       value={therapistFilter}
                       onChange={(e) => {
                         if (e.target.value === "") {

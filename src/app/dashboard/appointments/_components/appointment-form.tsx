@@ -622,7 +622,7 @@ const AppointmentForm = ({
                 },
               }}
               description="Selectionnez une service ou rechercher par son nom"
-              placeholder="Chercer une service"
+              placeholder="Chercher une service"
               // @ts-ignore
               selectedKey={String(serviceId)}
               onSelectionChange={(v) => {
